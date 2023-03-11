@@ -1,0 +1,36 @@
+---
+name: Code Validation
+
+on: 
+  push:
+    branches: [main]
+
+jobs:
+  super-lint:
+    name: Lint - main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+        env:
+          SSH_AUTH_SOCK: /dev/null
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Super-Linter
+        uses: docker://github/super-linter:latest
+        env:
+          DEFAULT_BRANCH: main
+          FILTER_REGEX_EXCLUDE: /.*(base\/migrations|static\/images|\.github|\.vscode|pull_request_template).*/
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          VALIDATE_CSS: false
+          VALIDATE_HTML: false
