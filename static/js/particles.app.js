@@ -129,5 +129,46 @@ particlesJS('home',
       "background_size": "cover"
     }
   }
-
 );
+
+document.querySelector('.container').addEventListener('mousemove', function(e) {
+    var rect = e.target.getBoundingClientRect();
+    particlesJS('home', {
+        "particles": {
+            // ...
+        },
+        "interactivity": {
+            "detect_on": "canvas",
+            "events": {
+                "onhover": {
+                    "enable": true,
+                    "mode": "repulse",
+                    "distance": 100
+                },
+                "onclick": {
+                    "enable": false,
+                    "mode": "push"
+                },
+                "resize": true
+            },
+            "modes": {
+                "repulse": {
+                    "distance": 100
+                }
+            }
+        }
+    });
+    particlesJS('home', 'update', {
+        "particles": {
+            "move": {
+                "out_mode": "bounce",
+                "bounce": true,
+                "attract": {
+                    "enable": false,
+                    "rotateX": 600,
+                    "rotateY": 1200
+                }
+            }
+        }
+    });
+});
