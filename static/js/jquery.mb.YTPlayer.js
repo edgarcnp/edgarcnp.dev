@@ -120,9 +120,9 @@ function onYouTubePlayerAPIReady() {
 			loop                   : true,
 			showControls           : true,
 			showAnnotations        : false,
-			showYTLogo             : true,
+			showYTLogo             : false,
 			stopMovieOnClick       : false,
-			stopMovieOnBlur        : true,
+			stopMovieOnBlur        : false,
 			realfullscreen         : true,
 			gaTrack                : true,
 			onReady                : function (player) {}

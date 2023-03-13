@@ -5,8 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="03755088-b9b3-4486-b7d6-01fd0b847a57" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.run/edgarcnp_dev.run.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/base/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/base/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/jquery.mb.YTPlayer.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/jquery.mb.YTPlayer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base_home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base_home.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +37,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
@@ -52,7 +57,8 @@
       <updated>1678606705555</updated>
       <workItem from="1678606709074" duration="972000" />
       <workItem from="1678609335813" duration="34000" />
-      <workItem from="1678609401524" duration="4066000" />
+      <workItem from="1678609401524" duration="14977000" />
+      <workItem from="1678686570272" duration="1768000" />
     </task>
     <servers />
   </component>
