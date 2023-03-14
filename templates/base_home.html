@@ -657,7 +657,7 @@
     const currentYear = new Date().getFullYear();
     document.getElementById("currentYear").innerHTML = String(currentYear);
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.0/purify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.0/purify.min.js" integrity="sha384-q8/sZiV7nJBaVLvK55clMk8esxp6wFXiM/kBvF/K7TfT2cZV7X9TwAAaWWzIlQo2" crossorigin="anonymous"></script>
 <script>
     const videoElement = document.getElementById('video');
     const dataProperty = JSON.parse(DOMPurify.sanitize(videoElement.getAttribute('data-property')));
