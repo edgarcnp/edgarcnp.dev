@@ -174,7 +174,7 @@ function wavify(wave_element, options) {
     animationInstance = requestAnimationFrame(draw);
   }
 
-  //  Pure js debounce function to optimize resize method
+  //  Pure dist debounce function to optimize resize method
   //
   //
   function debounce(func, wait, immediate) {

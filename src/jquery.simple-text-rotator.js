@@ -1,5 +1,5 @@
 /* ===========================================================
- * jquery-simple-text-rotator.js v1
+ * jquery-simple-text-rotator.dist v1
  * ===========================================================
  * Copyright 2013 Pete Rojwongsuriya.
  * http://www.thepetedesign.com

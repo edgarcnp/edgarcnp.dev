@@ -189,7 +189,7 @@
     Jarallax.prototype.initImg = function () {
         var _this = this;
 
-        // get image src
+        // get image dist
         if(_this.image.src === null) {
             _this.image.src = _this.css(_this.$item, 'background-image').replace(/^url\(['"]?/g,'').replace(/['"]?\)$/g,'');
         }

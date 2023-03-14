@@ -1,7 +1,7 @@
 /*___________________________________________________________________________________________________________________________________________________
  _ jquery.mb.components                                                                                                                             _
  _                                                                                                                                                  _
- _ file: jquery.mb.YTPlayer.js                                                                                                                      _
+ _ file: jquery.mb.YTPlayer.dist                                                                                                                      _
  _ last modified: 19/08/14 20.13                                                                                                                    _
  _                                                                                                                                                  _
  _ Open Lab s.r.l., Florence - Italy                                                                                                                _

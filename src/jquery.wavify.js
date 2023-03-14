@@ -9,7 +9,7 @@
 	$.fn.wavify = function( options ) {
 		if( 'function' !== typeof wavify )
 		{
-			console.error( "wavify is not a function. Be sure to include 'wavify.js' before you include 'jquery.wavify.js'." )
+			console.error( "wavify is not a function. Be sure to include 'wavify.dist' before you include 'jquery.wavify.dist'." )
 			throw( "Error: wavify is not a function")
 		}
 

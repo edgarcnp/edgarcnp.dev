@@ -7,7 +7,7 @@ $('#working_form').submit(function() {
         $('#message').hide();
 
         $('#submit')
-            .before('<img src="" class="gif_loader" />')
+            .before('<img dist="" class="gif_loader" />')
             .attr('disabled', 'disabled');
 
         $.post(action, {

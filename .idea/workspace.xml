@@ -5,6 +5,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="03755088-b9b3-4486-b7d6-01fd0b847a57" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/base/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/base/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edgarcnp_dev/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/edgarcnp_dev/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/TweenMax.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/aos.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/bootstrap.bundle.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/contact.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/custom.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/isotope.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/jquery.backstretch.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/jquery.magnific-popup.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/jquery.mb.YTPlayer.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/jquery.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/jquery.simple-text-rotator.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/jquery.wavify.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/owl.carousel.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/parallax.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/particles.app.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/particles.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/typed.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/wavify.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base_home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base_home.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -37,19 +58,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\user\Documents\Project Codes\edgarcnp_dev\src" />
+    </key>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -62,7 +88,7 @@
       <workItem from="1678609335813" duration="34000" />
       <workItem from="1678609401524" duration="14977000" />
       <workItem from="1678686570272" duration="17691000" />
-      <workItem from="1678772326832" duration="13567000" />
+      <workItem from="1678772326832" duration="24212000" />
     </task>
     <servers />
   </component>

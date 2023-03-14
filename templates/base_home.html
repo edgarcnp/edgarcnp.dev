@@ -606,7 +606,7 @@
                     </ul>
                     <p class="copyright_content mb-0 mt-3">&copy; <span id="currentYear"></span>. Edgar Christian.
                         Design by SRBThemes.</p>
-                    <p>Your IP Address: {{ user_ip_address }}</p>
+                    <p class="copyright_content mb-0 mt-3">Your IP Address: {{ user_ip_address }}</p>
                 </div>
             </div>
         </div>
@@ -620,29 +620,29 @@
 
 
 <!--All Javascript -->
-<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
-<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'jquery.min.js' %}"></script>
 
 <!-- Text Type -->
-<script src="{% static 'js/typed.js' %}"></script>
+<script src="{% static 'typed.js' %}"></script>
 
 <!-- Owl Carousel -->
-<script src="{% static 'js/owl.carousel.min.js' %}"></script>
+<script src="{% static 'owl.carousel.min.js' %}"></script>
 
 <!-- Contact Js -->
-<script src="{% static 'js/contact.js' %}"></script>
+<script src="{% static 'contact.js' %}"></script>
 
 <!-- Work Filter -->
-<script src="{% static 'js/isotope.js' %}"></script>
+<script src="{% static 'isotope.js' %}"></script>
 
 <!-- Magnific Popup Js -->
-<script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+<script src="{% static 'jquery.magnific-popup.min.js' %}"></script>
 
 <!--YT Background-->
-<script src="{% static 'js/jquery.mb.YTPlayer.js' %}"></script>
+<script src="{% static 'jquery.mb.YTPlayer.js' %}"></script>
 
 <!-- Custom Js -->
-<script src="{% static 'js/custom.js' %}"></script>
+<script src="{% static 'custom.js' %}"></script>
 <script>
     const typed = new Typed('.element', {
         strings: ["Edgar Christian.", "A Computer Engineer."],
@@ -657,7 +657,7 @@
     const currentYear = new Date().getFullYear();
     document.getElementById("currentYear").innerHTML = String(currentYear);
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.0/purify.min.js" integrity="sha384-q8/sZiV7nJBaVLvK55clMk8esxp6wFXiM/kBvF/K7TfT2cZV7X9TwAAaWWzIlQo2" crossorigin="anonymous"></script>
+<script src="{% static 'purify.min.js' %}"></script>
 <script>
     const videoElement = document.getElementById('video');
     const dataProperty = JSON.parse(DOMPurify.sanitize(videoElement.getAttribute('data-property')));
