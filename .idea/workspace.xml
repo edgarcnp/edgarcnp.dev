@@ -5,11 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="03755088-b9b3-4486-b7d6-01fd0b847a57" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/edgarcnp_dev.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/edgarcnp_dev.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/images/favicon.ico" beforeDir="false" afterPath="$PROJECT_DIR$/static/images/favicon.ico" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/jquery.mb.YTPlayer.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/jquery.mb.YTPlayer.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base_home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base_home.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -67,7 +62,7 @@
       <workItem from="1678609335813" duration="34000" />
       <workItem from="1678609401524" duration="14977000" />
       <workItem from="1678686570272" duration="17691000" />
-      <workItem from="1678772326832" duration="13207000" />
+      <workItem from="1678772326832" duration="13567000" />
     </task>
     <servers />
   </component>
