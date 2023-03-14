@@ -105,7 +105,7 @@ function onYouTubePlayerAPIReady() {
 		author : "Matteo Bicocchi",
 
 		defaults: {
-			containment            : "body",
+			containment            : "#home",
 			ratio                  : "16/9",
 			videoURL               : null,
 			playlistURL            : null,
@@ -118,7 +118,7 @@ function onYouTubePlayerAPIReady() {
 			quality                : "default", //or “small”, “medium”, “large”, “hd720”, “hd1080”, “highres”
 			mute                   : true,
 			loop                   : true,
-			showControls           : true,
+			showControls           : false,
 			showAnnotations        : false,
 			showYTLogo             : false,
 			stopMovieOnClick       : false,
@@ -318,7 +318,6 @@ function onYouTubePlayerAPIReady() {
 								videoId: YTPlayer.videoID.toString(),
 								height : '100%',
 								width  : '100%',
-								videoId: YTPlayer.videoID,
 								events : {
 									'onReady'      : function (event) {
 										YTPlayer.player = event.target;
