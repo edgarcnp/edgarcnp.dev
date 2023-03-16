@@ -93,9 +93,10 @@
         <div class="row justify-content-center">
             <div class="col-lg-12">
                 <div class="text-center header-content mx-auto">
-                    <h4 class="text-white first-title mb-4">Welcome</h4>
-                    <h1 class="header-name text-white text-capitalize mb-0">I'M <span class="element fw-bold"></span></h1>
-                    <p class="text-white mx-auto header-desc mt-4">Explore my website to learn about my
+                    <h4 class="text-white first-title mb-4 hover-transparent">Welcome</h4>
+                    <h1 class="header-name text-white text-capitalize mb-0 hover-transparent">I'M <span class="element
+                    fw-bold"></span></h1>
+                    <p class="text-white mx-auto header-desc mt-4 hover-transparent">Explore my website to learn about my
                         innovative engineering projects and get to know me better as a dynamic and skilled
                         Computer Engineer. Discover my diverse range of interests, from coding and cooking to
                         golf and music.</p>
@@ -604,9 +605,9 @@
                         <li class="list-inline-item"><a href="#"><i class="mdi mdi-pinterest"></i></a></li>
                         <li class="list-inline-item"><a href="#"><i class="mdi mdi-twitter"></i></a></li>
                     </ul>
-                    <p class="copyright_content mb-0 mt-3">&copy; <span id="currentYear"></span>. Edgar Christian.
-                        Design by SRBThemes.</p>
-                    <p>Your IP Address: {{ user_ip_address }}</p>
+                    <p class="copyright_content mb-0 mt-3">&copy; <span id="currentYear"></span> Edgar Christian.
+                        All rights reserved.</p>
+                    <p class="copyright_content mb-0 mt-3">Your IP Address: {{ user_ip_address }}</p>
                 </div>
             </div>
         </div>
@@ -624,7 +625,11 @@
 <script src="{% static 'js/jquery.min.js' %}"></script>
 
 <!-- Text Type -->
-<script src="{% static 'js/typed.js' %}"></script>
+<script src="{% static 'js/typed.umd.js' %}"></script>
+
+<!-- Particles Js -->
+<script src="{% static 'js/particles.js' %}"></script>
+<script src="{% static 'js/particles.app.js' %}"></script>
 
 <!-- Owl Carousel -->
 <script src="{% static 'js/owl.carousel.min.js' %}"></script>
@@ -635,6 +640,9 @@
 <!-- Work Filter -->
 <script src="{% static 'js/isotope.js' %}"></script>
 
+<!-- AOS JS -->
+<script src="{% static 'js/aos.js' %}"></script>
+
 <!-- Magnific Popup Js -->
 <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
 
@@ -644,24 +652,23 @@
 <!-- Custom Js -->
 <script src="{% static 'js/custom.js' %}"></script>
 <script>
+    $(".youtube-bg").mb_YTPlayer();
+
     const typed = new Typed('.element', {
-        strings: ["Edgar Christian.", "A Computer Engineer."],
+        strings: [
+            "Edgar Christian.",
+            "A Computer Engineer.",
+        ],
         typeSpeed: 96,
         backSpeed: 69,
         backDelay: 2000,
         loop: true
     });
-    $(".youtube-bg").mb_YTPlayer();
 </script>
 <script>
     const currentYear = new Date().getFullYear();
     document.getElementById("currentYear").innerHTML = String(currentYear);
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.0/purify.min.js" integrity="sha384-q8/sZiV7nJBaVLvK55clMk8esxp6wFXiM/kBvF/K7TfT2cZV7X9TwAAaWWzIlQo2" crossorigin="anonymous"></script>
-<script>
-    const videoElement = document.getElementById('video');
-    const dataProperty = JSON.parse(DOMPurify.sanitize(videoElement.getAttribute('data-property')));
-    videoElement.setAttribute('data-property', JSON.stringify(dataProperty));
-</script>
+<script src="{% static 'js/purify.min.js' %}"></script>
 </body>
 </html>

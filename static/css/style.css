@@ -761,3 +761,7 @@ button:focus {
         max-width: 1140px !important;
     }
 }
+
+.hover-transparent {
+  pointer-events: none;
+}
