@@ -5,16 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="03755088-b9b3-4486-b7d6-01fd0b847a57" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/static/js/Unused/TweenMax.min.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/js/Unused/jquery.wavify.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/js/Unused/wavify.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/TweenMax.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/jquery.backstretch.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/jquery.simple-text-rotator.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/jquery.wavify.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/parallax.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/wavify.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/edgarcnp_dev/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/edgarcnp_dev/urls.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,7 +79,7 @@
       <workItem from="1678859267487" duration="47000" />
       <workItem from="1678859458437" duration="1625000" />
       <workItem from="1678862114093" duration="4935000" />
-      <workItem from="1678951301948" duration="16999000" />
+      <workItem from="1678951301948" duration="17014000" />
     </task>
     <servers />
   </component>
