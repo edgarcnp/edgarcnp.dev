@@ -98,10 +98,10 @@
         <div class="row justify-content-center">
             <div class="col-lg-12">
                 <div class="text-center header-content mx-auto">
-                    <h4 class="text-white first-title mb-3 mb-sm-4 hover-transparent">Welcome</h4>
-                    <h1 class="header-name text-white text-capitalize mb-0 mb-sm-2 fw-bold hover-transparent">I'M <span class="element"></span></h1>
-                    <p class="text-white mx-auto header-desc mt-3 mt-sm-4 hover-transparent">Explore my website to learn about my innovative engineering projects and get to know me better as a dynamic and skilled Computer Engineer. Discover my diverse range of interests, from coding and cooking to golf and music.</p>
-                    <div class="mt-3 mt-sm-4 pt-2">
+                    <h4 class="text-white first-title mb-3 mb-sm-4 hover-transparent" data-aos="fade" data-aos-delay="500" data-aos-easing="ease-in-out-cubic">Welcome</h4>
+                    <h1 class="header-name text-white text-capitalize mb-0 mb-sm-2 fw-bold hover-transparent" data-aos="fade" data-aos-delay="1000" data-aos-easing="ease-in-out-cubic">I'M <span class="element"></span></h1>
+                    <p class="text-white mx-auto header-desc mt-3 mt-sm-4 hover-transparent" data-aos="fade" data-aos-delay="1500" data-aos-easing="ease-in-out-cubic">Explore my website to learn about my innovative engineering projects and get to know me better as a dynamic and skilled Computer Engineer. Discover my diverse range of interests, from coding and cooking to golf and music.</p>
+                    <div class="mt-3 mt-sm-4 pt-2" data-aos="fade" data-aos-delay="2000" data-aos-easing="ease-in-out-cubic">
                         <a href="#" class="btn btn-outline-custom btn-round">Button</a>
                     </div>
                 </div>
@@ -120,12 +120,12 @@
 <section class="section" id="about">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6">
+            <div class="col-lg-6"data-aos="fade-up">
                 <div class="mt-3">
                     <img src="{% static 'images/about.jpg' %}" alt="" class="img-fluid mx-auto d-block img-thumbnail">
                 </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-6" data-aos="fade">
                 <div class="mt-3">
                     <h2><span class="fw-bold">About</span> Me</h2>
                     <h4 class="mt-4">Hello! <span class="text-custom fw-bold">I'M Edgar Christian.</span></h4>
@@ -663,6 +663,7 @@
             typeSpeed: 96,
             backSpeed: 69,
             backDelay: 2000,
+            startDelay: 1500,
             loop: true
         });
 
