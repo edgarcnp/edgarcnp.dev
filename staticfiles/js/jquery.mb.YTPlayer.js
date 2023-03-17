@@ -85,7 +85,7 @@ let getYTPVideoID = function (url) {
 			 ratio (string or number)
 			"auto", "16/9", "4/3" or number: 4/3, 16/9
 			*/
-			ratio: 'auto',
+			ratio: '16/9',
 
 			/**
 			 fadeOnStartTime (int)
@@ -115,7 +115,7 @@ let getYTPVideoID = function (url) {
 			 delayAtStart (bool)
 			If the YT API don't fire the event the player will try to start anyway after...
 			*/
-			delayAtStart: 1000,
+			delayAtStart: 0,
 
 			/**
 			 coverImage (string)
@@ -216,7 +216,7 @@ let getYTPVideoID = function (url) {
 			 onScreenPercentage (bool)
 			percentage of the player height the video should stop or start when visible
 			*/
-			onScreenPercentage: 30,
+			onScreenPercentage: 69,
 
 			/**
 			 * goFullScreenOnPlay (bool)

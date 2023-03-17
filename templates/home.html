@@ -4,10 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>EdgarCNP</title>
+    <title>EdgarCNP | Home</title>
     <meta name="description" content="Edgar Christian's Personal Website" />
-    <meta name="keywords" content="bootstrap 5, premium, cv, personal, Portfolio, multipurpose" />
-    <meta name="author" content="SRBThemes" />
+    <meta name="keywords" content="edgar, edgarcnp, dev, bootstrap 5, premium, cv, personal, portfolio, multipurpose" />
+    <meta name="author" content="Edgar Christian" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
 
     <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
 
@@ -93,10 +95,10 @@
         <div class="row justify-content-center">
             <div class="col-lg-12">
                 <div class="text-center header-content mx-auto">
-                    <h4 class="text-white first-title mb-4 hover-transparent">Welcome</h4>
-                    <h1 class="header-name text-white text-capitalize mb-0 hover-transparent">I'M <span class="element fw-bold"></span></h1>
-                    <p class="text-white mx-auto header-desc mt-4 hover-transparent">Explore my website to learn about my innovative engineering projects and get to know me better as a dynamic and skilled Computer Engineer. Discover my diverse range of interests, from coding and cooking to golf and music.</p>
-                    <div class="mt-4 pt-2">
+                    <h4 class="text-white first-title mb-3 mb-sm-4 hover-transparent">Welcome</h4>
+                    <h1 class="header-name text-white text-capitalize mb-0 mb-sm-2 fw-bold hover-transparent">I'M <span class="element"></span></h1>
+                    <p class="text-white mx-auto header-desc mt-3 mt-sm-4 hover-transparent">Explore my website to learn about my innovative engineering projects and get to know me better as a dynamic and skilled Computer Engineer. Discover my diverse range of interests, from coding and cooking to golf and music.</p>
+                    <div class="mt-3 mt-sm-4 pt-2">
                         <a href="#" class="btn btn-outline-custom btn-round">Button</a>
                     </div>
                 </div>
@@ -236,7 +238,7 @@
 <!-- END SERVICES -->
 
 <!-- START CTA -->
-<section class="section">
+<section class="section" id="info">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -628,7 +630,7 @@
 <!-- Work Filter -->
 <script src="{% static 'js/isotope.js' %}"></script>
 
-<!-- AOS JS -->
+<!-- AOS Js -->
 <script src="{% static 'js/aos.js' %}"></script>
 
 <!-- Magnific Popup Js -->
@@ -639,24 +641,33 @@
 
 <!-- Custom Js -->
 <script src="{% static 'js/custom.js' %}"></script>
-<script>
-    $(".youtube-bg").mb_YTPlayer();
 
-    const typed = new Typed('.element', {
-        strings: [
-            "Edgar Christian.",
-            "A Computer Engineer.",
-        ],
-        typeSpeed: 96,
-        backSpeed: 69,
-        backDelay: 2000,
-        loop: true
+<!-- DOMPurify Js -->
+<script src="{% static 'js/purify.min.js' %}"></script>
+
+<!-- dynamicTitle JS -->
+<script src="{% static 'js/dynamicTitle.js' %}"></script>
+
+<script>
+    $(window).on('load', function() {
+        $(".youtube-bg").mb_YTPlayer();
+
+        new Typed('.element',{
+            strings: [
+                "Edgar Christian.",
+                "A Computer Engineer."
+            ],
+            typeSpeed: 96,
+            backSpeed: 69,
+            backDelay: 2000,
+            loop: true
+        });
     });
+
 </script>
 <script>
     const currentYear = new Date().getFullYear();
     document.getElementById("currentYear").innerHTML = String(currentYear);
 </script>
-<script src="{% static 'js/purify.min.js' %}"></script>
 </body>
 </html>

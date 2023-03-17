@@ -11,4 +11,4 @@ def home(request):
         user_ip_address = request.META.get("REMOTE_ADDR")
 
     respond = {"user_ip_address": user_ip_address}
-    return render(request, "base_home.html", respond)
+    return render(request, "home.html", respond)
