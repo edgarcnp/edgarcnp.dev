@@ -353,8 +353,8 @@ button:focus {
 
 .scroll_down i {
     position: relative;
-    -webkit-animation: bounce 2s infinite; 
-    animation: bounce 2s infinite; 
+    -webkit-animation: bounce 2s infinite;
+    animation: bounce 2s infinite;
     height: 44px;
     width: 28px;
     line-height: 54px;

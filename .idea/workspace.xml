@@ -6,6 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="03755088-b9b3-4486-b7d6-01fd0b847a57" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/jquery.mb.YTPlayer.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/jquery.mb.YTPlayer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/staticfiles/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/staticfiles/css/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/staticfiles/js/jquery.mb.YTPlayer.js" beforeDir="false" afterPath="$PROJECT_DIR$/staticfiles/js/jquery.mb.YTPlayer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base_home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base_home.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,6 +88,7 @@
       <workItem from="1678859458437" duration="1625000" />
       <workItem from="1678862114093" duration="4935000" />
       <workItem from="1678951301948" duration="23428000" />
+      <workItem from="1679029588510" duration="3414000" />
     </task>
     <servers />
   </component>
