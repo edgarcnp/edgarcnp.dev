@@ -238,7 +238,7 @@
 <!-- END SERVICES -->
 
 <!-- START CTA -->
-<section class="section">
+<section class="section" id="info">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -630,7 +630,7 @@
 <!-- Work Filter -->
 <script src="{% static 'js/isotope.js' %}"></script>
 
-<!-- AOS JS -->
+<!-- AOS Js -->
 <script src="{% static 'js/aos.js' %}"></script>
 
 <!-- Magnific Popup Js -->
@@ -641,6 +641,13 @@
 
 <!-- Custom Js -->
 <script src="{% static 'js/custom.js' %}"></script>
+
+<!-- DOMPurify Js -->
+<script src="{% static 'js/purify.min.js' %}"></script>
+
+<!-- dynamicTitle JS -->
+<script src="{% static 'js/dynamicTitle.js' %}"></script>
+
 <script>
     $(window).on('load', function() {
         $(".youtube-bg").mb_YTPlayer();
@@ -662,6 +669,5 @@
     const currentYear = new Date().getFullYear();
     document.getElementById("currentYear").innerHTML = String(currentYear);
 </script>
-<script src="{% static 'js/purify.min.js' %}"></script>
 </body>
 </html>
