@@ -26,5 +26,5 @@ window.addEventListener("scroll", function() {
   const capitalizedSectionId = capitalizeFirstLetter(sectionId);
 
   // Set the title of the document based on the section ID
-  document.title = "Your Website | " + capitalizedSectionId;
+  document.title = "EdgarCNP.Dev | " + capitalizedSectionId;
 });
