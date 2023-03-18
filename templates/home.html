@@ -25,8 +25,11 @@
     <!-- Animate Css -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/animate.min.css' %}">
 
+    <!-- AOS Css -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/aos.css' %}">
+
     <!-- YouTube Background -->
-    <link rel="stylesheet" href="{% static 'css/ytplayer.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/ytplayer.css' %}">
 
     <!-- Magnific-popup -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/magnific-popup.css' %}">
@@ -95,10 +98,10 @@
         <div class="row justify-content-center">
             <div class="col-lg-12">
                 <div class="text-center header-content mx-auto">
-                    <h4 class="text-white first-title mb-3 mb-sm-4 hover-transparent">Welcome</h4>
-                    <h1 class="header-name text-white text-capitalize mb-0 mb-sm-2 fw-bold hover-transparent">I'M <span class="element"></span></h1>
-                    <p class="text-white mx-auto header-desc mt-3 mt-sm-4 hover-transparent">Explore my website to learn about my innovative engineering projects and get to know me better as a dynamic and skilled Computer Engineer. Discover my diverse range of interests, from coding and cooking to golf and music.</p>
-                    <div class="mt-3 mt-sm-4 pt-2">
+                    <h4 class="text-white first-title mb-3 mb-sm-4 hover-transparent" data-aos="fade" data-aos-delay="500" data-aos-easing="ease-in-out-cubic">Welcome</h4>
+                    <h1 class="header-name text-white text-capitalize mb-0 mb-sm-2 fw-bold hover-transparent" data-aos="fade" data-aos-delay="1000" data-aos-easing="ease-in-out-cubic">I'M <span class="element"></span></h1>
+                    <p class="text-white mx-auto header-desc mt-3 mt-sm-4 hover-transparent" data-aos="fade" data-aos-delay="1500" data-aos-easing="ease-in-out-cubic">Explore my website to learn about my innovative engineering projects and get to know me better as a dynamic and skilled Computer Engineer. Discover my diverse range of interests, from coding and cooking to golf and music.</p>
+                    <div class="mt-3 mt-sm-4 pt-2" data-aos="fade" data-aos-delay="2000" data-aos-easing="ease-in-out-cubic">
                         <a href="#" class="btn btn-outline-custom btn-round">Button</a>
                     </div>
                 </div>
@@ -117,13 +120,13 @@
 <section class="section" id="about">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6">
+            <div class="col-lg-6" data-aos="fade" data-aos-easing="ease-in-out-cubic">
                 <div class="mt-3">
                     <img src="{% static 'images/about.jpg' %}" alt="" class="img-fluid mx-auto d-block img-thumbnail">
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="mt-3">
+                <div class="mt-3" data-aos="fade" data-aos-easing="ease-in-out-cubic">
                     <h2><span class="fw-bold">About</span> Me</h2>
                     <h4 class="mt-4">Hello! <span class="text-custom fw-bold">I'M Edgar Christian.</span></h4>
                     <p class="text-muted mt-4">I am a Computer Engineer who is passionate about coding and cooking. In my free time, I enjoy experimenting with new recipes and exploring the vast world of programming.</p>
@@ -131,12 +134,10 @@
                     <p class="text-muted mt-2">I also have a keen interest in engineering projects, and I love to tinker and create in my spare time. My diverse range of interests and skills makes me a dynamic and well-rounded individual.</p>
                     <div>
                         <ul class="mb-0 about-social list-inline mt-4">
-                            <li class="list-inline-item"><a href="https://github.com/edgarcnp" target="_blank"><i class="mdi
-                                mdi-github-circle"></i></a></li>
-                            <li class="list-inline-item"><a href="#"><i class="mdi mdi-facebook"></i></a></li>
-                            <li class="list-inline-item"><a href="#"><i class="mdi mdi-linkedin"></i></a></li>
-                            <li class="list-inline-item"><a href="#contact"><i class="mdi
-                                mdi-contact-mail"></i></a></li>
+                            <li class="list-inline-item" data-aos="fade-up" data-aos-delay="250" data-aos-easing="ease-in-out-cubic"><a href="https://github.com/edgarcnp" target="_blank"><i class="mdi mdi-github-circle"></i></a></li>
+                            <li class="list-inline-item" data-aos="fade-up" data-aos-delay="500" data-aos-easing="ease-in-out-cubic"><a href="#"><i class="mdi mdi-link"></i></a></li>
+                            <li class="list-inline-item" data-aos="fade-up" data-aos-delay="750" data-aos-easing="ease-in-out-cubic"><a href="#"><i class="mdi mdi-linkedin"></i></a></li>
+                            <li class="list-inline-item" data-aos="fade-up" data-aos-delay="1000" data-aos-easing="ease-in-out-cubic"><a href="#contact"><i class="mdi mdi-contact-mail"></i></a></li>
                         </ul>
                     </div>
                 </div>
@@ -151,15 +152,15 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-12">
-                <div class="text-center">
-                    <h2>Our <span class="fw-bold">Services</span></h2>
+                <div class="text-center" data-aos="fade">
+                    <h2>Our <span class="fw-bold " >Services</span></h2>
                     <p class="text-muted mx-auto section-subtitle mt-3">It is a long established fact that a reader will be of a page when established fact looking at its layout.</p>
                 </div>
             </div>
         </div>
         <div class="row mt-5">
             <div class="col-lg-4">
-                <div class="text-center services-boxes rounded p-4 mt-4">
+                <div class="text-center services-boxes rounded p-4 mt-4" data-aos="fade-down-right">
                     <div class="services-boxes-icon">
                         <i class="mbri-growing-chart text-custom display-4"></i>
                     </div>
@@ -171,7 +172,7 @@
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="text-center services-boxes rounded p-4 mt-4">
+                <div class="text-center services-boxes rounded p-4 mt-4" data-aos="fade-down">
                     <div class="services-boxes-icon">
                         <i class="mbri-hot-cup text-custom display-4"></i>
                     </div>
@@ -183,7 +184,7 @@
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="text-center services-boxes rounded p-4 mt-4">
+                <div class="text-center services-boxes rounded p-4 mt-4" data-aos="fade-down-left">
                     <div class="services-boxes-icon">
                         <i class="mbri-upload text-custom display-4"></i>
                     </div>
@@ -197,7 +198,7 @@
         </div>
         <div class="row">
             <div class="col-lg-4">
-                <div class="text-center services-boxes rounded p-4 mt-4">
+                <div class="text-center services-boxes rounded p-4 mt-4" data-aos="fade-up-right">
                     <div class="services-boxes-icon">
                         <i class="mbri-layers text-custom display-4"></i>
                     </div>
@@ -209,7 +210,7 @@
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="text-center services-boxes rounded p-4 mt-4">
+                <div class="text-center services-boxes rounded p-4 mt-4" data-aos="fade-up">
                     <div class="services-boxes-icon">
                         <i class="mbri-website-theme text-custom display-4"></i>
                     </div>
@@ -221,7 +222,7 @@
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="text-center services-boxes rounded p-4 mt-4">
+                <div class="text-center services-boxes rounded p-4 mt-4" data-aos="fade-up-left">
                     <div class="services-boxes-icon">
                         <i class="mbri-edit text-custom display-4"></i>
                     </div>
@@ -242,10 +243,10 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <div class="text-center">
+                <div class="text-center" data-aos="zoom-out-down">
                     <h2 class="fw-bold">Wanna know how this website was build?.</h2>
                 </div>
-                <div class="text-center mt-4">
+                <div class="text-center mt-4" data-aos="zoom-out-up">
                     <a href="#" class="btn btn-custom">Click Me!</a>
                 </div>
             </div>
@@ -259,7 +260,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-12">
-                <div class="text-center">
+                <div class="text-center" data-aos="fade-up">
                     <h2>Our <span class="fw-bold">Client</span></h2>
                     <p class="text-muted mx-auto section-subtitle mt-3">It is a long established fact that a reader will be of a page when established fact looking at its layout.</p>
                 </div>
@@ -267,7 +268,7 @@
         </div>
         <div class="row mt-4 pt-4">
             <div class="col-lg-12">
-                <div id="owl-demo" class="owl-carousel">
+                <div id="owl-demo" class="owl-carousel" data-aos="fade-up">
                     <div class="text-center testi_boxes mx-auto">
                         <div class="tam_testi_icon text-custom">
                             <i class="mbri-quote-left"></i>
@@ -316,13 +317,13 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-12">
-                <div class="text-center">
+                <div class="text-center" data-aos="fade-up">
                     <h2>Our <span class="fw-bold">Works</span></h2>
                     <p class="text-muted mx-auto section-subtitle mt-3">It is a long established fact that a reader will be of a page when established fact looking at its layout.</p>
                 </div>
             </div>
         </div>
-        <div class="row mt-5 ">
+        <div class="row mt-5" data-aos="fade-up">
             <ul class="col list-unstyled list-inline mb-0 text-uppercase work_menu" id="menu-filter">
                 <li class="list-inline-item"><a class="active" data-filter="*">All</a></li>
                 <li class="list-inline-item"><a class="" data-filter=".seo">Seo</a></li>
@@ -334,7 +335,7 @@
     </div>
     <div class="container">
         <div class="row mt-4 work-filter">
-            <div class="col-lg-4 work_item webdesign wordpress">
+            <div class="col-lg-4 work_item webdesign wordpress" data-aos="fade-up">
                 <a href="{% static 'images/works/1.jpg' %}" class="img-zoom">
                     <div class="work_box">
                         <div class="work_img">
@@ -348,7 +349,7 @@
                 </a>
             </div>
 
-            <div class="col-lg-4 work_item WORK webdesign seo">
+            <div class="col-lg-4 work_item WORK webdesign seo" data-aos="fade-up">
                 <a href="{% static 'images/works/2.jpg' %}" class="img-zoom">
                     <div class="work_box">
                         <div class="work_img">
@@ -362,7 +363,7 @@
                 </a>
             </div>
 
-            <div class="col-lg-4 work_item seo wordpress">
+            <div class="col-lg-4 work_item seo wordpress" data-aos="fade-up">
                 <a href="{% static 'images/works/3.jpg' %}" class="img-zoom">
                     <div class="work_box">
                         <div class="work_img">
@@ -376,7 +377,7 @@
                 </a>
             </div>
 
-            <div class="col-lg-4 work_item wordpress WORK webdesign">
+            <div class="col-lg-4 work_item wordpress WORK webdesign" data-aos="fade-up">
                 <a href="{% static 'images/works/4.jpg' %}" class="img-zoom">
                     <div class="work_box">
                         <div class="work_img">
@@ -390,7 +391,7 @@
                 </a>
             </div>
 
-            <div class="col-lg-4 work_item seo webdesign">
+            <div class="col-lg-4 work_item seo webdesign" data-aos="fade-up">
                 <a href="{% static 'images/works/5.jpg' %}" class="img-zoom">
                     <div class="work_box">
                         <div class="work_img">
@@ -404,7 +405,7 @@
                 </a>
             </div>
 
-            <div class="col-lg-4 work_item development webdesign">
+            <div class="col-lg-4 work_item development webdesign" data-aos="fade-up">
                 <a href="{% static 'images/works/6.jpg' %}" class="img-zoom">
                     <div class="work_box">
                         <div class="work_img">
@@ -428,7 +429,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-12">
-                <div class="text-center">
+                <div class="text-center" data-aos="fade-up">
                     <h2>Our <span class="fw-bold">Blog</span></h2>
                     <p class="text-muted mx-auto section-subtitle mt-3">It is a long established fact that a reader will be of a page when established fact looking at its layout.</p>
                 </div>
@@ -436,7 +437,7 @@
         </div>
         <div class="row mt-5">
             <div class="col-lg-4 mt-3">
-                <div class="rounded blog_color p-2">
+                <div class="rounded blog_color p-2" data-aos="fade-up">
                     <div class="img_blog">
                         <img src="{% static 'images/blog/blog-1.jpg' %}" alt="" class="img-fluid rounded mx-auto d-block">
                     </div>
@@ -453,7 +454,7 @@
                 </div>
             </div>
             <div class="col-lg-4 mt-3">
-                <div class="rounded blog_color p-2">
+                <div class="rounded blog_color p-2" data-aos="fade-up">
                     <div class="img_blog">
                         <img src="{% static 'images/blog/blog-2.jpg' %}" alt="" class="img-fluid rounded mx-auto d-block">
                     </div>
@@ -470,7 +471,7 @@
                 </div>
             </div>
             <div class="col-lg-4 mt-3">
-                <div class="rounded blog_color p-2">
+                <div class="rounded blog_color p-2" data-aos="fade-up">
                     <div class="img_blog">
                         <img src="{% static 'images/blog/blog-3.jpg' %}" alt="" class="img-fluid rounded mx-auto
                             d-block">
@@ -497,7 +498,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-12">
-                <div class="text-center">
+                <div class="text-center" data-aos="fade-up">
                     <h2><span class="fw-bold">Contact</span> Us</h2>
                     <p class="text-muted mx-auto section-subtitle mt-3">It is a long established fact that a reader will be of a page when established fact looking at its layout.</p>
                 </div>
@@ -505,7 +506,7 @@
         </div>
         <div class="row mt-5">
             <div class="col-lg-4">
-                <div class="text-center">
+                <div class="text-center" data-aos="fade-up">
                     <div>
                         <i class="mbri-mobile2 text-custom h1"></i>
                     </div>
@@ -516,7 +517,7 @@
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="text-center">
+                <div class="text-center" data-aos="fade-up">
                     <div>
                         <i class="mbri-letter text-custom h1"></i>
                     </div>
@@ -527,7 +528,7 @@
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="text-center">
+                <div class="text-center" data-aos="fade-up">
                     <div>
                         <i class="mbri-pin text-custom h1"></i>
                     </div>
@@ -660,7 +661,13 @@
             typeSpeed: 96,
             backSpeed: 69,
             backDelay: 2000,
+            startDelay: 1500,
             loop: true
+        });
+
+        AOS.init({
+            easing: 'ease-in-out-cubic',
+            duration: 1000
         });
     });
 
