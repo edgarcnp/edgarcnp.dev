@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="03755088-b9b3-4486-b7d6-01fd0b847a57" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +59,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.editor&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -91,7 +90,8 @@
       <workItem from="1679029588510" duration="3414000" />
       <workItem from="1679048833483" duration="12535000" />
       <workItem from="1679227004836" duration="10708000" />
-      <workItem from="1679242256378" duration="2031000" />
+      <workItem from="1679242256378" duration="2973000" />
+      <workItem from="1679246786689" duration="301000" />
     </task>
     <servers />
   </component>
