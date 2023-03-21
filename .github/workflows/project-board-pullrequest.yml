@@ -1,7 +1,7 @@
-name: Project Board Automation [Ready to Merge]
+name: Project Board Automation [Code Review]
 on:
-  check_suite:
-    types: [completed]
+  pull_request_target:
+    types: [opened, reopened, synchronize]
     branches:
       - main
 
@@ -9,9 +9,9 @@ jobs:
   project-board:
     runs-on: ubuntu-latest
     steps:
-      - name: Move pull request to Ready to Merge column
+      - name: Add or update pull request in project board
         uses: actions/github-script@v4
-        if: ${{ github.event.check_suite.conclusion == 'success' }}
+        if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
         with:
           script: |
             const { data: projects } = await github.projects.listForRepo({
@@ -22,21 +22,21 @@ jobs:
             const { data: columns } = await github.projects.listColumns({
               project_id: project.id
             });
-            const column = columns.find(column => column.name === 'Ready to Merge');
+            const column = columns.find(column => column.name === 'Code Review');
             const { data: cards } = await github.projects.listCards({
               column_id: column.id
             });
-            const card = cards.find(card => card.content_url === context.payload.check_suite.pull_requests[0].url);
+            const card = cards.find(card => card.content_url === context.payload.pull_request.url);
             if (card) {
               await github.projects.updateCard({
                 card_id: card.id,
                 column_id: column.id,
-                note: context.payload.check_suite.pull_requests[0].title,
+                note: context.payload.pull_request.title,
               });
             } else {
               await github.projects.createCard({
                 column_id: column.id,
-                content_id: context.payload.check_suite.pull_requests[0].id,
+                content_id: context.payload.pull_request.id,
                 content_type: 'PullRequest',
               });
             }
