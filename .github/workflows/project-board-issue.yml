@@ -1,3 +1,10 @@
+name: Project Board Automation [Issue - Bug]
+on:
+  issues:
+    types: [labeled]
+    branches:
+      - main
+
 jobs:
   project-board:
     runs-on: ubuntu-latest
