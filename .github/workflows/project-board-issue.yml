@@ -4,7 +4,7 @@ on:
     types: [labeled]
 
 jobs:
-  add_to_project_board:
+  project-board:
     runs-on: ubuntu-latest
     steps:
       - name: Add or update issue in project board
@@ -13,7 +13,7 @@ jobs:
         with:
           project-name: "edgarcnp.dev"
           column-name: "Bug"
-          content-id: ${{ github.event.issue.number }}
-          content-type: "Issue"
-          note: "Added by GitHub Actions"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.issue.number }}
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          project-location: 'bottom'
