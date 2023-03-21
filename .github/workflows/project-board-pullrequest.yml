@@ -15,9 +15,13 @@ jobs:
         with:
           github-token: ${{ secrets.PROJECT_BOARD_PAT }}
           script: |
+            const { data: repos } = await github.repos.listForOrg({
+              org: context.repo.owner,
+            });
+            const repo = repos.find(repo => repo.name === context.repo.repo);
             const { data: projects } = await github.projects.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              owner: repo.owner.login,
+              repo: repo.name,
             });
             const project = projects.find(project => project.name === 'edgarcnp.dev');
             const { data: columns } = await github.projects.listColumns({
@@ -40,4 +44,4 @@ jobs:
                 contentId: context.payload.pull_request.id,
                 contentType: 'PullRequest',
               });
-            }
+            });

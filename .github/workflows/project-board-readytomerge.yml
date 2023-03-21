@@ -15,32 +15,30 @@ jobs:
         with:
           github-token: ${{ secrets.PROJECT_BOARD_PAT }}
           script: |
-            const { Octokit } = require("@octokit/rest");
-            const octokit = new Octokit({
-              auth: `token ${process.env.GITHUB_TOKEN}`,
-            });
-            const { data: projects } = await octokit.projects.listForRepo({
+            const { Octokit } = require("@octokit/core");
+            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+            const { data: projects } = await octokit.request('GET /repos/{owner}/{repo}/projects', {
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
             const project = projects.find(project => project.name === 'edgarcnp.dev');
-            const { data: columns } = await octokit.projects.listColumns({
-              project_id: project.id
+            const { data: columns } = await octokit.request('GET /projects/{projectId}/columns', {
+              projectId: project.id
             });
             const column = columns.find(column => column.name === 'Ready to Merge');
-            const { data: cards } = await octokit.projects.listCards({
-              column_id: column.id
+            const { data: cards } = await octokit.request('GET /projects/columns/{columnId}/cards', {
+              columnId: column.id
             });
             const card = cards.find(card => card.content_url === context.payload.check_suite.pull_requests[0].url);
             if (card) {
-              await octokit.projects.updateCard({
-                card_id: card.id,
+              await octokit.request('PATCH /projects/columns/cards/{cardId}', {
+                cardId: card.id,
                 column_id: column.id,
                 note: context.payload.check_suite.pull_requests[0].title,
               });
             } else {
-              await octokit.projects.createCard({
-                column_id: column.id,
+              await octokit.request('POST /projects/columns/{columnId}/cards', {
+                columnId: column.id,
                 content_id: context.payload.check_suite.pull_requests[0].id,
                 content_type: 'PullRequest',
               });
