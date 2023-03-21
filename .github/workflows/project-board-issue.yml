@@ -11,7 +11,7 @@ jobs:
         uses: peter-evans/create-or-update-project-card@v2
         if: ${{ contains(github.event.issue.labels.*.name, 'bug') }}
         with:
-          project-name: "Your Project Board"
+          project-name: "edgarcnp.dev"
           column-name: "Bug"
           content-id: ${{ github.event.issue.number }}
           content-type: "Issue"
