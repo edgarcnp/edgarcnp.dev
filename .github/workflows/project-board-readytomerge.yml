@@ -1,7 +1,7 @@
-name: Project Board Automation [Code Review]
+name: Project Board Automation [Ready to Merge]
 on:
-  pull_request_target:
-    types: [opened, reopened, synchronize]
+  check_suite:
+    types: [ completed ]
     branches:
       - main
 
@@ -9,11 +9,11 @@ jobs:
   project-board:
     runs-on: ubuntu-latest
     steps:
-      - name: Add or update pull request in project board
+      - name: Move pull request to Ready to Merge column
         uses: peter-evans/create-or-update-project-card@v2
         with:
           project-name: "edgarcnp.dev"
-          column-name: "Code Review"
+          column-name: "Ready to Merge"
           issue-number: ${{ github.event.pull_request.number }}
           project-location: ${{ github.repository }}
           repository: ${{ github.repository }}

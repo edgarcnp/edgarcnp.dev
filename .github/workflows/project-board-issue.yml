@@ -2,18 +2,20 @@ name: Project Board Automation [Issue - Bug]
 on:
   issues:
     types: [labeled]
+    branches:
+      - main
 
 jobs:
   project-board:
     runs-on: ubuntu-latest
     steps:
-      - name: Add or update issue in project board
-        uses: peter-evans/create-or-update-project-card@v2
+      - name: Add issue to project board
+        uses: actions/add-to-project@v1
         if: ${{ contains(github.event.issue.labels.*.name, 'bug') }}
         with:
           project-name: "edgarcnp.dev"
           column-name: "Bug"
           issue-number: ${{ github.event.issue.number }}
+          project-location: ${{ github.repository }}
           repository: ${{ github.repository }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          project-location: 'bottom'
+          token: ${{ secrets.PROJECT_BOARD_PAT }}
