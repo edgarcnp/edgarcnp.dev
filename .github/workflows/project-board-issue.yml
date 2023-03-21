@@ -14,5 +14,6 @@ jobs:
           project-name: "edgarcnp.dev"
           column-name: "Bug"
           issue-number: ${{ github.event.issue.number }}
-          content-type: "Issue"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          project-location: 'bottom'

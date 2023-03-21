@@ -21,6 +21,7 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           content-type: "Pull Request"
           token: ${{ secrets.GITHUB_TOKEN }}
+          project-location: 'bottom'
 
       - name: Move pull request to Ready to Merge column
         if: ${{ github.event.pull_request.base.ref == 'main' && github.event.check_suite.conclusion == 'success' }}
@@ -31,3 +32,4 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           content-type: "Pull Request"
           token: ${{ secrets.GITHUB_TOKEN }}
+          project-location: 'bottom'
