@@ -10,7 +10,7 @@ on:
       - main
 
 jobs:
-  Project Board:
+  project-board:
     runs-on: ubuntu-latest
     steps:
       - name: Add or update pull request in project board
