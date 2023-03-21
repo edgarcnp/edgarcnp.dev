@@ -17,25 +17,35 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
             const issueNumber = context.payload.issue.number;
-            const projects = await github.projects.listForRepo({
+            github.projects.listForRepo({
               owner: owner,
               repo: repo
+            }).then(projects => {
+              const project = projects.data.find(project => project.name === 'edgarcnp.dev');
+              if (!project) {
+                console.log(`Project 'edgarcnp.dev' not found.`);
+                return;
+              }
+              github.projects.listColumns({
+                project_id: project.id
+              }).then(columns => {
+                const column = columns.data.find(column => column.name === 'Bug');
+                if (!column) {
+                  console.log(`Column 'Bug' not found in project '${project.name}'.`);
+                  return;
+                }
+                github.projects.createProjectCard({
+                  column_id: column.id,
+                  content_id: issueNumber,
+                  content_type: 'Issue'
+                }).then(card => {
+                  console.log(`Added issue ${issueNumber} to project board.`);
+                }).catch(error => {
+                  console.log(`Error adding issue ${issueNumber} to project board: ${error}`);
+                });
+              }).catch(error => {
+                console.log(`Error listing columns for project ${project.name}: ${error}`);
+              });
+            }).catch(error => {
+              console.log(`Error listing projects for repo ${owner}/${repo}: ${error}`);
             });
-            const project = projects.data.find(project => project.name === 'edgarcnp.dev');
-            if (!project) {
-              console.log(`Project 'edgarcnp.dev' not found.`);
-              return;
-            }
-            const column = await github.projects.listColumns({
-              project_id: project.id
-            }).then(res => res.data.find(column => column.name === 'Bug'));
-            if (!column) {
-              console.log(`Column 'Bug' not found in project '${project.name}'.`);
-              return;
-            }
-            const card = await github.projects.createProjectCard({
-              column_id: column.id,
-              content_id: issueNumber,
-              content_type: 'Issue'
-            });
-            console.log(`Added issue ${issueNumber} to project board.`);
