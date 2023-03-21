@@ -1,0 +1,19 @@
+name: Project Board Automation [Issue - Bug]
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  add_to_project_board:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add or update issue in project board
+        uses: peter-evans/create-or-update-project-card@v2
+        if: ${{ contains(github.event.issue.labels.*.name, 'bug') }}
+        with:
+          project-name: "Your Project Board"
+          column-name: "Bug"
+          content-id: ${{ github.event.issue.number }}
+          content-type: "Issue"
+          note: "Added by GitHub Actions"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
