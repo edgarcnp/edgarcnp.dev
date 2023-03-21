@@ -2,8 +2,12 @@ name: Project Board Automation [Pull Request]
 on:
   pull_request:
     types: [opened, reopened, synchronize]
+    branches:
+      - main
   check_suite:
     types: [completed]
+    branches:
+      - main
 
 jobs:
   add_to_project_board:
@@ -20,8 +24,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Move pull request to Ready to Merge column
+        if: ${{ github.event.pull_request.base.ref == 'main' && github.event.check_suite.conclusion == 'success' }}
         uses: peter-evans/create-or-update-project-card@v2
-        if: ${{ github.event.check_suite.conclusion == 'success' }}
         with:
           project-name: "edgarcnp.dev"
           column-name: "Ready to Merge"
