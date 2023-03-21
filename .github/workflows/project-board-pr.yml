@@ -10,11 +10,11 @@ on:
       - main
 
 jobs:
-  add_to_project_board:
+  Project Board:
     runs-on: ubuntu-latest
     steps:
       - name: Add or update pull request in project board
-        uses: peter-evans/create-or-update-project-card@v3
+        uses: peter-evans/create-or-update-project-card@v2
         with:
           project-name: "edgarcnp.dev"
           column-name: "Code Review"
@@ -24,7 +24,7 @@ jobs:
 
       - name: Move pull request to Ready to Merge column
         if: ${{ github.event.pull_request.base.ref == 'main' && github.event.check_suite.conclusion == 'success' }}
-        uses: peter-evans/create-or-update-project-card@v3
+        uses: peter-evans/create-or-update-project-card@v2
         with:
           project-name: "edgarcnp.dev"
           column-name: "Ready to Merge"
