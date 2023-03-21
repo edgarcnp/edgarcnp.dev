@@ -10,11 +10,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Add or update pull request in project board
-        uses: peter-evans/create-or-update-project-card@v2
+        uses: actions/github-script@v4
+        if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
         with:
-          project-name: "edgarcnp.dev"
-          column-name: "Code Review"
-          issue-number: ${{ github.event.pull_request.number }}
-          project-location: ${{ github.repository }}
-          repository: ${{ github.repository }}
-          token: ${{ secrets.PROJECT_BOARD_PAT }}
+          script: |
+            const { data: projects } = await github.projects.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const project = projects.find(project => project.name === 'edgarcnp.dev');
+            const { data: columns } = await github.projects.listColumns({
+              project_id: project.id
+            });
+            const column = columns.find(column => column.name === 'Code Review');
+            const { data: cards } = await github.projects.listCards({
+              column_id: column.id
+            });
+            const card = cards.find(card => card.content_url === context.payload.pull_request.url);
+            if (card) {
+              await github.projects.updateCard({
+                card_id: card.id,
+                column_id: column.id,
+                note: context.payload.pull_request.title,
+              });
+            } else {
+              await github.projects.createCard({
+                column_id: column.id,
+                content_id: context.payload.pull_request.id,
+                content_type: 'PullRequest',
+              });
+            }
+          env:
+            GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
