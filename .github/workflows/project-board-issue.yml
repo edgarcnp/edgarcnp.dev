@@ -10,12 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Add issue to project board
-        uses: actions/add-to-project@v1
+        uses: actions/github-script@v4
         if: ${{ contains(github.event.issue.labels.*.name, 'bug') }}
         with:
-          project-name: "edgarcnp.dev"
-          column-name: "Bug"
-          issue-number: ${{ github.event.issue.number }}
-          project-location: ${{ github.repository }}
-          repository: ${{ github.repository }}
+          script: |
+            const { owner, repo } = context.repo;
+            const issueNumber = context.payload.issue.number;
+            const projectNumber = await github.projects.listForRepo({ owner, repo })
+              .then(res => res.data.filter(project => project.name === 'edgarcnp.dev')[0].number);
+            const column = await github.projects.listColumns({ project_id: projectNumber })
+              .then(res => res.data.filter(column => column.name === 'Bug')[0]);
+            const card = await github.projects.createCard({ column_id: column.id, content_id: issueNumber, content_type: 'Issue' });
+            console.log(`Added issue ${issueNumber} to project board.`);
           token: ${{ secrets.PROJECT_BOARD_PAT }}
