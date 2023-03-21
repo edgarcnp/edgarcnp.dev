@@ -10,16 +10,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Add issue to project board
-        uses: actions/github-script@v4
+        uses: actions/github-script@v6
         if: ${{ contains(github.event.issue.labels.*.name, 'bug') }}
         with:
+          github-token: ${{ secrets.PROJECT_BOARD_PAT }}
           script: |
             const { owner, repo } = context.repo;
             const issueNumber = context.payload.issue.number;
-            const projectNumber = await github.projects.listForRepo({ owner, repo })
-              .then(res => res.data.filter(project => project.name === 'edgarcnp.dev')[0].number);
-            const column = await github.projects.listColumns({ project_id: projectNumber })
-              .then(res => res.data.filter(column => column.name === 'Bug')[0]);
-            const card = await github.projects.createCard({ column_id: column.id, content_id: issueNumber, content_type: 'Issue' });
+            const projects = await github.projects.listForRepo({
+              owner: owner,
+              repo: repo
+            });
+            const project = projects.data.find(project => project.name === 'edgarcnp.dev');
+            if (!project) {
+              console.log(`Project 'edgarcnp.dev' not found.`);
+              return;
+            }
+            const column = await github.projects.listColumns({
+              project_id: project.id
+            }).then(res => res.data.find(column => column.name === 'Bug'));
+            if (!column) {
+              console.log(`Column 'Bug' not found in project '${project.name}'.`);
+              return;
+            }
+            const card = await github.projects.createProjectCard({
+              column_id: column.id,
+              content_id: issueNumber,
+              content_type: 'Issue'
+            });
             console.log(`Added issue ${issueNumber} to project board.`);
-          token: ${{ secrets.PROJECT_BOARD_PAT }}
