@@ -1,22 +1,17 @@
-name: Project Board Automation [Issue - Bug]
-on:
-  issues:
-    types: [labeled]
-    branches:
-      - main
-
 jobs:
   project-board:
     runs-on: ubuntu-latest
     steps:
       - name: Add issue to project board
         uses: actions/github-script@v6
-        if: ${{ contains(github.event.issue.labels.*.name, 'bug') }}
         with:
           github-token: ${{ secrets.PROJECT_BOARD_PAT }}
           script: |
             const { owner, repo } = context.repo;
             const issueNumber = context.payload.issue.number;
+            github = new Octokit({
+              auth: process.env.GITHUB_TOKEN
+            });
             github.projects.listForRepo({
               owner: owner,
               repo: repo
