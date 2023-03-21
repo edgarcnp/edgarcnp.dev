@@ -1,0 +1,31 @@
+name: Project Board Automation [Pull Request]
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - main
+  check_suite:
+    types: [completed]
+    branches:
+      - main
+
+jobs:
+  Project Board:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add or update pull request in project board
+        uses: peter-evans/create-or-update-project-card@v3
+        with:
+          project-name: "edgarcnp.dev"
+          column-name: "Code Review"
+          issue-number: ${{ github.event.pull_request.number }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Move pull request to Ready to Merge column
+        if: ${{ github.event.pull_request.base.ref == 'main' && github.event.check_suite.conclusion == 'success' }}
+        uses: peter-evans/create-or-update-project-card@v3
+        with:
+          project-name: "edgarcnp.dev"
+          column-name: "Ready to Merge"
+          issue-number: ${{ github.event.pull_request.number }}
+          token: ${{ secrets.GITHUB_TOKEN }}
