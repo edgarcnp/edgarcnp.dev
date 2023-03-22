@@ -56,7 +56,7 @@ jobs:
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f pr=$PR_ID -f column="Code Review" --jq '.data.addProjectV2Item.item.id')"
+            }' -f project=$PROJECT_ID -f pr=$PR_ID -f column=$CODE_REVIEW_OPTION_ID --jq '.data.addProjectV2Item.item.id')"
           
           echo 'ITEM_ID='$item_id >> $GITHUB_ENV
 
