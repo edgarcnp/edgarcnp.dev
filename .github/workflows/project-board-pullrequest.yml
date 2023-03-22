@@ -47,15 +47,36 @@ jobs:
       - name: Add PR to project
         env:
           GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
+          PROJECT_ID: ${{ env.PROJECT_ID }}
+          PROJECT_COLUMN_NAME: "Code Review"
           PR_ID: ${{ github.event.pull_request.node_id }}
         run: |
-          item_id="$( gh api graphql -f query='
-            mutation($project:ID!, $pr:ID!) {
-              addProjectV2ItemById(input: {projectId: $project, contentId: $pr}) {
-                item {
-                  id
+          # Get the project column ID from the project column name
+          column_id="$( gh api graphql -f query='
+            query($project:ID!, $column:String!) {
+              repository(owner: $owner, name: $repo) {
+                project(number: $project) {
+                  columns(first: 100) {
+                    nodes {
+                      id
+                      name
+                    }
+                  }
                 }
               }
-            }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectV2ItemById.item.id')"
+            }' -f owner=$GITHUB_REPOSITORY_OWNER -f repo=$GITHUB_REPOSITORY -f project=$PROJECT_ID -f column="$PROJECT_COLUMN_NAME" --jq '.data.repository.project.columns.nodes[] | select(.name == $column) | .id')"
+          
+          # Add the project card to the specified column
+          item_id="$( gh api graphql -f query='
+            mutation($column:ID!, $pr:ID!) {
+              addProjectCard(input: {projectColumnId: $column, contentId: $pr}) {
+                cardEdge {
+                  node {
+                    id
+                  }
+                }
+              }
+            }' -f column=$column_id -f pr=$PR_ID --jq '.data.addProjectCard.cardEdge.node.id')"
+          
+          echo 'ITEM_ID='$item_id >> $GITHUB_ENV
 
-            echo 'ITEM_ID='$item_id >> $GITHUB_ENV
