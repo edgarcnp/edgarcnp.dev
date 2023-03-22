@@ -52,13 +52,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
           ISSUE_ID: ${{ github.event.issue.node_id }}
         run: |
-          item_id="$( gh api graphql -f query='
-            mutation($project:ID!, $issue:ID!) {
-              addProjectV2ItemById(input: {projectId: $project, contentId: $issue}) {
+          item_id="$(gh api graphql -f query='
+            mutation($project:ID!, $issue:ID!, $column:ID!) {
+              addProjectV2ItemById(input: {projectId: $project, contentId: $issue, projectColumnIds: [$column]}) {
                 item {
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID --jq '.data.addProjectV2ItemById.item.id')"
-
-            echo 'ITEM_ID='$item_id >> $GITHUB_ENV
+            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID -f column=$BUGS_OPTION_ID --jq '.data.addProjectV2Item.item.id')"
+          
+          echo 'ITEM_ID='$item_id >> $GITHUB_ENV
