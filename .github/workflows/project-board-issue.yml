@@ -43,11 +43,11 @@ jobs:
             }' > project_data.json
 
           echo 'PROJECT_ID='$(jq '.data.repository.projectV2.id' project_data.json) >> $GITHUB_ENV
-          echo 'DATE_FIELD_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Date posted") | .id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
-          echo 'BUG_OPTION_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Bug") |.id' project_data.json) >> $GITHUB_ENV
+          echo 'BUGS_OPTION_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Bugs") | .id' project_data.json) >> $GITHUB_ENV
 
-      - name: Add Issue to project
+
+      - name: Add Issue with label bug to project
         env:
           GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
           ISSUE_ID: ${{ github.event.issue.node_id }}
