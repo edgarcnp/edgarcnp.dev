@@ -1,47 +1,89 @@
 name: Project Board Automation [Code Review]
+
 on:
-  pull_request_target:
-    types: [opened, reopened, synchronize]
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
     branches:
       - main
 
 jobs:
-  project-board:
+  track_pr:
     runs-on: ubuntu-latest
     steps:
-      - name: Add or update pull request in project board
-        uses: actions/github-script@v6
-        if: ${{ github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize' }}
-        with:
-          github-token: ${{ secrets.PROJECT_BOARD_PAT }}
-          script: |
-            const { data: repos } = await github.repos.listForOrg({
-              org: context.repo.owner,
-            });
-            const repo = repos.find(repo => repo.name === context.repo.repo);
-            const { data: projects } = await github.projects.listForRepo({
-              owner: repo.owner.login,
-              repo: repo.name,
-            });
-            const project = projects.find(project => project.name === 'edgarcnp.dev');
-            const { data: columns } = await github.projects.listColumns({
-              projectId: project.id
-            });
-            const column = columns.find(column => column.name === 'Code Review');
-            const { data: cards } = await github.projects.listCards({
-              columnId: column.id
-            });
-            const card = cards.find(card => card.content_url === context.payload.pull_request.url);
-            if (card) {
-              await github.projects.updateCard({
-                cardId: card.id,
-                columnId: column.id,
-                note: context.payload.pull_request.title,
-              });
-            } else {
-              await github.projects.createCard({
-                columnId: column.id,
-                contentId: context.payload.pull_request.id,
-                contentType: 'PullRequest',
-              });
-            });
+      - name: Get project data
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
+          PROJECT_NUMBER: 2
+        run: |
+          gh api graphql -f query='
+            query($login: String!, $number: Int!) {
+              repository(owner: $login, name: $REPO_NAME) {
+                projectV2(number: $number) {
+                  id
+                  columns(first: 100) {
+                    nodes {
+                      id
+                      name
+                    }
+                  }
+                }
+              }
+            }' -f login=${{ github.repository_owner }} -F REPO_NAME=${{ github.event.repository.name }} -F number=$PROJECT_NUMBER > project_data.json
+
+          echo 'PROJECT_ID='$(jq '.data.repository.projectV2.id' project_data.json) >> $GITHUB_ENV
+          echo 'CODE_REVIEW_COLUMN_ID='$(jq '.data.repository.projectV2.columns.nodes[] | select(.name== "Code Review") | .id' project_data.json) >> $GITHUB_ENV
+
+      - name: Add PR to project
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
+          PR_ID: ${{ github.event.pull_request.node_id }}
+        run: |
+          item_id="$( gh api graphql -f query='
+            mutation($column: ID!, $pr:ID!) {
+              addProjectV2Item(input: {columnId: $column, contentId: $pr}) {
+                item {
+                  id
+                }
+              }
+            }' -f column=$CODE_REVIEW_COLUMN_ID -f pr=$PR_ID --jq '.data.addProjectV2Item.item.id')"
+
+            echo 'ITEM_ID='$item_id >> $GITHUB_ENV
+
+      - name: Get date
+        run: echo "DATE=$(date +"%Y-%m-%d")" >> $GITHUB_ENV
+
+      - name: Set fields
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
+        run: |
+          gh api graphql -f query='
+            mutation (
+              $project: ID!
+              $item: ID!
+              $status_field: ID!
+              $status_value: String!
+              $date_field: ID!
+              $date_value: Date!
+            ) {
+              set_status: updateProjectV2ItemFieldValue(input: {
+                projectId: $project
+                itemId: $item
+                fieldId: $status_field
+                value: { 
+                  singleSelectOptionId: $status_value
+                }
+              }) {
+                clientMutationId
+              }
+              set_date: updateProjectV2ItemFieldValue(input: {
+                projectId: $project
+                itemId: $item
+                fieldId: $date_field
+                value: {
+                  date: $date_value
+                }
+              }) {
+                clientMutationId
+              }
+            }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=$TODO_OPTION_ID -f date_field=$DATE_FIELD_ID -f date_value=${{ env.DATE }}
+
