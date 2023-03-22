@@ -1,4 +1,9 @@
 $(window).on('load', function() {
+    // DOMPurify is used to sanitize the data-property attribute of the video element
+    const videoElement = document.getElementById('video');
+    const dataProperty = JSON.parse(DOMPurify.sanitize(videoElement.getAttribute('data-property')));
+    videoElement.setAttribute('data-property', JSON.stringify(dataProperty));
+
     // Initialize the YouTube Background Video
     $(".youtube-bg").mb_YTPlayer();
 
