@@ -18,7 +18,7 @@ jobs:
           gh api graphql -f query='
             query {
               repository(owner: "edgarcnp", name: "edgarcnp.dev") {
-                projectV2(number: $PROJECT_NUMBER) {
+                projectV2(number: 2) {
                   id
                   fields(first:20) {
                     nodes {
@@ -38,7 +38,7 @@ jobs:
                   }
                 }
               }
-            }' -F number=$PROJECT_NUMBER > project_data.json
+            }' > project_data.json
 
           echo 'PROJECT_ID='$(jq '.data.repository.projectV2.id' project_data.json) >> $GITHUB_ENV
           echo 'DATE_FIELD_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Date posted") | .id' project_data.json) >> $GITHUB_ENV
