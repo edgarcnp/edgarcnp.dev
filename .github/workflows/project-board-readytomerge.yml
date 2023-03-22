@@ -1,4 +1,5 @@
 name: Project Board Automation [Ready to Merge]
+
 on:
   check_suite:
     types: [completed]
@@ -6,40 +7,44 @@ on:
       - main
 
 jobs:
-  project-board:
+  move_to_ready_to_merge:
     runs-on: ubuntu-latest
     steps:
-      - name: Move pull request to Ready to Merge column
-        uses: actions/github-script@v6
-        if: ${{ github.event.check_suite.conclusion == 'success' }}
-        with:
-          github-token: ${{ secrets.PROJECT_BOARD_PAT }}
-          script: |
-            const { Octokit } = require("@octokit/core");
-            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-            const { data: projects } = await octokit.request('GET /repos/{owner}/{repo}/projects', {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-            const project = projects.find(project => project.name === 'edgarcnp.dev');
-            const { data: columns } = await octokit.request('GET /projects/{projectId}/columns', {
-              projectId: project.id
-            });
-            const column = columns.find(column => column.name === 'Ready to Merge');
-            const { data: cards } = await octokit.request('GET /projects/columns/{columnId}/cards', {
-              columnId: column.id
-            });
-            const card = cards.find(card => card.content_url === context.payload.check_suite.pull_requests[0].url);
-            if (card) {
-              await octokit.request('PATCH /projects/columns/cards/{cardId}', {
-                cardId: card.id,
-                column_id: column.id,
-                note: context.payload.check_suite.pull_requests[0].title,
-              });
-            } else {
-              await octokit.request('POST /projects/columns/{columnId}/cards', {
-                columnId: column.id,
-                content_id: context.payload.check_suite.pull_requests[0].id,
-                content_type: 'PullRequest',
-              });
-            }
+      - name: Get project data
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
+          PROJECT_NUMBER: 2
+        run: |
+          gh api graphql -f query='
+            query($login: String!, $number: Int!) {
+              repository(owner: $login, name: $REPO_NAME) {
+                projectV2(number: $number) {
+                  id
+                  columns(first: 100) {
+                    nodes {
+                      id
+                      name
+                    }
+                  }
+                }
+              }
+            }' -f login=${{ github.repository_owner }} -F REPO_NAME=${{ github.event.repository.name }} -F number=$PROJECT_NUMBER > project_data.json
+
+          echo 'PROJECT_ID='$(jq '.data.repository.projectV2.id' project_data.json) >> $GITHUB_ENV
+          echo 'READY_TO_MERGE_COLUMN_ID='$(jq '.data.repository.projectV2.columns.nodes[] | select(.name== "Ready to Merge") | .id' project_data.json) >> $GITHUB_ENV
+
+      - name: Move PR to Ready to Merge column
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
+          PR_NUMBER: ${{ github.event.check_suite.pull_requests[0].number }}
+        run: |
+          item_id="$( gh api graphql -f query='
+            mutation($column: ID!, $pr:ID!) {
+              moveProjectV2Item(input: {itemId: $pr, columnId: $column}) {
+                item {
+                  id
+                }
+              }
+            }' -f column=$READY_TO_MERGE_COLUMN_ID -f pr=$PR_NUMBER --jq '.data.moveProjectV2Item.item.id')"
+
+          echo 'ITEM_ID='$item_id >> $GITHUB_ENV

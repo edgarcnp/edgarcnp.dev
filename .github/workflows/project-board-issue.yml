@@ -1,53 +1,52 @@
 name: Project Board Automation [Issue - Bug]
+
 on:
   issues:
     types: [labeled]
     branches:
       - main
+    labels:
+      - bug
 
 jobs:
-  project-board:
+  create_bug_card:
     runs-on: ubuntu-latest
     steps:
-      - name: Add issue to project board
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.PROJECT_BOARD_PAT }}
-          script: |
-            const { owner, repo } = context.repo;
-            const issueNumber = context.payload.issue.number;
-            github = new Octokit({
-              auth: process.env.GITHUB_TOKEN
-            });
-            github.projects.listForRepo({
-              owner: owner,
-              repo: repo
-            }).then(projects => {
-              const project = projects.data.find(project => project.name === 'edgarcnp.dev');
-              if (!project) {
-                console.log(`Project 'edgarcnp.dev' not found.`);
-                return;
-              }
-              github.projects.listColumns({
-                project_id: project.id
-              }).then(columns => {
-                const column = columns.data.find(column => column.name === 'Bug');
-                if (!column) {
-                  console.log(`Column 'Bug' not found in project '${project.name}'.`);
-                  return;
+      - name: Get project data
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
+          PROJECT_NUMBER: 2
+        run: |
+          gh api graphql -f query='
+            query($login: String!, $number: Int!) {
+              repository(owner: $login, name: $REPO_NAME) {
+                projectV2(number: $number) {
+                  id
+                  columns(first: 100) {
+                    nodes {
+                      id
+                      name
+                    }
+                  }
                 }
-                github.projects.createProjectCard({
-                  column_id: column.id,
-                  content_id: issueNumber,
-                  content_type: 'Issue'
-                }).then(card => {
-                  console.log(`Added issue ${issueNumber} to project board.`);
-                }).catch(error => {
-                  console.log(`Error adding issue ${issueNumber} to project board: ${error}`);
-                });
-              }).catch(error => {
-                console.log(`Error listing columns for project ${project.name}: ${error}`);
-              });
-            }).catch(error => {
-              console.log(`Error listing projects for repo ${owner}/${repo}: ${error}`);
-            });
+              }
+            }' -f login=${{ github.repository_owner }} -F REPO_NAME=${{ github.event.repository.name }} -F number=$PROJECT_NUMBER > project_data.json
+
+          echo 'PROJECT_ID='$(jq '.data.repository.projectV2.id' project_data.json) >> $GITHUB_ENV
+          echo 'BUG_COLUMN_ID='$(jq '.data.repository.projectV2.columns.nodes[] | select(.name== "Bug") | .id' project_data.json) >> $GITHUB_ENV
+
+      - name: Create card in Bug column
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh api graphql -f query='
+            mutation($column: ID!, $content: String!, $issue_id: ID!) {
+              createProjectCard(input: {content: $content, projectColumnId: $column, contentId: $issue_id, contentType: ISSUE}) {
+                cardEdge {
+                  node {
+                    id
+                  }
+                }
+              }
+            }' -f column=$BUG_COLUMN_ID -f content="Issue #$ISSUE_NUMBER" -f issue_id=$ISSUE_NUMBER
