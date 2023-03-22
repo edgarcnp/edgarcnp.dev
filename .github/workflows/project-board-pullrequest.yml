@@ -16,9 +16,9 @@ jobs:
           PROJECT_NUMBER: 2
         run: |
           gh api graphql -f query='
-            query($owner: String!, $name: String!, $number: Int!) {
-              repository(owner: $owner, name: $name) {
-                projectV2(number: $number) {
+            query {
+              repository(owner: "edgarcnp", name: "edgarcnp.dev") {
+                projectV2(number: $PROJECT_NUMBER) {
                   id
                   fields(first:20) {
                     nodes {
