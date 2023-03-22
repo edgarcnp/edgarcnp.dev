@@ -2,7 +2,7 @@ name: Project Board Automation [Code Review]
 
 on:
   pull_request:
-    types: [opened, reopened, ready_for_review, synchronize]
+    types: [opened, reopened, ready_for_review]
     branches:
       - main
 
@@ -16,22 +16,34 @@ jobs:
           PROJECT_NUMBER: 2
         run: |
           gh api graphql -f query='
-            query($login: String!, $number: Int!) {
-              repository(owner: $login, name: $REPO_NAME) {
+            query($owner: String!, $name: String!, $number: Int!) {
+              repository(owner: $owner, name: $name) {
                 projectV2(number: $number) {
                   id
-                  columns(first: 100) {
+                  fields(first:20) {
                     nodes {
-                      id
-                      name
+                      ... on ProjectV2Field {
+                        id
+                        name
+                      }
+                      ... on ProjectV2SingleSelectField {
+                        id
+                        name
+                        options {
+                          id
+                          name
+                        }
+                      }
                     }
                   }
                 }
               }
-            }' -f login=${{ github.repository_owner }} -F REPO_NAME=${{ github.event.repository.name }} -F number=$PROJECT_NUMBER > project_data.json
+            }' -F number=$PROJECT_NUMBER > project_data.json
 
           echo 'PROJECT_ID='$(jq '.data.repository.projectV2.id' project_data.json) >> $GITHUB_ENV
-          echo 'CODE_REVIEW_COLUMN_ID='$(jq '.data.repository.projectV2.columns.nodes[] | select(.name== "Code Review") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'DATE_FIELD_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Date posted") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'STATUS_FIELD_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'CODE_REVIEW_OPTION_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Code Review") |.id' project_data.json) >> $GITHUB_ENV
 
       - name: Add PR to project
         env:
@@ -39,13 +51,13 @@ jobs:
           PR_ID: ${{ github.event.pull_request.node_id }}
         run: |
           item_id="$( gh api graphql -f query='
-            mutation($column: ID!, $pr:ID!) {
-              addProjectV2Item(input: {columnId: $column, contentId: $pr}) {
+            mutation($project:ID!, $pr:ID!) {
+              addProjectV2ItemById(input: {projectId: $project, contentId: $pr}) {
                 item {
                   id
                 }
               }
-            }' -f column=$CODE_REVIEW_COLUMN_ID -f pr=$PR_ID --jq '.data.addProjectV2Item.item.id')"
+            }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectV2ItemById.item.id')"
 
             echo 'ITEM_ID='$item_id >> $GITHUB_ENV
 
@@ -71,19 +83,22 @@ jobs:
                 fieldId: $status_field
                 value: { 
                   singleSelectOptionId: $status_value
-                }
+                  }
               }) {
-                clientMutationId
+                projectV2Item {
+                  id
+                  }
               }
-              set_date: updateProjectV2ItemFieldValue(input: {
+              set_date_posted: updateProjectV2ItemFieldValue(input: {
                 projectId: $project
                 itemId: $item
                 fieldId: $date_field
-                value: {
+                value: { 
                   date: $date_value
                 }
               }) {
-                clientMutationId
+                projectV2Item {
+                  id
+                }
               }
-            }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=$TODO_OPTION_ID -f date_field=$DATE_FIELD_ID -f date_value=${{ env.DATE }}
-
+            }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=${{ env.CODE_REVIEW_OPTION_ID }} -f date_field=$DATE_FIELD_ID -f date_value=$DATE --silent
