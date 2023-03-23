@@ -69,8 +69,28 @@ jobs:
           STATUS_FIELD_ID: ${{ env.BUGS_OPTION_ID }}
         run: |
           gh api graphql -f query='
-            mutation($itemId: ID!, $fieldId: ID!, $optionId: ID!) {
-              updateProjectV2ItemFieldValue(input: {itemId: $itemId, fieldId: $fieldId, value: {singleSelectValue: {optionId: $optionId}}}) {
-                clientMutationId
+            mutation updateSingleSelectValue($projectId: ID!, $itemId: ID!, $optionId: ID!) {
+              updateProjectV2ItemFieldValue(input: {
+                projectId: $projectId,
+                itemId: $itemId,
+                value: {
+                  singleSelectValue: {
+                    optionId: $optionId
+                  }
+                }
+              }) {
+                project {
+                  items(ids: [$itemId]) {
+                    fieldValues {
+                      value {
+                        ... on SingleSelectFieldValue {
+                          selectedOption {
+                            name
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }' -f itemId=$ITEM_ID -f fieldId=$STATUS_FIELD_ID -f optionId=$BUGS_OPTION_ID
