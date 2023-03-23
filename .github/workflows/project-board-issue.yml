@@ -65,7 +65,7 @@ jobs:
       - name: Update item status to Bugs
         env:
           GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
-          ITEM_ID: ${{ github.event.issue.node_id }}
+          ITEM_ID: ${{ env.ITEM_ID }}
           STATUS_FIELD_ID: ${{ env.STATUS_FIELD_ID }}
           BUGS_OPTION_ID: ${{ env.BUGS_OPTION_ID }}
         run: |
