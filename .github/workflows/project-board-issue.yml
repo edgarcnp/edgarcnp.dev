@@ -77,4 +77,4 @@ jobs:
           -f itemId=$ITEM_ID \
           -f projectId=$PROJECT_ID \
           -f fieldId=$STATUS_FIELD_ID \
-          -f value='{"optionId": "$BUGS_OPTION_ID"}' 
+          -f value='{"optionId": "'$BUGS_OPTION_ID'"}'
