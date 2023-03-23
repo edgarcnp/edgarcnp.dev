@@ -65,7 +65,7 @@ jobs:
       - name: Update item status to Bugs
         env:
           GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
-          ITEM_ID: ${{ env.ITEM_ID }}
+          ITEM_ID: ${{ github.event.issue.node_id }}
           STATUS_FIELD_ID: ${{ env.STATUS_FIELD_ID }}
           BUGS_OPTION_ID: ${{ env.BUGS_OPTION_ID }}
         run: |
@@ -73,7 +73,7 @@ jobs:
           
           gh api graphql -f query='
             mutation($itemId: ID!, $projectId: ID!, $fieldId: ID!, $BUGS_OPTION_ID: String!) {
-              updateProjectV2ItemFieldValue(input: {itemId: $itemId, projectId: $projectId, fieldId: $fieldId, value: { singleSelectOptionId: $BUGS_OPTION_ID.value }}) {
+              updateProjectV2ItemFieldValue(input: {itemId: $itemId, projectId: $projectId, fieldId: $fieldId, value: { singleSelectOptionId: $BUGS_OPTION_ID }}) {
                 clientMutationId
               }
-            }' -f itemId=$ITEM_ID -f projectId=$PROJECT_ID -f fieldId=$STATUS_FIELD_ID
+            }' -f itemId=$ITEM_ID -f projectId=$PROJECT_ID -f fieldId=$STATUS_FIELD_ID -f BUGS_OPTION_ID=$BUGS_OPTION_ID' -f itemId=$ITEM_ID -f projectId=$PROJECT_ID -f fieldId=$STATUS_FIELD_ID
