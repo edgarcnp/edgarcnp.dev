@@ -46,7 +46,6 @@ jobs:
           echo 'STATUS_FIELD_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
           echo 'BUGS_OPTION_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Bugs") | .id' project_data.json) >> $GITHUB_ENV
 
-
       - name: Add Issue with label bug to project
         env:
           GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
@@ -54,11 +53,24 @@ jobs:
         run: |
           item_id="$(gh api graphql -f query='
             mutation($project:ID!, $issue:ID!, $column:ID!) {
-              addProjectV2ItemById(input: {projectId: $project, contentId: $issue, projectColumnIds: [$column]}) {
+              addProjectV2ItemById(input: {projectId: $project, contentId: $issue}) {
                 item {
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID -f column=$BUGS_OPTION_ID --jq '.data.addProjectV2Item.item.id')"
+            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID --jq '.data.addProjectV2Item.item.id')"
           
           echo 'ITEM_ID='$item_id >> $GITHUB_ENV
+
+      - name: Update status of item to Bugs
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
+          ITEM_ID: ${{ env.ITEM_ID }}
+          STATUS_FIELD_ID: ${{ env.BUGS_OPTION_ID }}
+        run: |
+          gh api graphql -f query='
+            mutation($itemId: ID!, $fieldId: ID!, $optionId: ID!) {
+              updateProjectV2ItemFieldValue(input: {itemId: $itemId, fieldId: $fieldId, value: {singleSelectValue: {optionId: $optionId}}}) {
+                clientMutationId
+              }
+            }' -f itemId=$ITEM_ID -f fieldId=$STATUS_FIELD_ID -f optionId=$BUGS_OPTION_ID
