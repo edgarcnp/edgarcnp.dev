@@ -70,7 +70,7 @@ jobs:
           BUGS_OPTION_ID: ${{ env.BUGS_OPTION_ID }}
         run: |
           gh api graphql -f query='
-            mutation($itemId: ID!, $projectId: ID!, $fieldId: ID!, $BUGS_OPTION_ID: String!) {
+            mutation($itemId: ID!, $projectId: ID!, $fieldId: ID!) {
               updateProjectV2ItemFieldValue(input: {itemId: $itemId, projectId: $projectId, fieldId: $fieldId, value: {singleSelectOptionId: $BUGS_OPTION_ID}}) {
                 clientMutationId
               }
