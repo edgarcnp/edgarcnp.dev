@@ -61,6 +61,7 @@ jobs:
             }' -f project=$PROJECT_ID -f issue=$ISSUE_ID --jq '.data.addProjectV2Item.item.id')"
           
           echo 'ITEM_ID='$item_id >> $GITHUB_ENV
+          echo "ITEM_ID=$ITEM_ID"
 
       - name: Update item status to Bugs
         env:
