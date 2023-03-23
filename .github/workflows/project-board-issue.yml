@@ -67,7 +67,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
           ITEM_ID: ${{ env.ITEM_ID }}
           STATUS_FIELD_ID: ${{ env.STATUS_FIELD_ID }}
-          BUGS_OPTION_ID: ${{ jq -r '.data.repository.projectV2.fields.nodes[] | select(.id == env.STATUS_FIELD_ID) | .options[] | select(.name == "Bugs") | .id' project_data.json }}
+          BUGS_OPTION_ID: ${{ env.BUGS_OPTION_ID }}
         run: |
           gh api graphql -f query='
             mutation($itemId: ID!, $fieldId: ID!, $optionId: ID!) {
