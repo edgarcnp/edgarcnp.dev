@@ -69,7 +69,7 @@ jobs:
           STATUS_FIELD_ID: ${{ env.STATUS_FIELD_ID }}
           BUGS_OPTION_ID: ${{ env.BUGS_OPTION_ID }}
         run: |
-          echo "BUGS_OPTION_ID=$BUGS_OPTION_ID"
+          echo "ITEM_ID=$ITEM_ID"
           
           gh api graphql -f query='
             mutation($itemId: ID!, $projectId: ID!, $fieldId: ID!, $BUGS_OPTION_ID: String!) {
