@@ -73,7 +73,7 @@ jobs:
           
           gh api graphql -f query='
             mutation($itemId: ID!, $projectId: ID!, $fieldId: ID!, $BUGS_OPTION_ID: String!) {
-              updateProjectV2ItemFieldValue(input: {itemId: $itemId, projectId: $projectId, fieldId: $fieldId, value: { singleSelectOptionId: $BUGS_OPTION_ID }}) {
+              updateProjectV2ItemFieldValue(input: {itemId: $itemId, projectId: $projectId, fieldId: $fieldId, value: { singleSelectOptionId: $BUGS_OPTION_ID.value }}) {
                 clientMutationId
               }
             }' -f itemId=$ITEM_ID -f projectId=$PROJECT_ID -f fieldId=$STATUS_FIELD_ID
