@@ -51,19 +51,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
           ISSUE_ID: ${{ github.event.issue.node_id }}
         run: |
-          response=$(gh api graphql -f query='
+          item_id="$( gh api graphql -f query='
             mutation($project:ID!, $issue:ID!) {
               addProjectV2ItemById(input: {projectId: $project, contentId: $issue}) {
                 item {
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID)
-          
-          item_id=$(echo "$response" | jq -r '.data.addProjectV2Item.item.id')
-          
-          echo "ITEM_ID=$item_id" >> $GITHUB_ENV
-          echo "ITEM_ID=$ITEM_ID"
+            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID --jq '.data.addProjectV2ItemById.item.id')"
+            
+            echo 'ITEM_ID='$item_id >> $GITHUB_ENV
+            echo 'ITEM_ID=$item_id'
 
       - name: Update item status to Bugs
         env:
