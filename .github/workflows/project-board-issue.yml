@@ -77,7 +77,7 @@ jobs:
                   projectId: $projectId,
                   itemId: $itemId,
                   fieldId: $fieldId,
-                  value: {singleSelectOptionId: "6698eda7"}
+                  value: {singleSelectOptionId: "6698eda6"}
                 }
               ) {
                 clientMutationId
