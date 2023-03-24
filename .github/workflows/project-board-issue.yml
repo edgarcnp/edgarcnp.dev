@@ -82,4 +82,4 @@ jobs:
               ) {
                 clientMutationId
               }
-            }' -f itemId=$ITEM_ID -f projectId=$PROJECT_ID -f fieldId=$STATUS_FIELD_ID -f bugsOptionId=${{ env.BUGS_OPTION_ID }}.toString()
+            }' -f itemId=$ITEM_ID -f projectId=$PROJECT_ID -f fieldId=$STATUS_FIELD_ID -f bugsOptionId="$BUGS_OPTION_ID"
