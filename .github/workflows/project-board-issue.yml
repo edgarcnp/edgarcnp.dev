@@ -61,7 +61,6 @@ jobs:
             }' -f project=$PROJECT_ID -f issue=$ISSUE_ID --jq '.data.addProjectV2ItemById.item.id')"
             
             echo 'ITEM_ID='$item_id >> $GITHUB_ENV
-            echo 'ITEM_ID=$item_id'
 
       - name: Update item status to Bugs
         env:
@@ -69,17 +68,18 @@ jobs:
           ITEM_ID: ${{ env.ITEM_ID }}
           STATUS_FIELD_ID: ${{ env.STATUS_FIELD_ID }}
           BUGS_OPTION_ID: ${{ env.BUGS_OPTION_ID }}
+          PROJECT_ID: ${{ env.PROJECT_ID }}
         run: |
           gh api graphql -f query='
-            mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!) {
+            mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $bugsOptionId: ID!) {
               updateProjectV2ItemFieldValue(
                 input: {
                   projectId: $projectId,
                   itemId: $itemId,
                   fieldId: $fieldId,
-                  value: {singleSelectOptionId: "6698eda6"}
+                  value: {singleSelectOptionId: $bugsOptionId}
                 }
               ) {
                 clientMutationId
               }
-            }' -f itemId=$ITEM_ID -f projectId=$PROJECT_ID -f fieldId=$STATUS_FIELD_ID
+            }' -f itemId=$ITEM_ID -f projectId=$PROJECT_ID -f fieldId=$STATUS_FIELD_ID -f bugsOptionId=$BUGS_OPTION_ID
