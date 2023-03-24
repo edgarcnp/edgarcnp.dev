@@ -70,16 +70,26 @@ jobs:
           BUGS_OPTION_ID: "${{ env.BUGS_OPTION_ID }}"
           PROJECT_ID: ${{ env.PROJECT_ID }}
         run: |
-          gh api graphql -f query='
-            mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!) {
+          STATUS_OPTION_ID=$(gh api graphql -f query='
+            mutation{
               updateProjectV2ItemFieldValue(
-                input: {
-                  projectId: $projectId,
-                  itemId: $itemId,
-                  fieldId: $fieldId,
-                  value: {singleSelectOptionId: "6698eda6"}
+                input:{
+                  itemId:"'"$ITEM_ID"'",
+                  value:{singleSelectOptionId:"'"$BUGS_OPTION_ID"'"},
+                  fieldId:"'"$STATUS_FIELD_ID"'",
+                  projectId:"'"$PROJECT_ID"'",
+                  clientMutationId:"status-update"
                 }
               ) {
-                clientMutationId
+                projectV2Item{
+                  fieldValueByName(name: "Status"){
+                    __typename
+                    ... on ProjectV2ItemFieldSingleSelectValue{
+                      name
+                    }
+                  }
+                }
               }
-            }' -f itemId=$ITEM_ID -f projectId=$PROJECT_ID -f fieldId=$STATUS_FIELD_ID
+            }' | jq -r '.data.updateProjectV2ItemFieldValue.projectV2Item.fieldValueByName.name')
+
+          echo "Updated item status to $STATUS_OPTION_ID"
