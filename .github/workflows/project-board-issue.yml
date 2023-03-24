@@ -67,11 +67,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
           ITEM_ID: ${{ env.ITEM_ID }}
           STATUS_FIELD_ID: ${{ env.STATUS_FIELD_ID }}
-          BUGS_OPTION_ID: ${{ env.BUGS_OPTION_ID }}
+          BUGS_OPTION_ID: "${{ env.BUGS_OPTION_ID }}"
           PROJECT_ID: ${{ env.PROJECT_ID }}
         run: |
           gh api graphql -f query='
-            mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $bugsOptionId: "6698eda6") {
+            mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $bugsOptionId: String!) {
               updateProjectV2ItemFieldValue(
                 input: {
                   projectId: $projectId,
