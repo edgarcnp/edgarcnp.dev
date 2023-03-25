@@ -67,7 +67,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
           ITEM_ID: ${{ env.ITEM_ID }}
           STATUS_FIELD_ID: ${{ env.STATUS_FIELD_ID }}
-          BUGS_OPTION_ID: "${{ env.BUGS_OPTION_ID }}"
+          BUGS_OPTION_ID: ${{ env.BUGS_OPTION_ID }}
           PROJECT_ID: ${{ env.PROJECT_ID }}
         run: |
           STATUS_OPTION_ID=$(gh api graphql -f query='
