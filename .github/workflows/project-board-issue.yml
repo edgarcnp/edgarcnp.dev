@@ -70,12 +70,13 @@ jobs:
           BUGS_OPTION_ID: ${{ env.BUGS_OPTION_ID }}
           PROJECT_ID: ${{ env.PROJECT_ID }}
         run: |
+          BUGS_OPTION_ID_STR="${{ env.BUGS_OPTION_ID }}"
           STATUS_OPTION_ID=$(gh api graphql -f query='
             mutation{
               updateProjectV2ItemFieldValue(
                 input:{
                   itemId:"'"$ITEM_ID"'",
-                  value:{singleSelectOptionId:"'"$BUGS_OPTION_ID"'"},
+                  value:{singleSelectOptionId:"'"$BUGS_OPTION_ID_STR"'"},
                   fieldId:"'"$STATUS_FIELD_ID"'",
                   projectId:"'"$PROJECT_ID"'",
                   clientMutationId:"status-update"
