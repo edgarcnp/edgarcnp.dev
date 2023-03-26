@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  track_pr:
+  create_pull_request_card:
     runs-on: ubuntu-latest
     steps:
       - name: Get project data
@@ -39,24 +39,47 @@ jobs:
                 }
               }
             }' > project_data.json
-
+          
           echo 'PROJECT_ID='$(jq '.data.repository.projectV2.id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
-          echo 'CODE_REVIEW_OPTION_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Code Review") |.id' project_data.json) >> $GITHUB_ENV
+          echo 'OPTION_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Code Review") | .id' project_data.json) >> $GITHUB_ENV
+          # OPTION_ID for Code Review
 
-      - name: Add PR to project
+      - name: Add Pull Request to project
         env:
           GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
           PR_ID: ${{ github.event.pull_request.node_id }}
         run: |
-          item_id="$(gh api graphql -f query='
-            mutation($project:ID!, $pr:ID!, $column:ID!) {
-              addProjectV2ItemById(input: {projectId: $project, contentId: $pr, projectColumnIds: [$column]}) {
+          item_id="$( gh api graphql -f query='
+            mutation($project:ID!, $pull_request:ID!) {
+              addProjectV2ItemById(input: {projectId: $project, contentId: $pull_request}) {
                 item {
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f pr=$PR_ID -f column=$CODE_REVIEW_OPTION_ID --jq '.data.addProjectV2Item.item.id')"
+            }' -f project=$PROJECT_ID -f pull_request=$PR_ID --jq '.data.addProjectV2ItemById.item.id')"
           
-          echo 'ITEM_ID='$item_id >> $GITHUB_ENV
+            echo 'ITEM_ID='$item_id >> $GITHUB_ENV
 
+      - name: Update item status to Code Review
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
+          ITEM_ID: ${{ env.ITEM_ID }}
+          STATUS_FIELD_ID: ${{ env.STATUS_FIELD_ID }}
+          OPTION_ID: ${{ env.OPTION_ID }}
+          PROJECT_ID: ${{ env.PROJECT_ID }}
+        run: |
+          OPTION_ID_STR="${{ env.OPTION_ID }}"
+          gh api graphql -f query='
+            mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $bugsOptionId: String!) {
+              updateProjectV2ItemFieldValue(
+                input: {
+                  projectId: $projectId,
+                  itemId: $itemId,
+                  fieldId: $fieldId,
+                  value: {singleSelectOptionId: $bugsOptionId}
+                }
+              ) {
+                clientMutationId
+              }
+            }' -f itemId=$ITEM_ID -f projectId=$PROJECT_ID -f fieldId=$STATUS_FIELD_ID -f bugsOptionId=$OPTION_ID_STR

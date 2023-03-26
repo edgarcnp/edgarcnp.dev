@@ -1,15 +1,13 @@
-name: Project Board Automation [Issue - Bug]
+name: Project Board Automation [Ready to Merge]
 
 on:
-  issues:
-    types: [labeled]
+  check_suite:
+    types: [completed]
     branches:
       - main
-    labels:
-      - bug
 
 jobs:
-  create_bug_card:
+  move_pull_request_card:
     runs-on: ubuntu-latest
     steps:
       - name: Get project data
@@ -44,26 +42,10 @@ jobs:
           
           echo 'PROJECT_ID='$(jq '.data.repository.projectV2.id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
-          echo 'OPTION_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Bugs") | .id' project_data.json) >> $GITHUB_ENV
-          # OPTION_ID for Bugs 
+          echo 'OPTION_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Ready to Merge") | .id' project_data.json) >> $GITHUB_ENV
+          # OPTION_ID for Code Review
 
-      - name: Add Issue with label bug to project
-        env:
-          GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
-          ISSUE_ID: ${{ github.event.issue.node_id }}
-        run: |
-          item_id="$( gh api graphql -f query='
-            mutation($project:ID!, $issue:ID!) {
-              addProjectV2ItemById(input: {projectId: $project, contentId: $issue}) {
-                item {
-                  id
-                }
-              }
-            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID --jq '.data.addProjectV2ItemById.item.id')"
-            
-            echo 'ITEM_ID='$item_id >> $GITHUB_ENV
-
-      - name: Update item status to Bugs
+      - name: Update item status to Ready to Merge
         env:
           GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
           ITEM_ID: ${{ env.ITEM_ID }}
