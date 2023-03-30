@@ -3,8 +3,8 @@ name: Project Board Automation [Ready to Merge]
 on:
   check_suite:
     types: [completed]
-    branches:
-      - main
+    pull_request:
+      types: [opened, ready_for_review, reopened, synchronize]
 
 jobs:
   move_pull_request_card:
