@@ -5,7 +5,12 @@
 
 version: 2
 updates:
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "cargo" # See documentation for possible values
+    directory: "/backend/" # Location of package manifests
+    schedule:
+      interval: "daily"
+
+  - package-ecosystem: "devcontainers"
+    directory: "/backend/.devcontainer"
     schedule:
       interval: "daily"
