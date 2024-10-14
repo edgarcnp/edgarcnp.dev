@@ -1,4 +1,4 @@
-# edgarcnp.dev
+# EdgarCNP.Dev
 
 ## Built using Loco on rails and Svelte
 
