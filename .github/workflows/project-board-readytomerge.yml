@@ -1,0 +1,69 @@
+name: Project Board Automation [Ready to Merge]
+
+on:
+  check_suite:
+    types: [completed]
+    pull_request:
+      types: [opened, ready_for_review, reopened, synchronize]
+
+jobs:
+  move_pull_request_card:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get project data
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
+          PROJECT_NUMBER: 2
+        run: |
+          gh api graphql -f query='
+            query {
+              repository(owner: "edgarcnp", name: "edgarcnp.dev") {
+                projectV2(number: 2) {
+                  id
+                  fields(first:20) {
+                    nodes {
+                      ... on ProjectV2Field {
+                        id
+                        name
+                      }
+                      ... on ProjectV2SingleSelectField {
+                        id
+                        name
+                        options {
+                          id
+                          name
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }' > project_data.json
+          
+          echo 'PROJECT_ID='$(jq '.data.repository.projectV2.id' project_data.json) >> $GITHUB_ENV
+          echo 'STATUS_FIELD_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'OPTION_ID='$(jq '.data.repository.projectV2.fields.nodes[] | select(.name== "Status") | .options[] | select(.name=="Ready to Merge") | .id' project_data.json) >> $GITHUB_ENV
+          # OPTION_ID for Code Review
+
+      - name: Update item status to Ready to Merge
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECT_BOARD_PAT }}
+          ITEM_ID: ${{ env.ITEM_ID }}
+          STATUS_FIELD_ID: ${{ env.STATUS_FIELD_ID }}
+          OPTION_ID: ${{ env.OPTION_ID }}
+          PROJECT_ID: ${{ env.PROJECT_ID }}
+        run: |
+          OPTION_ID_STR="${{ env.OPTION_ID }}"
+          gh api graphql -f query='
+            mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $bugsOptionId: String!) {
+              updateProjectV2ItemFieldValue(
+                input: {
+                  projectId: $projectId,
+                  itemId: $itemId,
+                  fieldId: $fieldId,
+                  value: {singleSelectOptionId: $bugsOptionId}
+                }
+              ) {
+                clientMutationId
+              }
+            }' -f itemId=$ITEM_ID -f projectId=$PROJECT_ID -f fieldId=$STATUS_FIELD_ID -f bugsOptionId=$OPTION_ID_STR
