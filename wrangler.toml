@@ -1,0 +1,6 @@
+name = "edgarcnp-dev"
+compatibility_date = "2026-05-18"
+
+[assets]
+directory = "./target/dx/edgarcnp-dev/release/web/public"
+not_found_handling = "single-page-application"

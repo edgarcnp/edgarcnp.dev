@@ -52,6 +52,34 @@ To run for a different platform, use the `--platform platform` flag. E.g.
 dx serve --platform desktop
 ```
 
+### Cloudflare Workers
+
+Build the release web bundle:
+
+```bash
+npm run build
+```
+
+Preview the Worker static assets locally:
+
+```bash
+npm run wrangler:dev
+```
+
+Deploy after authenticating Wrangler:
+
+```bash
+npm run deploy
+```
+
+The Worker currently serves Dioxus' release web output from `target/dx/edgarcnp-dev/release/web/public`.
+
+### Manual CI
+
+Forgejo Actions are configured in `.forgejo/workflows/check.yml` and currently run only through `workflow_dispatch`.
+
+The workflow runs formatting, tests, clippy, Dioxus checks, and a release web build.
+
 # Licensing
 
 ## Source Code

@@ -483,10 +483,11 @@ Expected commands after project creation:
 ```powershell
 npm ci
 dx serve
-npx wrangler dev
-cargo test
-cargo fmt
-cargo clippy --all-targets --all-features -- -D warnings
+npm run wrangler:dev
+npm test
+npm run fmt:check
+npm run clippy
+npm run dx:check
 ```
 
 `dx serve` is useful for Dioxus development, but `npx wrangler dev` is required before production readiness is claimed because the final runtime is Cloudflare Workers.
@@ -508,12 +509,21 @@ cargo clippy --all-targets --all-features -- -D warnings
 Planned Cloudflare files and settings:
 
 - `wrangler.toml` for Worker name, compatibility date, asset directory, routes, and bindings.
+- Current static asset directory is `./target/dx/edgarcnp-dev/release/web/public`.
+- Current asset fallback uses `not_found_handling = "single-page-application"` for Dioxus Router paths.
 - Cloudflare dashboard or Wrangler secrets for private configuration.
 - Optional D1 binding if persistent contact metadata or analytics are later approved.
 - Optional KV binding only for low-sensitivity cacheable data.
 - Optional R2 binding only for larger static media that should not live in the Worker bundle.
 
 Avoid Cloudflare storage for secrets unless it is a dedicated secret binding. Public content should remain static and versioned where possible.
+
+### Forgejo Workflow
+
+- Add `.forgejo/workflows/check.yml`.
+- Keep the workflow manually triggered with `workflow_dispatch` for now.
+- Run formatting, tests, clippy, Dioxus checks, and release web build.
+- Do not deploy from CI until Cloudflare credentials and deployment policy are explicitly approved.
 
 ## Testing Plan
 
@@ -532,6 +542,7 @@ Avoid Cloudflare storage for secrets unless it is a dedicated secret binding. Pu
 - Invalid contact links fail content validation.
 - Worker preview serves major routes through `wrangler dev`.
 - Any future Worker API endpoints reject malformed requests in the Cloudflare runtime.
+- Forgejo manual workflow runs checks and tests without deploying.
 
 ### Accessibility Checks
 
@@ -596,6 +607,7 @@ Each viewport should confirm:
 - Finalize CSP and security headers.
 - Audit server/client feature boundaries.
 - Audit Cloudflare bindings, Wrangler config, and Worker bundle contents.
+- Audit Forgejo workflow permissions before adding deployment.
 - Run tests, formatting, and clippy.
 - Check rendered HTML for leaked config or secrets.
 - Review deployment configuration.
@@ -620,6 +632,7 @@ Each viewport should confirm:
 - Any future mutating actions are protected against CSRF and abuse.
 - Error messages do not leak internal details.
 - `wrangler dev` and production Worker deployment paths are verified.
+- Forgejo workflow is manually triggerable and runs checks without deployment credentials.
 - Tests cover content validation, route behavior, and security-sensitive paths.
 
 ## Open Decisions

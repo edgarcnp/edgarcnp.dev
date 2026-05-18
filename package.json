@@ -1,0 +1,19 @@
+{
+  "name": "edgarcnp-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "dx build --platform web --release",
+    "check": "cargo check",
+    "clippy": "cargo clippy --all-targets --no-default-features --features web -- -D warnings",
+    "deploy": "npm run build && wrangler deploy",
+    "deploy:dry-run": "npm run build && wrangler deploy --dry-run",
+    "dx:check": "dx check",
+    "fmt:check": "cargo fmt --check",
+    "test": "cargo test",
+    "wrangler:dev": "npm run build && wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "4.92.0"
+  }
+}
