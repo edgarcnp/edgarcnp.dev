@@ -5,8 +5,9 @@ use dioxus::prelude::*;
 #[component]
 pub fn ProjectCard(project: Project) -> Element {
     rsx! {
-        article {
-            class: "interactive-lift flex h-full flex-col justify-between rounded-md border border-zinc-800 bg-zinc-950/80 p-5 shadow-sm shadow-black/20 hover:border-emerald-400/60",
+        Link {
+            class: "interactive-lift group flex h-full flex-col justify-between rounded-md border border-zinc-800 bg-zinc-950/80 p-5 shadow-sm shadow-black/20 outline-none hover:border-emerald-400/60 focus-visible:ring-2 focus-visible:ring-emerald-300",
+            to: Route::ProjectDetail { slug: project.slug.clone() },
             div {
                 class: "space-y-4",
                 div {
@@ -31,11 +32,7 @@ pub fn ProjectCard(project: Project) -> Element {
             div {
                 class: "mt-6 flex items-center justify-between gap-4",
                 span { class: "text-xs uppercase tracking-wide text-emerald-300", "{project.status}" }
-                Link {
-                    class: "rounded-sm text-sm font-medium text-zinc-100 underline-offset-4 outline-none transition hover:text-emerald-300 hover:underline focus-visible:ring-2 focus-visible:ring-emerald-300",
-                    to: Route::ProjectDetail { slug: project.slug.clone() },
-                    "View"
-                }
+                span { class: "text-sm font-medium text-zinc-100 underline-offset-4 group-hover:text-emerald-300 group-hover:underline", "Read" }
             }
         }
     }

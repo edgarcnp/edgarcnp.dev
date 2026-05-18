@@ -13,6 +13,7 @@ const PROJECT_SOURCES: &[&str] = &[
 const WRITING_SOURCES: &[&str] = &[include_str!(
     "../content/writing/secure-portfolio-foundation.md"
 )];
+const PROJECT_STAGES: &[&str] = &["Planned", "In Progress", "Archived"];
 
 static CONTENT: LazyLock<PortfolioContent> =
     LazyLock::new(|| load_content().expect("portfolio content must be valid"));
@@ -266,6 +267,14 @@ fn validate_project(project: &Project) -> Result<(), String> {
         return Err(format!("project slug is not URL-safe: {}", project.slug));
     }
 
+    if !PROJECT_STAGES.contains(&project.status.as_str()) {
+        return Err(format!(
+            "project status must be one of {}: {}",
+            PROJECT_STAGES.join(", "),
+            project.status
+        ));
+    }
+
     if project.year < 2000 || project.year > 2100 {
         return Err(format!(
             "project year is outside the allowed range: {}",
@@ -413,6 +422,19 @@ mod tests {
             .count();
         assert!(featured_count > 0);
         assert!(featured_count < content.projects.len());
+    }
+
+    #[test]
+    fn project_statuses_use_allowed_stages() {
+        let content = load_content().expect("bundled content should validate");
+        for project in &content.projects {
+            assert!(
+                PROJECT_STAGES.contains(&project.status.as_str()),
+                "{} has invalid status {}",
+                project.slug,
+                project.status
+            );
+        }
     }
 
     #[test]

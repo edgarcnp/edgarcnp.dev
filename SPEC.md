@@ -125,7 +125,8 @@ The current official Dioxus scaffold uses `src/main.rs`, `src/components/`, and 
 
 ### Projects Index
 
-- List projects with title, short description, role, technologies, status, and year.
+- List projects with title, short description, role, technologies, stage, and year.
+- Project cards should be full-card links, not only small nested "Read" controls.
 - Support responsive filtering only if it can be implemented without exposing unsafe query behavior.
 - Render useful content without JavaScript.
 
@@ -141,6 +142,7 @@ The current official Dioxus scaffold uses `src/main.rs`, `src/components/`, and 
 - Each writing file must include TOML frontmatter with title, slug, summary, published date, and tags.
 - Render Markdown through a parser that escapes raw HTML before the result reaches `dangerous_inner_html`.
 - Avoid arbitrary embedded HTML.
+- Writing cards should be full-card links.
 
 ### Contact
 
@@ -281,6 +283,8 @@ Create reusable skeleton components:
 - `SkeletonText` for one or more text-line placeholders.
 - `ProjectCardSkeleton` matching loaded project cards.
 - `ProjectGridSkeleton` matching the project index grid at each breakpoint.
+- `WritingListSkeleton` matching writing index cards.
+- `WritingPostSkeleton` matching writing detail pages.
 - `ArticleSkeleton` for writing or project-detail pages.
 
 Skeleton components should live near shared UI components, likely under `src/components/skeleton.rs` or a `src/components/skeleton/` module.
@@ -429,7 +433,7 @@ external = true
 title = "Project Name"
 slug = "project-name"
 year = 2026
-status = "Shipped"
+status = "In Progress"
 summary = "One sentence summary."
 detail = "Longer case-study detail."
 role = "Lead developer"
@@ -456,6 +460,7 @@ Rules:
 - Slugs must be unique and URL-safe.
 - URLs must be parsed and allowlisted by scheme, usually `https`.
 - Contact links may use `mailto:` or `https`; external links must use `https`.
+- Project status must be one of `Planned`, `In Progress`, or `Archived`.
 - Project content must not contain executable HTML or scripts.
 - Writing Markdown must escape raw HTML before rendering.
 - Missing optional links should not render empty controls.
@@ -623,7 +628,11 @@ Each viewport should confirm:
 - Mobile, tablet, and desktop layouts are intentionally designed and tested.
 - Major pages render useful content without JavaScript.
 - Loading skeletons are responsive, accessible, motion-safe, and do not replace available SSR content.
+- Writing index has a responsive skeleton template.
+- Writing detail pages have a content skeleton template.
+- Project and writing cards are full-card accessible links.
 - Content is loaded through validated structured data.
+- Project stages are limited to `Planned`, `In Progress`, and `Archived`.
 - Writing posts render from Markdown with TOML frontmatter and raw HTML escaping.
 - Motion is restrained, CSS-first, and disabled for reduced-motion users where appropriate.
 - Server-only logic and secrets are not included in client bundles.

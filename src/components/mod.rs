@@ -5,4 +5,6 @@ mod project_card;
 pub use project_card::ProjectCard;
 
 mod skeleton;
-pub use skeleton::{ArticleSkeleton, ProjectGridSkeleton};
+pub use skeleton::{
+    ArticleSkeleton, ProjectGridSkeleton, WritingListSkeleton, WritingPostSkeleton,
+};

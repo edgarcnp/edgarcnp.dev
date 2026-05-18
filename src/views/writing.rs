@@ -1,4 +1,5 @@
 use crate::Route;
+use crate::components::{WritingListSkeleton, WritingPostSkeleton};
 use crate::data::{WritingPost as WritingPostData, find_writing_post, writing_posts};
 use dioxus::prelude::*;
 
@@ -16,6 +17,12 @@ pub fn Writing() -> Element {
             div { class: "section-motion motion-delay-1 space-y-4",
                 for post in writing_posts() {
                     WritingCard { post: post.clone() }
+                }
+            }
+            details { class: "section-motion motion-delay-2 rounded-md border border-zinc-800 bg-zinc-950/70 p-5",
+                summary { class: "cursor-pointer text-sm font-medium text-zinc-200", "Writing skeleton preview" }
+                div { class: "mt-5",
+                    WritingListSkeleton {}
                 }
             }
         }
@@ -48,6 +55,12 @@ pub fn WritingPost(slug: String) -> Element {
                     class: "markdown-body",
                     dangerous_inner_html: "{post.html}",
                 }
+                details { class: "rounded-md border border-zinc-800 bg-zinc-950/70 p-5",
+                    summary { class: "cursor-pointer text-sm font-medium text-zinc-200", "Writing post skeleton preview" }
+                    div { class: "mt-5",
+                        WritingPostSkeleton {}
+                    }
+                }
             }
         },
         None => rsx! {
@@ -68,7 +81,9 @@ pub fn WritingPost(slug: String) -> Element {
 #[component]
 fn WritingCard(post: WritingPostData) -> Element {
     rsx! {
-        article { class: "interactive-lift rounded-md border border-zinc-800 bg-zinc-950/80 p-5 hover:border-emerald-300",
+        Link {
+            class: "interactive-lift group block rounded-md border border-zinc-800 bg-zinc-950/80 p-5 outline-none hover:border-emerald-300 focus-visible:ring-2 focus-visible:ring-emerald-300",
+            to: Route::WritingPost { slug: post.slug.clone() },
             div { class: "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between",
                 div { class: "space-y-3",
                     p { class: "text-xs uppercase tracking-wide text-zinc-500", "{post.published}" }
@@ -80,9 +95,8 @@ fn WritingCard(post: WritingPostData) -> Element {
                         }
                     }
                 }
-                Link {
-                    class: "w-fit shrink-0 rounded-sm text-sm font-medium text-emerald-300 underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-emerald-300",
-                    to: Route::WritingPost { slug: post.slug.clone() },
+                span {
+                    class: "w-fit shrink-0 rounded-sm text-sm font-medium text-emerald-300 underline-offset-4 group-hover:underline",
                     "Read"
                 }
             }
