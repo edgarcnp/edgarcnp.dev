@@ -27,7 +27,7 @@ Security is the top priority. Every feature that reads data, serves assets, expo
 - Worker-compatible Rust/WASM build output.
 - Cloudflare's official Worker APIs for request handling, bindings, secrets, and deployment configuration.
 - Static asset serving through Cloudflare with explicit cache and content-type handling.
-- Tailwind CSS through root `tailwind.css` as the source file and `assets/tailwind.css` as the generated browser stylesheet.
+- Tailwind CSS through root `tailwind.css` as the source file and ignored generated `assets/tailwind.css` as the browser stylesheet.
 - Markdown or structured content files for portfolio/project data, parsed at build time or server startup.
 - Cloudflare D1, KV, R2, or Queues only if persistent storage or async processing becomes necessary.
 - No traditional always-on server process, local filesystem writes, or non-Worker-compatible runtime assumptions.
@@ -200,7 +200,7 @@ Dark mode is the default and only theme.
 ### Tailwind CSS
 
 - Use root `tailwind.css` as the primary styling source.
-- Treat `assets/tailwind.css` as generated output from Dioxus/Tailwind.
+- Treat `assets/tailwind.css` as ignored generated output from Dioxus/Tailwind.
 - Load generated `assets/tailwind.css` with Dioxus asset handling from `src/main.rs`.
 - Keep dark mode as the only theme in Tailwind tokens and utilities.
 - Prefer utility classes for layout, spacing, typography, color, responsive breakpoints, and interaction states.

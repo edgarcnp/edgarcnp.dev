@@ -156,7 +156,8 @@ fn parse_writing_posts(sources: &[&str]) -> Result<Vec<WritingPost>, String> {
 }
 
 fn parse_writing_post(source: &str) -> Result<WritingPost, String> {
-    let (frontmatter_source, markdown) = split_frontmatter(source)?;
+    let normalized_source = source.replace("\r\n", "\n");
+    let (frontmatter_source, markdown) = split_frontmatter(&normalized_source)?;
     let frontmatter: WritingFrontmatter = toml::from_str(frontmatter_source)
         .map_err(|error| format!("invalid writing frontmatter: {error}"))?;
 
