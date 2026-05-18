@@ -1,1 +1,118 @@
 @import "tailwindcss";
+
+@layer components {
+  .page-motion {
+    animation: page-enter 180ms ease-out both;
+  }
+
+  .section-motion {
+    animation: page-enter 180ms ease-out both;
+  }
+
+  .motion-delay-1 {
+    animation-delay: 45ms;
+  }
+
+  .motion-delay-2 {
+    animation-delay: 90ms;
+  }
+
+  .interactive-lift {
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease,
+      color 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease;
+  }
+
+  .interactive-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  .interactive-lift:focus-within {
+    transform: translateY(-2px);
+  }
+
+  .markdown-body {
+    color: var(--color-zinc-300);
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .markdown-body > * + * {
+    margin-top: 1.25rem;
+  }
+
+  .markdown-body h2 {
+    color: var(--color-zinc-50);
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin-top: 2rem;
+  }
+
+  .markdown-body p {
+    color: var(--color-zinc-300);
+  }
+
+  .markdown-body ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+  }
+
+  .markdown-body li + li {
+    margin-top: 0.5rem;
+  }
+
+  .markdown-body a {
+    color: var(--color-emerald-300);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .markdown-body code {
+    color: var(--color-emerald-200);
+    font-size: 0.925em;
+  }
+
+  .markdown-body :not(pre) > code {
+    border-radius: 0.25rem;
+    background: var(--color-zinc-900);
+    padding: 0.125rem 0.25rem;
+  }
+
+  .markdown-body pre {
+    overflow-x: auto;
+    border: 1px solid var(--color-zinc-800);
+    border-radius: 0.375rem;
+    background: var(--color-zinc-950);
+    padding: 1rem;
+  }
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-motion,
+  .section-motion {
+    animation: none;
+  }
+
+  .interactive-lift,
+  .interactive-lift:hover,
+  .interactive-lift:focus-within {
+    transform: none;
+    transition: none;
+  }
+}

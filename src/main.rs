@@ -1,6 +1,8 @@
 use dioxus::prelude::*;
 
-use views::{Contact, Home, NotFound, PortfolioLayout, ProjectDetail, Projects, Writing};
+use views::{
+    Contact, Home, NotFound, PortfolioLayout, ProjectDetail, Projects, Writing, WritingPost,
+};
 
 mod components;
 mod data;
@@ -18,6 +20,8 @@ pub enum Route {
         ProjectDetail { slug: String },
         #[route("/writing")]
         Writing {},
+        #[route("/writing/:slug")]
+        WritingPost { slug: String },
         #[route("/contact")]
         Contact {},
         #[route("/:..route")]

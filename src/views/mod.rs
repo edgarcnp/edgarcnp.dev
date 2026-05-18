@@ -17,4 +17,4 @@ mod projects;
 pub use projects::Projects;
 
 mod writing;
-pub use writing::Writing;
+pub use writing::{Writing, WritingPost};

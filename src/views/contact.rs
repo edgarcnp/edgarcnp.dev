@@ -1,4 +1,4 @@
-use crate::data::{ContactLink as ContactLinkData, CONTACT_LINKS};
+use crate::data::{ContactLink as ContactLinkData, contact_links};
 use dioxus::prelude::*;
 
 #[component]
@@ -12,9 +12,9 @@ pub fn Contact() -> Element {
                     "This site does not collect messages. Use email or a verified profile link to get in touch."
                 }
             }
-            div { class: "grid gap-4 sm:grid-cols-2",
-                for link in CONTACT_LINKS {
-                    ContactItem { link }
+            div { class: "section-motion motion-delay-1 grid gap-4 sm:grid-cols-2",
+                for link in contact_links() {
+                    ContactItem { link: link.clone() }
                 }
             }
         }
@@ -25,7 +25,7 @@ pub fn Contact() -> Element {
 fn ContactItem(link: ContactLinkData) -> Element {
     rsx! {
         a {
-            class: "group rounded-md border border-zinc-800 bg-zinc-950/80 p-5 outline-none transition hover:border-emerald-300 focus-visible:ring-2 focus-visible:ring-emerald-300",
+            class: "interactive-lift group rounded-md border border-zinc-800 bg-zinc-950/80 p-5 outline-none hover:border-emerald-300 focus-visible:ring-2 focus-visible:ring-emerald-300",
             href: link.href,
             target: if link.external { "_blank" },
             rel: if link.external { "noopener noreferrer" },

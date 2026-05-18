@@ -1,5 +1,5 @@
-use crate::components::Footer;
 use crate::Route;
+use crate::components::Footer;
 use dioxus::prelude::*;
 
 #[component]
@@ -25,7 +25,7 @@ pub fn PortfolioLayout() -> Element {
                 }
             }
             main {
-                class: "mx-auto w-full max-w-6xl px-5 py-10 sm:px-8 sm:py-14 lg:px-12 lg:py-16",
+                class: "page-motion mx-auto w-full max-w-6xl px-5 py-10 sm:px-8 sm:py-14 lg:px-12 lg:py-16",
                 Outlet::<Route> {}
             }
             Footer {}

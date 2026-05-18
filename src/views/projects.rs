@@ -1,5 +1,5 @@
 use crate::components::{ProjectCard, ProjectGridSkeleton};
-use crate::data::PROJECTS;
+use crate::data::projects;
 use dioxus::prelude::*;
 
 #[component]
@@ -13,12 +13,12 @@ pub fn Projects() -> Element {
                     "Case studies will expand as the site moves from scaffold to production content. The current list defines the intended responsive card system."
                 }
             }
-            div { class: "grid gap-4 sm:grid-cols-2 lg:grid-cols-3",
-                for project in PROJECTS {
-                    ProjectCard { project }
+            div { class: "section-motion motion-delay-1 grid gap-4 sm:grid-cols-2 lg:grid-cols-3",
+                for project in projects() {
+                    ProjectCard { project: project.clone() }
                 }
             }
-            details { class: "rounded-md border border-zinc-800 bg-zinc-950/70 p-5",
+            details { class: "section-motion motion-delay-2 rounded-md border border-zinc-800 bg-zinc-950/70 p-5",
                 summary { class: "cursor-pointer text-sm font-medium text-zinc-200", "Loading skeleton preview" }
                 div { class: "mt-5",
                     ProjectGridSkeleton {}

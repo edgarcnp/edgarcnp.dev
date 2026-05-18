@@ -1,6 +1,6 @@
+use crate::Route;
 use crate::components::ArticleSkeleton;
 use crate::data::find_project;
-use crate::Route;
 use dioxus::prelude::*;
 
 #[component]
@@ -13,15 +13,15 @@ pub fn ProjectDetail(slug: String) -> Element {
                     h1 { class: "text-3xl font-semibold text-zinc-50 sm:text-4xl", "{project.title}" }
                     p { class: "text-base leading-7 text-zinc-400", "{project.detail}" }
                 }
-                section { class: "grid gap-4 sm:grid-cols-3",
+                section { class: "section-motion motion-delay-1 grid gap-4 sm:grid-cols-3",
                     Stat { label: "Role".to_string(), value: project.role.to_string() }
                     Stat { label: "Status".to_string(), value: project.status.to_string() }
                     Stat { label: "Year".to_string(), value: project.year.to_string() }
                 }
-                section { class: "space-y-4 text-zinc-400",
+                section { class: "section-motion motion-delay-2 space-y-4 text-zinc-400",
                     h2 { class: "text-xl font-semibold text-zinc-100", "Technology" }
                     ul { class: "flex flex-wrap gap-2",
-                        for technology in project.technologies {
+                        for technology in project.technologies.iter() {
                             li {
                                 class: "rounded-sm bg-zinc-900 px-2 py-1 text-xs text-zinc-300",
                                 "{technology}"

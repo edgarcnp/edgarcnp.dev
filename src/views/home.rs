@@ -1,20 +1,22 @@
-use crate::components::ProjectCard;
-use crate::data::{featured_projects, PROFILE};
 use crate::Route;
+use crate::components::ProjectCard;
+use crate::data::{featured_projects, profile};
 use dioxus::prelude::*;
 
 #[component]
 pub fn Home() -> Element {
+    let profile = profile();
+
     rsx! {
         div { class: "space-y-14",
             section {
-                class: "grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-end",
+                class: "section-motion grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-end",
                 div { class: "space-y-7",
                     p { class: "text-sm font-medium uppercase tracking-[0.18em] text-emerald-300", "Portfolio" }
                     div { class: "space-y-5",
-                        h1 { class: "max-w-3xl text-4xl font-semibold tracking-normal text-zinc-50 sm:text-5xl lg:text-6xl", "{PROFILE.name}" }
+                        h1 { class: "max-w-3xl text-4xl font-semibold tracking-normal text-zinc-50 sm:text-5xl lg:text-6xl", "{profile.name}" }
                         p { class: "max-w-2xl text-lg leading-8 text-zinc-300 sm:text-xl",
-                            "{PROFILE.summary}"
+                            "{profile.summary}"
                         }
                     }
                     div { class: "flex flex-col gap-3 sm:flex-row",
@@ -40,7 +42,7 @@ pub fn Home() -> Element {
                         }
                         div {
                             dt { class: "text-xs uppercase tracking-wide text-zinc-500", "Frontend" }
-                            dd { class: "mt-1 text-zinc-100", "{PROFILE.role}" }
+                            dd { class: "mt-1 text-zinc-100", "{profile.role}" }
                         }
                         div {
                             dt { class: "text-xs uppercase tracking-wide text-zinc-500", "Priority" }
@@ -50,7 +52,7 @@ pub fn Home() -> Element {
                 }
             }
 
-            section { class: "space-y-5",
+            section { class: "section-motion motion-delay-1 space-y-5",
                 div { class: "flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between",
                     div {
                         h2 { class: "text-2xl font-semibold text-zinc-50", "Featured Projects" }

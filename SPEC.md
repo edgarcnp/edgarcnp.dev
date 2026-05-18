@@ -27,7 +27,7 @@ Security is the top priority. Every feature that reads data, serves assets, expo
 - Worker-compatible Rust/WASM build output.
 - Cloudflare's official Worker APIs for request handling, bindings, secrets, and deployment configuration.
 - Static asset serving through Cloudflare with explicit cache and content-type handling.
-- Tailwind CSS through the project stylesheet at `assets/tailwind.css`.
+- Tailwind CSS through root `tailwind.css` as the source file and `assets/tailwind.css` as the generated browser stylesheet.
 - Markdown or structured content files for portfolio/project data, parsed at build time or server startup.
 - Cloudflare D1, KV, R2, or Queues only if persistent storage or async processing becomes necessary.
 - No traditional always-on server process, local filesystem writes, or non-Worker-compatible runtime assumptions.
@@ -71,6 +71,7 @@ Use a structure close to this unless Dioxus project generation produces a clearl
   package.json
   package-lock.json
   wrangler.toml
+  tailwind.css
   assets/
     images/
     fonts/
@@ -78,8 +79,11 @@ Use a structure close to this unless Dioxus project generation produces a clearl
     tailwind.css
   content/
     profile.toml
+    contact.toml
     projects/
+      secure-portfolio-platform.toml
     writing/
+      secure-portfolio-foundation.md
   src/
     main.rs
     components/
@@ -133,9 +137,10 @@ The current official Dioxus scaffold uses `src/main.rs`, `src/components/`, and 
 
 ### Writing or Notes
 
-- Optional but planned. Use local content files only.
-- Render sanitized or compile-time trusted Markdown.
-- Avoid arbitrary embedded HTML unless the sanitizer and content policy are explicit.
+- Use local Markdown files under `content/writing/`.
+- Each writing file must include TOML frontmatter with title, slug, summary, published date, and tags.
+- Render Markdown through a parser that escapes raw HTML before the result reaches `dangerous_inner_html`.
+- Avoid arbitrary embedded HTML.
 
 ### Contact
 
@@ -194,8 +199,9 @@ Dark mode is the default and only theme.
 
 ### Tailwind CSS
 
-- Use `assets/tailwind.css` as the primary styling entrypoint.
-- Load Tailwind with Dioxus asset handling from `src/main.rs`.
+- Use root `tailwind.css` as the primary styling source.
+- Treat `assets/tailwind.css` as generated output from Dioxus/Tailwind.
+- Load generated `assets/tailwind.css` with Dioxus asset handling from `src/main.rs`.
 - Keep dark mode as the only theme in Tailwind tokens and utilities.
 - Prefer utility classes for layout, spacing, typography, color, responsive breakpoints, and interaction states.
 - Use small custom CSS additions only when Tailwind utilities cannot express the requirement cleanly.
@@ -216,6 +222,19 @@ Dark mode is the default and only theme.
 - Respect reduced-motion preferences.
 - Images need meaningful `alt` text or empty alt text when decorative.
 - Color cannot be the only signal for state.
+
+## Motion
+
+Use restrained animation only where it improves orientation or feedback. Performance remains the priority.
+
+- Prefer CSS transitions over JavaScript animation.
+- Animate only cheap properties such as `opacity`, `transform`, `color`, `background-color`, and `border-color`.
+- Avoid layout-triggering animation of width, height, top, left, margin, or expensive filters.
+- Keep durations short, usually `120ms - 220ms`.
+- Respect `prefers-reduced-motion`; disable nonessential movement when reduced motion is requested.
+- Do not animate skeletons beyond the existing motion-safe pulse.
+- Do not add scroll hijacking, heavy route-transition frameworks, or large animation dependencies.
+- Current motion primitives are CSS-only: `page-motion`, `section-motion`, `motion-delay-*`, and `interactive-lift`.
 
 ## Responsive Loading Skeletons
 
@@ -376,7 +395,7 @@ Contact is link-only for this website:
 
 ## Content Model
 
-Use structured content for predictable rendering.
+Use structured TOML content for predictable rendering. The current implementation bundles content at compile time with `include_str!`, parses it with `toml` and `serde`, and validates it before pages use it.
 
 ### Profile
 
@@ -386,10 +405,22 @@ role = "Software Engineer"
 location = "Optional"
 summary = "Short professional summary."
 email = "hello@example.com"
+```
+
+### Contact
+
+```toml
+[[links]]
+label = "Email"
+href = "mailto:hello@example.com"
+detail = "Open your mail client"
+external = false
 
 [[links]]
 label = "GitHub"
-url = "https://github.com/example"
+href = "https://github.com/example"
+detail = "Project and code profile"
+external = true
 ```
 
 ### Project
@@ -400,18 +431,33 @@ slug = "project-name"
 year = 2026
 status = "Shipped"
 summary = "One sentence summary."
+detail = "Longer case-study detail."
 role = "Lead developer"
 technologies = ["Rust", "Dioxus"]
-repository_url = "https://github.com/example/project"
-live_url = "https://example.com"
 featured = true
+```
+
+### Writing
+
+```markdown
++++
+title = "Post Title"
+slug = "post-title"
+summary = "Short summary."
+published = "2026-05-18"
+tags = ["Dioxus", "Security"]
++++
+
+Markdown body goes here.
 ```
 
 Rules:
 
 - Slugs must be unique and URL-safe.
 - URLs must be parsed and allowlisted by scheme, usually `https`.
+- Contact links may use `mailto:` or `https`; external links must use `https`.
 - Project content must not contain executable HTML or scripts.
+- Writing Markdown must escape raw HTML before rendering.
 - Missing optional links should not render empty controls.
 
 ## Routing
@@ -517,22 +563,24 @@ Each viewport should confirm:
 - Use the official Dioxus scaffold already present in the repository.
 - Keep Dioxus `0.7` with `fullstack` and `router` features enabled.
 - Establish route structure.
-- Add dark-only global styling through `assets/tailwind.css`.
+- Add dark-only global styling through root `tailwind.css`, emitted to `assets/tailwind.css`.
 - Add base layout, navigation, metadata, and 404 page.
 - Add Worker-level security header handling.
 
 ### Phase 2: Content System
 
-- Define profile, project, and writing content schemas.
-- Load and validate local content.
-- Render home, project index, and project detail pages from structured content.
-- Add tests for schema and route lookups.
+- Define profile, contact link, and project content schemas.
+- Load bundled TOML content into typed Rust models.
+- Validate local content for required fields, URL-safe slugs, unique slugs, allowed contact URL schemes, and featured project availability.
+- Render home, project index, project detail, contact, and footer content from structured content.
+- Add tests for schema validation and route lookup assumptions.
 
 ### Phase 3: Responsive UI
 
 - Implement mobile, tablet, and desktop layouts.
 - Add accessible navigation behavior.
 - Add reusable responsive skeleton components for delayed states.
+- Add restrained motion for hover, focus, and page-section reveal states without harming reduced-motion users.
 - Verify breakpoints manually and with browser checks.
 - Tune typography, spacing, and focus states.
 
@@ -559,11 +607,13 @@ Each viewport should confirm:
 - Dioxus Router owns route definitions through a `Routable` enum.
 - The production target is Cloudflare Workers using Wrangler and Cloudflare's official Worker APIs.
 - Dark mode is the only available theme.
-- Styling is driven by `assets/tailwind.css`.
+- Styling is authored in root `tailwind.css` and served from generated `assets/tailwind.css`.
 - Mobile, tablet, and desktop layouts are intentionally designed and tested.
 - Major pages render useful content without JavaScript.
 - Loading skeletons are responsive, accessible, motion-safe, and do not replace available SSR content.
 - Content is loaded through validated structured data.
+- Writing posts render from Markdown with TOML frontmatter and raw HTML escaping.
+- Motion is restrained, CSS-first, and disabled for reduced-motion users where appropriate.
 - Server-only logic and secrets are not included in client bundles.
 - Secure headers are configured for production.
 - Contact links are validated and no visitor-message data is collected.

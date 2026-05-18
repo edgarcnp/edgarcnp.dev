@@ -1,0 +1,9 @@
+title = "Progressive Loading System"
+slug = "progressive-loading-system"
+summary = "Responsive skeleton layouts for delayed states that keep dimensions stable across three major breakpoints."
+detail = "Skeleton components mirror final page dimensions across mobile, tablet, and desktop layouts while respecting reduced-motion preferences."
+year = 2026
+status = "Planned"
+role = "Frontend engineer"
+technologies = ["Tailwind", "Accessibility", "SSR"]
+featured = true

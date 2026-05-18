@@ -1,0 +1,9 @@
+title = "Secure Portfolio Platform"
+slug = "secure-portfolio-platform"
+summary = "A Dioxus Fullstack portfolio planned around SSR, Cloudflare Workers, static contact links, and strict content boundaries."
+detail = "This project establishes the portfolio foundation: Dioxus Fullstack, Dioxus Router, dark-only responsive UI, static contact links, and Cloudflare Worker deployment planning."
+year = 2026
+status = "In progress"
+role = "Owner and engineer"
+technologies = ["Rust", "Dioxus", "Cloudflare"]
+featured = true
