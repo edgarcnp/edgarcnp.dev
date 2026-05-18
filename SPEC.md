@@ -2,16 +2,16 @@
 
 ## Goal
 
-Build a secure, progressive, responsive portfolio website using Dioxus Fullstack with server-side rendering as the primary delivery path. The site should present professional identity, selected work, technical writing or notes, contact options, and basic operational metadata while keeping dark mode as the only supported visual theme.
+Build a secure, progressive, responsive portfolio website using Dioxus Fullstack with server-side rendering as the primary delivery path. The site should present professional identity, selected work, technical writing or notes, static contact links, and basic operational metadata while keeping dark mode as the only supported visual theme.
 
-Security is the top priority. Every feature that reads data, serves assets, handles contact forms, exposes APIs, or renders user-controlled content must be designed defensively first, then optimized for presentation and convenience.
+Security is the top priority. Every feature that reads data, serves assets, exposes APIs, or renders user-controlled content must be designed defensively first, then optimized for presentation and convenience.
 
 ## Core Principles
 
 - Default to SSR for fast first paint, crawlability, and graceful behavior when JavaScript fails.
 - Enhance progressively without assuming hydration is available on Cloudflare Workers.
 - Keep all sensitive configuration and server-only logic outside client bundles.
-- Treat all external input, content files, headers, query params, form submissions, and API responses as untrusted.
+- Treat all external input, content files, headers, query params, and API responses as untrusted.
 - Use a single dark theme. Do not add light-mode toggles, automatic theme switching, or user theme preferences.
 - Maintain responsive layouts across three primary breakpoints: mobile, tablet, and desktop.
 - Prefer simple, auditable data flows over dynamic behavior that increases attack surface.
@@ -19,17 +19,28 @@ Security is the top priority. Every feature that reads data, serves assets, hand
 ## Recommended Stack
 
 - Rust stable toolchain.
-- Dioxus Fullstack/SSR patterns compatible with the selected Dioxus release.
-- Dioxus Router for route organization.
+- Dioxus `0.7` with `fullstack` and `router` features enabled. As of May 18, 2026, the latest observed `0.7` patch release is `0.7.9`.
+- Dioxus Fullstack for SSR-capable application structure.
+- Dioxus Router for route organization through a `Routable` enum.
 - Cloudflare Workers as the production runtime.
 - Wrangler for local Worker preview and production deploys.
 - Worker-compatible Rust/WASM build output.
 - Cloudflare's official Worker APIs for request handling, bindings, secrets, and deployment configuration.
 - Static asset serving through Cloudflare with explicit cache and content-type handling.
+- Tailwind CSS through the project stylesheet at `assets/tailwind.css`.
 - Markdown or structured content files for portfolio/project data, parsed at build time or server startup.
 - Cloudflare D1, KV, R2, or Queues only if persistent storage or async processing becomes necessary.
 - No traditional always-on server process, local filesystem writes, or non-Worker-compatible runtime assumptions.
 - Do not add a third-party Cloudflare/Dioxus bridge crate unless explicitly approved later.
+
+## Agent Reference
+
+Agents working on this repository must follow `AGENTS.md`:
+
+- Use Dioxus 0.7 APIs only.
+- Do not use removed APIs such as `cx`, `Scope`, or `use_state`.
+- Use `#[component]`, `Element`, `rsx!`, `asset!`, `document::Link` or `document::Stylesheet`, `Router`, and `Routable` according to the current Dioxus 0.7 guidance.
+- Component props must be owned values and implement the traits required by Dioxus 0.7.
 
 ## Wrangler Configuration Reference
 
@@ -64,34 +75,28 @@ Use a structure close to this unless Dioxus project generation produces a clearl
     images/
     fonts/
     icons/
+    tailwind.css
   content/
     profile.toml
     projects/
     writing/
   src/
     main.rs
-    lib.rs
-    app.rs
-    routes/
+    components/
+      mod.rs
+      layout.rs
+      nav.rs
+      footer.rs
+      project_card.rs
+      skeleton.rs
+    views/
+      mod.rs
       home.rs
       projects.rs
       project_detail.rs
       writing.rs
       contact.rs
       not_found.rs
-    components/
-      layout.rs
-      nav.rs
-      footer.rs
-      project_card.rs
-      metadata.rs
-    server/
-      config.rs
-      content.rs
-      contact.rs
-      security.rs
-    styles/
-      app.css
   worker/
     Cargo.toml
     src/
@@ -102,6 +107,8 @@ Use a structure close to this unless Dioxus project generation produces a clearl
 Server-only code must stay behind server feature gates or in modules that are never compiled into the client target.
 
 The exact Worker layout should be chosen during implementation based on the official Cloudflare Worker APIs and current Dioxus build output. The main requirement is a clean boundary between reusable portfolio UI/content code and Worker-specific request handling, bindings, headers, and deployment config.
+
+The current official Dioxus scaffold uses `src/main.rs`, `src/components/`, and `src/views/`. Prefer evolving that structure instead of replacing it wholesale.
 
 ## Pages
 
@@ -132,8 +139,11 @@ The exact Worker layout should be chosen during implementation based on the offi
 
 ### Contact
 
-- Prefer static contact methods such as email links and verified social links.
-- If a contact form is added, it must be Worker-handled with CSRF protection, rate limiting, validation, spam controls, and no client-side-only trust.
+- Use static contact methods only.
+- Include a `mailto:` email link and verified social/profile links.
+- Do not implement an on-site contact form.
+- Do not collect, store, or relay visitor messages through this website.
+- External social links must use safe URL validation and safe link attributes.
 
 ### Not Found
 
@@ -182,6 +192,15 @@ Dark mode is the default and only theme.
 - Accent: one restrained accent color for links, focus rings, and selected states.
 - Error and success colors must meet contrast requirements against dark backgrounds.
 
+### Tailwind CSS
+
+- Use `assets/tailwind.css` as the primary styling entrypoint.
+- Load Tailwind with Dioxus asset handling from `src/main.rs`.
+- Keep dark mode as the only theme in Tailwind tokens and utilities.
+- Prefer utility classes for layout, spacing, typography, color, responsive breakpoints, and interaction states.
+- Use small custom CSS additions only when Tailwind utilities cannot express the requirement cleanly.
+- Do not add a separate light theme or theme toggle.
+
 ### Typography
 
 - Use system fonts by default unless a local self-hosted font is chosen.
@@ -200,7 +219,7 @@ Dark mode is the default and only theme.
 
 ## Responsive Loading Skeletons
 
-Plan first-class loading skeleton UI for data that may be delayed during Worker round trips, form submission, image loading, or future API-backed sections. Skeletons should match the final layout closely enough that loading does not cause visible layout jumps.
+Plan first-class loading skeleton UI for data that may be delayed during Worker round trips, image loading, or future API-backed sections. Skeletons should match the final layout closely enough that loading does not cause visible layout jumps.
 
 Skeletons are progressive enhancement only. Initial SSR responses should prefer real content whenever available. Do not replace server-rendered content with skeletons during any optional client startup.
 
@@ -244,7 +263,6 @@ Create reusable skeleton components:
 - `ProjectCardSkeleton` matching loaded project cards.
 - `ProjectGridSkeleton` matching the project index grid at each breakpoint.
 - `ArticleSkeleton` for writing or project-detail pages.
-- `ContactFormSkeleton` only if the secured contact form is implemented.
 
 Skeleton components should live near shared UI components, likely under `src/components/skeleton.rs` or a `src/components/skeleton/` module.
 
@@ -255,7 +273,6 @@ Use skeletons for:
 - Client-side route transitions when data is not immediately available.
 - Deferred project or writing lists if future data loading becomes async.
 - Images while local responsive images decode, if dimensions are known.
-- Contact form submission state only when it communicates temporary pending work without hiding validation results.
 
 Avoid skeletons for:
 
@@ -274,7 +291,7 @@ Required baseline behavior without JavaScript:
 - Main navigation works.
 - Home, project list, project detail, writing, and contact pages render.
 - External links work.
-- Contact fallback is available.
+- Static contact links are available.
 
 Enhanced behavior may include:
 
@@ -307,7 +324,7 @@ If hydration is not available, skeletons should be limited to CSS-based image pl
 - Never trust client-side validation.
 - Use explicit error types and return generic user-facing errors.
 - Do not expose stack traces, internal paths, environment variables, tokens, or database errors.
-- Apply rate limiting to mutating endpoints, especially contact form submission.
+- Apply rate limiting to any future mutating endpoint.
 - Require CSRF protection for form posts or server functions that mutate state or send messages.
 - Use Cloudflare bindings for secrets and services rather than embedding credentials in the bundle.
 - Treat Worker environment bindings as privileged server-side inputs and validate their presence during startup or first request.
@@ -347,17 +364,15 @@ The CSP should be restrictive by default:
 - Disallow path traversal in any dynamic asset or content lookup.
 - Set reasonable cache headers for immutable hashed assets.
 
-### Contact Form Security
+### Contact Link Security
 
-If implemented, the contact form must include:
+Contact is link-only for this website:
 
-- Server-side validation for name, email, message length, and allowed characters where appropriate.
-- CSRF token validation.
-- Rate limiting by IP and optionally by email hash.
-- Honeypot field or equivalent spam friction.
-- No reflected user input in error messages unless safely escaped.
-- Message delivery through a server-side provider using secrets that never reach the client.
-- Audit-conscious logging that avoids storing full message contents unless explicitly required.
+- Use `mailto:` for email contact.
+- Use verified `https` links for social profiles.
+- Validate contact URLs through the same structured content validation as other external links.
+- External links that open in a new tab must use `rel="noopener noreferrer"`.
+- Do not add a contact form, message relay, email provider integration, or visitor-message storage.
 
 ## Content Model
 
@@ -461,17 +476,16 @@ Avoid Cloudflare storage for secrets unless it is a dedicated secret binding. Pu
 - Content schema parsing.
 - Slug validation.
 - URL validation.
-- Contact form validation.
+- Contact link validation.
 - Security header generation.
 
 ### Integration Tests
 
 - SSR renders major routes.
 - Unknown project slug returns 404.
-- Contact form rejects invalid input.
-- Protected mutating requests reject missing or invalid CSRF tokens.
+- Invalid contact links fail content validation.
 - Worker preview serves major routes through `wrangler dev`.
-- Worker API or server-function endpoints reject malformed requests in the Cloudflare runtime.
+- Any future Worker API endpoints reject malformed requests in the Cloudflare runtime.
 
 ### Accessibility Checks
 
@@ -500,9 +514,10 @@ Each viewport should confirm:
 
 ### Phase 1: Foundation
 
-- Generate the Dioxus app and Cloudflare Worker deployment config, using `cf-dioxus` only as a Wrangler configuration reference.
+- Use the official Dioxus scaffold already present in the repository.
+- Keep Dioxus `0.7` with `fullstack` and `router` features enabled.
 - Establish route structure.
-- Add dark-only global CSS.
+- Add dark-only global styling through `assets/tailwind.css`.
 - Add base layout, navigation, metadata, and 404 page.
 - Add Worker-level security header handling.
 
@@ -524,9 +539,9 @@ Each viewport should confirm:
 ### Phase 4: Contact
 
 - Start with static contact links.
-- Add a secure Worker-handled contact form only if needed.
-- Implement validation, CSRF, rate limiting, spam controls, and generic errors.
-- Add integration tests for accepted and rejected submissions.
+- Add `mailto:` and verified social/profile links from structured content.
+- Validate all contact URLs.
+- Add tests for accepted and rejected contact link values.
 
 ### Phase 5: Hardening
 
@@ -540,16 +555,19 @@ Each viewport should confirm:
 ## Acceptance Criteria
 
 - The site is implemented as a Dioxus Fullstack SSR application.
+- The code follows `AGENTS.md` and Dioxus 0.7 APIs.
+- Dioxus Router owns route definitions through a `Routable` enum.
 - The production target is Cloudflare Workers using Wrangler and Cloudflare's official Worker APIs.
 - Dark mode is the only available theme.
+- Styling is driven by `assets/tailwind.css`.
 - Mobile, tablet, and desktop layouts are intentionally designed and tested.
 - Major pages render useful content without JavaScript.
 - Loading skeletons are responsive, accessible, motion-safe, and do not replace available SSR content.
 - Content is loaded through validated structured data.
 - Server-only logic and secrets are not included in client bundles.
 - Secure headers are configured for production.
-- User input is validated server-side.
-- Mutating actions are protected against CSRF and abuse.
+- Contact links are validated and no visitor-message data is collected.
+- Any future mutating actions are protected against CSRF and abuse.
 - Error messages do not leak internal details.
 - `wrangler dev` and production Worker deployment paths are verified.
 - Tests cover content validation, route behavior, and security-sensitive paths.
@@ -557,7 +575,6 @@ Each viewport should confirm:
 ## Open Decisions
 
 - Whether writing/blog content is required for the first release or should remain planned only.
-- Whether contact should remain static or include a secured form.
 - Whether the first release needs Worker API endpoints at all, or can remain SSR/static with static contact links.
 - Whether project screenshots will be local static assets or externally hosted images.
 - Whether analytics are required; default is no analytics.

@@ -1,0 +1,36 @@
+use crate::data::{ContactLink as ContactLinkData, CONTACT_LINKS};
+use dioxus::prelude::*;
+
+#[component]
+pub fn Contact() -> Element {
+    rsx! {
+        section { class: "max-w-3xl space-y-8",
+            header { class: "space-y-4",
+                p { class: "text-sm font-medium uppercase tracking-[0.18em] text-emerald-300", "Contact" }
+                h1 { class: "text-3xl font-semibold text-zinc-50 sm:text-4xl", "Static Contact Links" }
+                p { class: "text-base leading-7 text-zinc-400",
+                    "This site does not collect messages. Use email or a verified profile link to get in touch."
+                }
+            }
+            div { class: "grid gap-4 sm:grid-cols-2",
+                for link in CONTACT_LINKS {
+                    ContactItem { link }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn ContactItem(link: ContactLinkData) -> Element {
+    rsx! {
+        a {
+            class: "group rounded-md border border-zinc-800 bg-zinc-950/80 p-5 outline-none transition hover:border-emerald-300 focus-visible:ring-2 focus-visible:ring-emerald-300",
+            href: link.href,
+            target: if link.external { "_blank" },
+            rel: if link.external { "noopener noreferrer" },
+            span { class: "block text-lg font-semibold text-zinc-50 group-hover:text-emerald-300", "{link.label}" }
+            span { class: "mt-2 block text-sm leading-6 text-zinc-400", "{link.detail}" }
+        }
+    }
+}
