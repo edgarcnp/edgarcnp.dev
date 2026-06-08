@@ -7,15 +7,40 @@ edition = "2024"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+bytemuck = { version = "1", features = ["derive"], optional = true }
 dioxus = { version = "0.7", features = ["router", "fullstack"] }
 pulldown-cmark = { version = "0.13", default-features = false, features = ["html"] }
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
+wasm-bindgen = { version = "0.2", optional = true }
+wasm-bindgen-futures = { version = "0.4", optional = true }
+web-sys = { version = "0.3", optional = true, features = [
+    "console",
+    "Document",
+    "Element",
+    "EventTarget",
+    "HtmlCanvasElement",
+    "MediaQueryList",
+    "MouseEvent",
+    "Window",
+] }
+wgpu = { version = "29", default-features = false, features = [
+    "std",
+    "webgpu",
+    "wgsl",
+], optional = true }
 
 [features]
 default = ["web"]
 # The feature that are only required for the web = ["dioxus/web"] build target should be optional and only enabled in the web = ["dioxus/web"] feature
-web = ["dioxus/web"]
+web = [
+    "dep:bytemuck",
+    "dioxus/web",
+    "dep:wasm-bindgen",
+    "dep:wasm-bindgen-futures",
+    "dep:web-sys",
+    "dep:wgpu",
+]
 # The feature that are only required for the desktop = ["dioxus/desktop"] build target should be optional and only enabled in the desktop = ["dioxus/desktop"] feature
 desktop = ["dioxus/desktop"]
 # The feature that are only required for the mobile = ["dioxus/mobile"] build target should be optional and only enabled in the mobile = ["dioxus/mobile"] feature

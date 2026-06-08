@@ -7,7 +7,7 @@ pub fn Footer() -> Element {
 
     rsx! {
         footer {
-            class: "border-t border-zinc-800/80 px-5 py-8 text-sm text-zinc-500 sm:px-8 lg:px-12",
+            class: "site-content border-t border-zinc-800/80 px-5 py-8 text-sm text-zinc-500 sm:px-8 lg:px-12",
             div {
                 class: "mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
                 p { "© 2026 {profile.name}. Built with Dioxus." }
