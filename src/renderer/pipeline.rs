@@ -1,43 +1,68 @@
 use wgpu::util::DeviceExt;
 
-use super::scene::SceneUniforms;
+use super::scene::{ReactiveRectsUniform, SceneUniforms};
 
 pub struct ScenePipeline {
     pipeline: wgpu::RenderPipeline,
     uniform_buffer: wgpu::Buffer,
+    reactive_rects_buffer: wgpu::Buffer,
     bind_group: wgpu::BindGroup,
 }
 
 impl ScenePipeline {
     pub fn new(device: &wgpu::Device, format: wgpu::TextureFormat) -> Self {
         let initial_uniforms = SceneUniforms::default();
+        let initial_reactive_rects = ReactiveRectsUniform::default();
         let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("portfolio-scene-uniforms"),
             contents: bytemuck::bytes_of(&initial_uniforms),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
+        let reactive_rects_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("portfolio-reactive-rects"),
+            contents: bytemuck::bytes_of(&initial_reactive_rects),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        });
 
         let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("portfolio-scene-bind-group-layout"),
-            entries: &[wgpu::BindGroupLayoutEntry {
-                binding: 0,
-                visibility: wgpu::ShaderStages::FRAGMENT,
-                ty: wgpu::BindingType::Buffer {
-                    ty: wgpu::BufferBindingType::Uniform,
-                    has_dynamic_offset: false,
-                    min_binding_size: None,
+            entries: &[
+                wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
                 },
-                count: None,
-            }],
+                wgpu::BindGroupLayoutEntry {
+                    binding: 1,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                },
+            ],
         });
 
         let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             label: Some("portfolio-scene-bind-group"),
             layout: &bind_group_layout,
-            entries: &[wgpu::BindGroupEntry {
-                binding: 0,
-                resource: uniform_buffer.as_entire_binding(),
-            }],
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: uniform_buffer.as_entire_binding(),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: reactive_rects_buffer.as_entire_binding(),
+                },
+            ],
         });
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -82,12 +107,17 @@ impl ScenePipeline {
         Self {
             pipeline,
             uniform_buffer,
+            reactive_rects_buffer,
             bind_group,
         }
     }
 
     pub fn update_uniforms(&self, queue: &wgpu::Queue, uniforms: SceneUniforms) {
         queue.write_buffer(&self.uniform_buffer, 0, bytemuck::bytes_of(&uniforms));
+    }
+
+    pub fn update_reactive_rects(&self, queue: &wgpu::Queue, rects: ReactiveRectsUniform) {
+        queue.write_buffer(&self.reactive_rects_buffer, 0, bytemuck::bytes_of(&rects));
     }
 
     pub fn render(&self, encoder: &mut wgpu::CommandEncoder, view: &wgpu::TextureView) {

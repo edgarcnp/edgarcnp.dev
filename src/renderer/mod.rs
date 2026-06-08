@@ -5,6 +5,8 @@ mod gpu;
 #[cfg(target_arch = "wasm32")]
 mod input;
 #[cfg(target_arch = "wasm32")]
+mod layout;
+#[cfg(target_arch = "wasm32")]
 mod pipeline;
 #[cfg(target_arch = "wasm32")]
 mod scene;

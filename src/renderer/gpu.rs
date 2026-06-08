@@ -101,16 +101,17 @@ impl GpuContext {
         })
     }
 
-    pub fn resize_if_needed(&mut self) {
+    pub fn resize_if_needed(&mut self) -> bool {
         let size = self.size_policy.size_for(&self.canvas);
         if size.width == self.config.width && size.height == self.config.height {
-            return;
+            return false;
         }
 
         size.apply_to(&self.canvas);
         self.config.width = size.width;
         self.config.height = size.height;
         self.surface.configure(&self.device, &self.config);
+        true
     }
 
     pub fn current_texture(&mut self) -> Option<wgpu::SurfaceTexture> {

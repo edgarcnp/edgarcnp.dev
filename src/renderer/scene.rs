@@ -1,5 +1,7 @@
 use super::input::InputSnapshot;
 
+pub const MAX_REACTIVE_RECTS: usize = 32;
+
 #[repr(C)]
 #[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct SceneUniforms {
@@ -20,6 +22,34 @@ impl Default for SceneUniforms {
             pointer: [0.5, 0.5],
             reduced_motion: 0.0,
             intensity: 1.0,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Default, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct ReactiveRectGpu {
+    pub center: [f32; 2],
+    pub half_size: [f32; 2],
+    pub radius: f32,
+    pub influence: f32,
+    pub _padding: [f32; 2],
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct ReactiveRectsUniform {
+    pub count: u32,
+    pub _padding: [u32; 3],
+    pub rects: [ReactiveRectGpu; MAX_REACTIVE_RECTS],
+}
+
+impl Default for ReactiveRectsUniform {
+    fn default() -> Self {
+        Self {
+            count: 0,
+            _padding: [0; 3],
+            rects: [ReactiveRectGpu::default(); MAX_REACTIVE_RECTS],
         }
     }
 }

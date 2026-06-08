@@ -18,7 +18,11 @@ pub fn Projects() -> Element {
                     ProjectCard { project: project.clone() }
                 }
             }
-            details { class: "section-motion motion-delay-2 rounded-md border border-zinc-800 bg-zinc-950/70 p-5",
+            details {
+                class: "section-motion motion-delay-2 rounded-md border border-zinc-800 bg-zinc-950/70 p-5",
+                "data-bg-reactive": "projects-skeleton-preview",
+                "data-bg-radius": "12",
+                "data-bg-influence": "0.9",
                 summary { class: "cursor-pointer text-sm font-medium text-zinc-200", "Loading skeleton preview" }
                 div { class: "mt-5",
                     ProjectGridSkeleton {}

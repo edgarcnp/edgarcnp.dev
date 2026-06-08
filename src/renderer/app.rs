@@ -8,6 +8,7 @@ use web_sys::{HtmlCanvasElement, window};
 
 use super::gpu::{GpuContext, RendererError};
 use super::input::SceneInput;
+use super::layout::ReactiveBoundsTracker;
 use super::pipeline::ScenePipeline;
 use super::scene::SceneState;
 
@@ -90,6 +91,7 @@ fn start_loop(renderer: Renderer) -> SceneHandle {
 struct Renderer {
     gpu: GpuContext,
     input: SceneInput,
+    bounds: ReactiveBoundsTracker,
     scene: SceneState,
     pipeline: ScenePipeline,
 }
@@ -98,19 +100,27 @@ impl Renderer {
     async fn new(canvas: HtmlCanvasElement) -> Result<Self, RendererError> {
         let gpu = GpuContext::new(canvas).await?;
         let input = SceneInput::new();
+        let bounds = ReactiveBoundsTracker::new();
         let scene = SceneState::new();
         let pipeline = ScenePipeline::new(&gpu.device, gpu.config.format);
 
         Ok(Self {
             gpu,
             input,
+            bounds,
             scene,
             pipeline,
         })
     }
 
     fn frame(&mut self, dt: f32) {
-        self.gpu.resize_if_needed();
+        if self.gpu.resize_if_needed() {
+            self.bounds.mark_dirty();
+        }
+        if let Some(rects) = self.bounds.measure_if_dirty() {
+            self.pipeline
+                .update_reactive_rects(&self.gpu.queue, rects);
+        }
         self.scene.update(dt, &self.input.snapshot());
         self.pipeline.update_uniforms(
             &self.gpu.queue,
