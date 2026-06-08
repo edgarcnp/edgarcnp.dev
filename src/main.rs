@@ -40,10 +40,10 @@ fn App() -> Element {
     rsx! {
         document::Link { rel: "icon", href: FAVICON }
         document::Link { rel: "stylesheet", href: TAILWIND_CSS }
-        document::Title { "Edgar Christian - Portfolio" }
+        document::Title { "Edgar Christian" }
         document::Meta {
             name: "description",
-            content: "Secure, dark-mode portfolio for Edgar Christian."
+            content: "Portfolio website for Edgar Christian."
         }
         Router::<Route> {}
     }

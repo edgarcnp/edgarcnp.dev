@@ -1,11 +1,11 @@
 [[links]]
 label = "Email"
-href = "mailto:me@edgarcnp.dev"
+href = "mailto:hello@edgarcnp.dev"
 detail = "Open your mail client"
 external = false
 
 [[links]]
-label = "GitHub"
-href = "https://github.com/edgarcnp"
+label = "Codeberg"
+href = "https://codeberg.org/edgarcnp"
 detail = "Project and code profile"
 external = true
