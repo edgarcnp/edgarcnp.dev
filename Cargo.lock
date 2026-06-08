@@ -1788,6 +1788,7 @@ version = "0.1.0"
 dependencies = [
  "bytemuck",
  "dioxus",
+ "naga",
  "pulldown-cmark",
  "serde",
  "toml",

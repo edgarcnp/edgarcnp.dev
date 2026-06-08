@@ -18,10 +18,16 @@ web-sys = { version = "0.3", optional = true, features = [
     "console",
     "Document",
     "Element",
+    "Event",
     "EventTarget",
     "HtmlCanvasElement",
     "MediaQueryList",
     "MouseEvent",
+    "MutationObserver",
+    "MutationObserverInit",
+    "Node",
+    "NodeList",
+    "ResizeObserver",
     "Window",
 ] }
 wgpu = { version = "29", default-features = false, features = [
@@ -29,6 +35,9 @@ wgpu = { version = "29", default-features = false, features = [
     "webgpu",
     "wgsl",
 ], optional = true }
+
+[dev-dependencies]
+naga = "29.0.3"
 
 [features]
 default = ["web"]
