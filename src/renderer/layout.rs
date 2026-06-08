@@ -14,6 +14,8 @@ const DEFAULT_RADIUS: f32 = 10.0;
 const DEFAULT_INFLUENCE: f32 = 1.0;
 const OFFSCREEN_MARGIN_PX: f32 = 96.0;
 const SETTLE_FRAMES: u8 = 8;
+#[cfg(debug_assertions)]
+const DEBUG_OVERLAY_ID: &str = "portfolio-reactive-rect-debug-overlay";
 
 pub struct ComponentBounds {
     pub id: String,
@@ -34,6 +36,8 @@ pub struct ReactiveBoundsTracker {
     _mutation_callback: Option<Closure<dyn FnMut()>>,
     _window_size_listener: Option<Closure<dyn FnMut(Event)>>,
     _scroll_listener: Option<Closure<dyn FnMut(Event)>>,
+    #[cfg(debug_assertions)]
+    debug_signature: Option<String>,
 }
 
 impl ReactiveBoundsTracker {
@@ -61,6 +65,8 @@ impl ReactiveBoundsTracker {
             _mutation_callback: mutation_callback,
             _window_size_listener: window_size_listener,
             _scroll_listener: scroll_listener,
+            #[cfg(debug_assertions)]
+            debug_signature: None,
         }
     }
 
@@ -145,7 +151,21 @@ impl ReactiveBoundsTracker {
             });
         }
 
+        self.update_debug_overlay(&bounds);
         viewport.normalize(&bounds)
+    }
+
+    fn update_debug_overlay(&mut self, bounds: &[ComponentBounds]) {
+        #[cfg(debug_assertions)]
+        {
+            let signature = debug_signature(bounds);
+            if self.debug_signature.as_deref() == Some(signature.as_str()) {
+                return;
+            }
+
+            self.debug_signature = Some(signature);
+            render_debug_overlay(bounds);
+        }
     }
 }
 
@@ -267,4 +287,205 @@ fn window_listener(
 fn mark_dirty(dirty: &Cell<bool>, settle_frames: &Cell<u8>) {
     dirty.set(true);
     settle_frames.set(SETTLE_FRAMES);
+}
+
+#[cfg(debug_assertions)]
+fn debug_signature(bounds: &[ComponentBounds]) -> String {
+    let mut signature = String::new();
+    for bounds in bounds {
+        signature.push_str(&format!(
+            "{}:{:.1}:{:.1}:{:.1}:{:.1}:{:.1}:{:.2};",
+            bounds.id,
+            bounds.x,
+            bounds.y,
+            bounds.width,
+            bounds.height,
+            bounds.radius,
+            bounds.influence
+        ));
+    }
+    signature
+}
+
+#[cfg(debug_assertions)]
+fn render_debug_overlay(bounds: &[ComponentBounds]) {
+    let Some(document) = window().and_then(|window| window.document()) else {
+        return;
+    };
+    let Some(root) = document.document_element() else {
+        return;
+    };
+
+    let overlay = if let Some(overlay) = document.get_element_by_id(DEBUG_OVERLAY_ID) {
+        overlay
+    } else {
+        let Ok(overlay) = document.create_element("div") else {
+            return;
+        };
+        overlay.set_id(DEBUG_OVERLAY_ID);
+        let _ = root.append_child(&overlay);
+        overlay
+    };
+
+    overlay.set_text_content(None);
+    let _ = overlay.set_attribute(
+        "style",
+        concat!(
+            "position:fi",
+            "xed;inset:0;z-index:2147483647;",
+            "pointer-events:none;font:11px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;",
+            "color:#f8fafc;"
+        ),
+    );
+
+    if let Ok(panel) = document.create_element("div") {
+        let _ = panel.set_attribute(
+            "style",
+            concat!(
+                "position:fi",
+                "xed;right:12px;top:12px;max-width:min(520px,calc(100vw - 24px));",
+                "max-height:calc(100vh - 24px);overflow:auto;padding:10px 12px;",
+                "border:1px solid rgba(250,204,21,.85);background:rgba(2,6,23,.88);",
+                "box-shadow:0 0 0 1px rgba(0,0,0,.45),0 12px 32px rgba(0,0,0,.45);",
+                "border-radius:6px;white-space:pre;pointer-events:none;"
+            ),
+        );
+        panel.set_text_content(Some(&debug_panel_text(bounds)));
+        let _ = overlay.append_child(&panel);
+    }
+
+    for (index, bounds) in bounds.iter().enumerate() {
+        let color = debug_color(index);
+        let Ok(rect) = document.create_element("div") else {
+            continue;
+        };
+        let _ = rect.set_attribute(
+            "style",
+            &format!(
+                concat!(
+                    "position:fi",
+                    "xed;left:{:.1}px;top:{:.1}px;width:{:.1}px;height:{:.1}px;",
+                    "border:1px solid {};box-shadow:0 0 0 1px rgba(0,0,0,.7),0 0 18px {};",
+                    "background:{};border-radius:{:.1}px;box-sizing:border-box;",
+                    "pointer-events:none;"
+                ),
+                bounds.x,
+                bounds.y,
+                bounds.width,
+                bounds.height,
+                color.border,
+                color.glow,
+                color.fill,
+                bounds.radius
+            ),
+        );
+
+        if let Ok(label) = document.create_element("div") {
+            let _ = label.set_attribute(
+                "style",
+                &format!(
+                    concat!(
+                        "position:absolute;left:0;top:0;max-width:min(360px,{:.1}px);",
+                        "transform:translateY(-100%);padding:3px 5px;",
+                        "background:{};border:1px solid {};border-bottom:0;",
+                        "border-radius:4px 4px 0 0;color:#f8fafc;",
+                        "text-shadow:0 1px 2px rgba(0,0,0,.9);white-space:pre;"
+                    ),
+                    bounds.width.max(120.0),
+                    color.label,
+                    color.border
+                ),
+            );
+            label.set_text_content(Some(&format!(
+                "{}\nx {:.1} y {:.1}  w {:.1} h {:.1}\nr {:.1}  i {:.2}",
+                bounds.id,
+                bounds.x,
+                bounds.y,
+                bounds.width,
+                bounds.height,
+                bounds.radius,
+                bounds.influence
+            )));
+            let _ = rect.append_child(&label);
+        }
+
+        let _ = overlay.append_child(&rect);
+    }
+}
+
+#[cfg(debug_assertions)]
+fn debug_panel_text(bounds: &[ComponentBounds]) -> String {
+    let mut text = format!(
+        "Reactive rects sent to wgpu: {} / {}\n\n",
+        bounds.len(),
+        MAX_REACTIVE_RECTS
+    );
+
+    for (index, bounds) in bounds.iter().enumerate() {
+        text.push_str(&format!(
+            "#{index:02} {}\n  x {:.1}  y {:.1}  w {:.1}  h {:.1}\n  radius {:.1}  influence {:.2}\n",
+            bounds.id,
+            bounds.x,
+            bounds.y,
+            bounds.width,
+            bounds.height,
+            bounds.radius,
+            bounds.influence
+        ));
+    }
+
+    text
+}
+
+#[cfg(debug_assertions)]
+#[derive(Clone, Copy)]
+struct DebugColor {
+    border: &'static str,
+    fill: &'static str,
+    glow: &'static str,
+    label: &'static str,
+}
+
+#[cfg(debug_assertions)]
+fn debug_color(index: usize) -> DebugColor {
+    const COLORS: [DebugColor; 6] = [
+        DebugColor {
+            border: "#facc15",
+            fill: "rgba(250,204,21,.08)",
+            glow: "rgba(250,204,21,.42)",
+            label: "rgba(113,63,18,.96)",
+        },
+        DebugColor {
+            border: "#22d3ee",
+            fill: "rgba(34,211,238,.08)",
+            glow: "rgba(34,211,238,.42)",
+            label: "rgba(21,94,117,.96)",
+        },
+        DebugColor {
+            border: "#a78bfa",
+            fill: "rgba(167,139,250,.08)",
+            glow: "rgba(167,139,250,.42)",
+            label: "rgba(76,29,149,.96)",
+        },
+        DebugColor {
+            border: "#34d399",
+            fill: "rgba(52,211,153,.08)",
+            glow: "rgba(52,211,153,.42)",
+            label: "rgba(6,95,70,.96)",
+        },
+        DebugColor {
+            border: "#fb7185",
+            fill: "rgba(251,113,133,.08)",
+            glow: "rgba(251,113,133,.42)",
+            label: "rgba(159,18,57,.96)",
+        },
+        DebugColor {
+            border: "#fb923c",
+            fill: "rgba(251,146,60,.08)",
+            glow: "rgba(251,146,60,.42)",
+            label: "rgba(154,52,18,.96)",
+        },
+    ];
+
+    COLORS[index % COLORS.len()]
 }
