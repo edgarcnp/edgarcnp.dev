@@ -6,8 +6,6 @@ use views::{
 
 mod components;
 mod data;
-#[cfg(feature = "web")]
-mod renderer;
 mod views;
 
 #[derive(Debug, Clone, Routable, PartialEq)]

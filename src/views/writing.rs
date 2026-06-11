@@ -19,11 +19,7 @@ pub fn Writing() -> Element {
                     WritingCard { post: post.clone() }
                 }
             }
-            details {
-                class: "section-motion motion-delay-2 rounded-md border border-zinc-800 bg-zinc-950/70 p-5",
-                "data-bg-reactive": "writing-skeleton-preview",
-                "data-bg-radius": "12",
-                "data-bg-influence": "0.9",
+            details { class: "section-motion motion-delay-2 rounded-md border border-zinc-800 bg-zinc-950/70 p-5",
                 summary { class: "cursor-pointer text-sm font-medium text-zinc-200", "Writing skeleton preview" }
                 div { class: "mt-5",
                     WritingListSkeleton {}
@@ -59,11 +55,7 @@ pub fn WritingPost(slug: String) -> Element {
                     class: "markdown-body",
                     dangerous_inner_html: "{post.html}",
                 }
-                details {
-                    class: "rounded-md border border-zinc-800 bg-zinc-950/70 p-5",
-                    "data-bg-reactive": "writing-post-preview",
-                    "data-bg-radius": "12",
-                    "data-bg-influence": "0.9",
+                details { class: "rounded-md border border-zinc-800 bg-zinc-950/70 p-5",
                     summary { class: "cursor-pointer text-sm font-medium text-zinc-200", "Writing post skeleton preview" }
                     div { class: "mt-5",
                         WritingPostSkeleton {}
@@ -88,31 +80,24 @@ pub fn WritingPost(slug: String) -> Element {
 
 #[component]
 fn WritingCard(post: WritingPostData) -> Element {
-    let reactive_id = format!("writing-card-{}", post.slug);
-
     rsx! {
-        article {
-            "data-bg-reactive": "{reactive_id}",
-            "data-bg-radius": "12",
-            "data-bg-influence": "1",
-            Link {
-                class: "interactive-lift group block rounded-md border border-zinc-800 bg-zinc-950/80 p-5 outline-none hover:border-emerald-300 focus-visible:ring-2 focus-visible:ring-emerald-300",
-                to: Route::WritingPost { slug: post.slug.clone() },
-                div { class: "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between",
-                    div { class: "space-y-3",
-                        p { class: "text-xs uppercase tracking-wide text-zinc-500", "{post.published}" }
-                        h2 { class: "text-xl font-semibold text-zinc-50", "{post.title}" }
-                        p { class: "leading-7 text-zinc-400", "{post.summary}" }
-                        ul { class: "flex flex-wrap gap-2",
-                            for tag in post.tags.iter() {
-                                li { class: "rounded-sm bg-zinc-900 px-2 py-1 text-xs text-zinc-300", "{tag}" }
-                            }
+        Link {
+            class: "interactive-lift group block rounded-md border border-zinc-800 bg-zinc-950/80 p-5 outline-none hover:border-emerald-300 focus-visible:ring-2 focus-visible:ring-emerald-300",
+            to: Route::WritingPost { slug: post.slug.clone() },
+            div { class: "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between",
+                div { class: "space-y-3",
+                    p { class: "text-xs uppercase tracking-wide text-zinc-500", "{post.published}" }
+                    h2 { class: "text-xl font-semibold text-zinc-50", "{post.title}" }
+                    p { class: "leading-7 text-zinc-400", "{post.summary}" }
+                    ul { class: "flex flex-wrap gap-2",
+                        for tag in post.tags.iter() {
+                            li { class: "rounded-sm bg-zinc-900 px-2 py-1 text-xs text-zinc-300", "{tag}" }
                         }
                     }
-                    span {
-                        class: "w-fit shrink-0 rounded-sm text-sm font-medium text-emerald-300 underline-offset-4 group-hover:underline",
-                        "Read"
-                    }
+                }
+                span {
+                    class: "w-fit shrink-0 rounded-sm text-sm font-medium text-emerald-300 underline-offset-4 group-hover:underline",
+                    "Read"
                 }
             }
         }

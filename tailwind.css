@@ -1,26 +1,6 @@
 @import "tailwindcss";
 
 @layer components {
-  .site-shell {
-    position: relative;
-    isolation: isolate;
-  }
-
-  .site-content {
-    position: relative;
-    z-index: 1;
-  }
-
-  .scene-canvas {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.62;
-    pointer-events: none;
-  }
-
   .page-motion {
     animation: page-enter 180ms ease-out both;
   }

@@ -11,14 +11,9 @@ pub fn Home() -> Element {
         div { class: "space-y-14",
             section {
                 class: "section-motion grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-end",
-                div {
-                    class: "space-y-7",
+                div { class: "space-y-7",
                     p { class: "text-sm font-medium uppercase tracking-[0.18em] text-emerald-300", "Portfolio" }
-                    div {
-                        class: "space-y-5",
-                        "data-bg-reactive": "home-hero",
-                        "data-bg-radius": "16",
-                        "data-bg-influence": "0.45",
+                    div { class: "space-y-5",
                         h1 { class: "max-w-3xl text-4xl font-semibold tracking-normal text-zinc-50 sm:text-5xl lg:text-6xl", "{profile.name}" }
                         p { class: "max-w-2xl text-lg leading-8 text-zinc-300 sm:text-xl",
                             "{profile.summary}"
@@ -39,9 +34,6 @@ pub fn Home() -> Element {
                 }
                 aside {
                     class: "rounded-md border border-zinc-800 bg-zinc-950/80 p-5",
-                    "data-bg-reactive": "home-focus-panel",
-                    "data-bg-radius": "12",
-                    "data-bg-influence": "1",
                     h2 { class: "text-sm font-semibold uppercase tracking-[0.16em] text-zinc-400", "Focus" }
                     dl { class: "mt-5 grid gap-4 sm:grid-cols-3 lg:grid-cols-1",
                         div {

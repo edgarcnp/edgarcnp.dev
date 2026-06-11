@@ -23,17 +23,9 @@ pub fn Contact() -> Element {
 
 #[component]
 fn ContactItem(link: ContactLinkData) -> Element {
-    let reactive_id = format!(
-        "contact-card-{}",
-        link.label.to_ascii_lowercase().replace(' ', "-")
-    );
-
     rsx! {
         a {
             class: "interactive-lift group rounded-md border border-zinc-800 bg-zinc-950/80 p-5 outline-none hover:border-emerald-300 focus-visible:ring-2 focus-visible:ring-emerald-300",
-            "data-bg-reactive": "{reactive_id}",
-            "data-bg-radius": "12",
-            "data-bg-influence": "1",
             href: link.href,
             target: if link.external { "_blank" },
             rel: if link.external { "noopener noreferrer" },

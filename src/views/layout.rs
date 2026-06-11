@@ -1,15 +1,14 @@
 use crate::Route;
-use crate::components::{Footer, SceneCanvas};
+use crate::components::Footer;
 use dioxus::prelude::*;
 
 #[component]
 pub fn PortfolioLayout() -> Element {
     rsx! {
         div {
-            class: "site-shell min-h-screen bg-zinc-950 text-zinc-100 antialiased",
-            SceneCanvas {}
+            class: "min-h-screen bg-zinc-950 text-zinc-100 antialiased",
             header {
-                class: "site-content sticky top-0 z-20 border-b border-zinc-800/80 bg-zinc-950/90 px-5 py-4 backdrop-blur sm:px-8 lg:px-12",
+                class: "sticky top-0 z-20 border-b border-zinc-800/80 bg-zinc-950/90 px-5 py-4 backdrop-blur sm:px-8 lg:px-12",
                 nav {
                     class: "mx-auto flex max-w-6xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
                     Link {
@@ -26,7 +25,7 @@ pub fn PortfolioLayout() -> Element {
                 }
             }
             main {
-                class: "site-content page-motion mx-auto w-full max-w-6xl px-5 py-10 sm:px-8 sm:py-14 lg:px-12 lg:py-16",
+                class: "page-motion mx-auto w-full max-w-6xl px-5 py-10 sm:px-8 sm:py-14 lg:px-12 lg:py-16",
                 Outlet::<Route> {}
             }
             Footer {}

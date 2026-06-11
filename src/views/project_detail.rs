@@ -32,11 +32,7 @@ pub fn ProjectDetail(slug: String) -> Element {
                         "Project detail pages currently render from typed static Rust data. The next phase will migrate this data into structured files while preserving validation."
                     }
                 }
-                details {
-                    class: "rounded-md border border-zinc-800 bg-zinc-950/70 p-5",
-                    "data-bg-reactive": "project-article-preview",
-                    "data-bg-radius": "12",
-                    "data-bg-influence": "0.9",
+                details { class: "rounded-md border border-zinc-800 bg-zinc-950/70 p-5",
                     summary { class: "cursor-pointer text-sm font-medium text-zinc-200", "Article skeleton preview" }
                     div { class: "mt-5",
                         ArticleSkeleton {}
@@ -61,14 +57,8 @@ pub fn ProjectDetail(slug: String) -> Element {
 
 #[component]
 fn Stat(label: String, value: String) -> Element {
-    let reactive_id = format!("project-stat-{}", label.to_ascii_lowercase().replace(' ', "-"));
-
     rsx! {
-        div {
-            class: "rounded-md border border-zinc-800 bg-zinc-950/70 p-4",
-            "data-bg-reactive": "{reactive_id}",
-            "data-bg-radius": "10",
-            "data-bg-influence": "0.85",
+        div { class: "rounded-md border border-zinc-800 bg-zinc-950/70 p-4",
             dt { class: "text-xs uppercase tracking-wide text-zinc-500", "{label}" }
             dd { class: "mt-1 font-medium text-zinc-100", "{value}" }
         }
