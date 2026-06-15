@@ -20,6 +20,7 @@
 - [ ] Do not write custom JavaScript for animation, layout, routing, resize handling, breakpoint detection, or interaction behavior.
 - [ ] Do not introduce browser-side JavaScript dependencies for the redesign unless the user explicitly approves a specific exception.
 - [ ] Large animation frameworks are allowed in principle if they are explicitly approved, work cleanly with Dioxus, respect `prefers-reduced-motion`, keep content usable without motion, and do not require custom JavaScript glue code.
+- [ ] Do not add JavaScript files, inline scripts, or `Dioxus.toml` script entries for the redesign.
 - [ ] Do not require WebGPU, canvas, or 3D rendering for the main experience.
 - [ ] Do not make the homepage a generic marketing landing page.
 - [ ] Do not hide content behind a puzzle, command palette, game, or forced exploration flow.
@@ -861,7 +862,8 @@
 - [ ] If a large animation framework is proposed, document why CSS/SVG is insufficient and verify reduced-motion behavior before implementation.
 - [ ] Avoid large rendering loops.
 - [ ] Avoid canvas/WebGPU for the chosen direction.
-- [ ] Avoid hydration-sensitive browser APIs unless placed in `use_effect`.
+- [ ] Do not use `use_effect`, `web_sys`, browser event listeners, or hydration-sensitive browser APIs for visual behavior in this redesign.
+- [ ] If a future non-visual feature truly requires browser APIs, handle it as a separate scoped decision outside this redesign plan.
 
 ### 14.2 CSS
 
@@ -881,6 +883,9 @@
 
 - [ ] Ensure `dx build --platform web --release` still succeeds.
 - [ ] Ensure release output remains compatible with Cloudflare asset serving.
+- [ ] Confirm `Dioxus.toml` still has no added script entries.
+- [ ] Confirm `package.json` has no new browser-side animation/runtime dependencies unless explicitly approved.
+- [ ] Confirm no new handwritten `.js` or `.mjs` files were added for the redesign.
 
 ## 15. Security And Content Safety
 
@@ -1153,6 +1158,8 @@
 - [ ] Markdown safety is preserved.
 - [ ] External links remain safe.
 - [ ] No unnecessary dependencies are added.
+- [ ] No handwritten JavaScript is added for the redesign.
+- [ ] No browser-side animation/runtime dependency is added without explicit approval.
 - [ ] Release build succeeds.
 
 ### 19.3 Responsive Acceptance
@@ -1191,6 +1198,7 @@
 - [ ] Should the blueprint diagram be inline SVG component code or an asset file?
 - [ ] Should capability content live in Rust constants or structured content files?
 - [ ] Should profile content gain availability/focus fields?
+- [ ] If an animation framework is proposed later, which one, why CSS/SVG is insufficient, and how it respects reduced motion without custom JS?
 
 ## 21. Suggested First Implementation Pass
 
