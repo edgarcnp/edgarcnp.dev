@@ -6,12 +6,14 @@
     "build": "dx build --platform web --release",
     "check": "cargo check",
     "clippy": "cargo clippy --all-targets --no-default-features --features web -- -D warnings",
-    "deploy": "npm run build && wrangler deploy",
-    "deploy:dry-run": "npm run build && wrangler deploy --dry-run",
+    "cloudflare:headers": "cp cloudflare/_headers target/dx/edgarcnp-dev/release/web/public/_headers",
+    "cloudflare:prepare": "npm run build && npm run cloudflare:headers",
+    "deploy": "npm run cloudflare:prepare && wrangler deploy",
+    "deploy:dry-run": "npm run cloudflare:prepare && wrangler deploy --dry-run",
     "dx:check": "dx check",
     "fmt:check": "cargo fmt --check",
     "test": "cargo test",
-    "wrangler:dev": "npm run build && wrangler dev"
+    "wrangler:dev": "npm run cloudflare:prepare && wrangler dev"
   },
   "devDependencies": {
     "wrangler": "4.92.0"

@@ -1,9 +1,0 @@
-title = "Structured Portfolio Content"
-slug = "structured-portfolio-content"
-summary = "Validated local content files for profile data, project metadata, writing, and external links."
-detail = "This phase migrates static Rust data into structured files while preserving the typed validation boundary."
-year = 2026
-status = "Planned"
-role = "Rust engineer"
-technologies = ["Rust", "Validation", "Content"]
-featured = false

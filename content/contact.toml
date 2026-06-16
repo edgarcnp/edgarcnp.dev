@@ -1,11 +1,13 @@
 [[links]]
 label = "Email"
+kind = "email"
 href = "mailto:hello@edgarcnp.dev"
 detail = "Open your mail client"
 external = false
 
 [[links]]
 label = "Codeberg"
+kind = "code"
 href = "https://codeberg.org/edgarcnp"
 detail = "Project and code profile"
 external = true

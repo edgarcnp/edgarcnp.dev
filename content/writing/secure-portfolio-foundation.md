@@ -3,6 +3,7 @@ title = "Building a Secure Portfolio Foundation"
 slug = "secure-portfolio-foundation"
 summary = "A short note on starting this portfolio with SSR, static content validation, and restrained progressive enhancement."
 published = "2026-05-18"
+updated = "2026-06-16"
 tags = ["Dioxus", "Security", "Cloudflare"]
 +++
 

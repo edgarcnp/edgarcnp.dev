@@ -43,7 +43,7 @@ fn App() -> Element {
         document::Title { "Edgar Christian" }
         document::Meta {
             name: "description",
-            content: "Portfolio website for Edgar Christian."
+            content: "Edgar Christian's personal website."
         }
         Router::<Route> {}
     }

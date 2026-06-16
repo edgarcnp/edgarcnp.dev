@@ -1,0 +1,19 @@
+[[capabilities]]
+label = "Responsive"
+title = "Stable layout frames"
+description = "Interfaces that keep dimensions predictable across mobile, tablet, and desktop."
+
+[[capabilities]]
+label = "Content"
+title = "Validated boundaries"
+description = "Typed local content, safe Markdown rendering, and static contact paths."
+
+[[capabilities]]
+label = "Edge"
+title = "Cloudflare-ready"
+description = "A small deployment surface that keeps runtime assumptions explicit."
+
+[[capabilities]]
+label = "Motion"
+title = "Reduced-motion aware"
+description = "CSS and SVG motion used for orientation, with browser motion preferences respected."

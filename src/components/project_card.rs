@@ -1,4 +1,5 @@
 use crate::Route;
+use crate::components::{StatusBadge, TechTag};
 use crate::data::Project;
 use dioxus::prelude::*;
 
@@ -6,33 +7,48 @@ use dioxus::prelude::*;
 pub fn ProjectCard(project: Project) -> Element {
     rsx! {
         Link {
-            class: "interactive-lift group flex h-full flex-col justify-between rounded-md border border-zinc-800 bg-zinc-950/80 p-5 shadow-sm shadow-black/20 outline-none hover:border-emerald-400/60 focus-visible:ring-2 focus-visible:ring-emerald-300",
+            class: "blueprint-module blueprint-module-link group flex h-full min-h-72 flex-col justify-between p-5 outline-none focus-visible:ring-2 focus-visible:ring-[var(--blueprint-accent)]",
             to: Route::ProjectDetail { slug: project.slug.clone() },
-            div {
-                class: "space-y-4",
-                div {
-                    class: "flex items-start justify-between gap-4",
-                    h3 { class: "text-lg font-semibold text-zinc-50", "{project.title}" }
+            div { class: "space-y-5",
+                div { class: "flex items-start justify-between gap-4",
+                    div { class: "space-y-3",
+                        if project.pinned {
+                            span { class: "inline-flex w-fit items-center gap-1.5 rounded-sm border border-[rgba(246,201,107,0.35)] bg-[rgba(246,201,107,0.07)] px-2 py-1 font-mono text-[0.68rem] font-semibold uppercase tracking-wide text-[var(--blueprint-accent-2)]",
+                                span { aria_hidden: "true",
+                                    svg {
+                                    class: "h-3.5 w-3.5",
+                                    fill: "none",
+                                    stroke: "currentColor",
+                                    stroke_linecap: "round",
+                                    stroke_linejoin: "round",
+                                    stroke_width: "2",
+                                    view_box: "0 0 24 24",
+                                    path { d: "M12 17v5" }
+                                    path { d: "M5 17h14" }
+                                    path { d: "M7 17l2-9h6l2 9" }
+                                    path { d: "M9 8V3h6v5" }
+                                    }
+                                }
+                                "Pinned"
+                            }
+                        }
+                        h3 { class: "text-xl font-semibold leading-7 text-[var(--blueprint-text)]", "{project.title}" }
+                    }
                     span {
-                        class: "shrink-0 rounded-sm border border-zinc-700 px-2 py-1 text-xs text-zinc-400",
+                        class: "blueprint-chip shrink-0",
                         "{project.year}"
                     }
                 }
-                p { class: "text-sm leading-6 text-zinc-400", "{project.summary}" }
-                ul {
-                    class: "flex flex-wrap gap-2",
+                p { class: "text-sm leading-6 text-[var(--blueprint-muted)]", "{project.summary}" }
+                ul { class: "flex flex-wrap gap-2",
                     for technology in project.technologies.iter() {
-                        li {
-                            class: "rounded-sm bg-zinc-900 px-2 py-1 text-xs text-zinc-300",
-                            "{technology}"
-                        }
+                        li { TechTag { label: technology.clone() } }
                     }
                 }
             }
-            div {
-                class: "mt-6 flex items-center justify-between gap-4",
-                span { class: "text-xs uppercase tracking-wide text-emerald-300", "{project.status}" }
-                span { class: "text-sm font-medium text-zinc-100 underline-offset-4 group-hover:text-emerald-300 group-hover:underline", "Read" }
+            div { class: "mt-8 flex items-center justify-between gap-4",
+                StatusBadge { status: project.status }
+                span { class: "font-mono text-xs font-semibold uppercase tracking-wide text-[var(--blueprint-accent)] underline-offset-4 group-hover:underline", "Inspect" }
             }
         }
     }

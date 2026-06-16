@@ -7,12 +7,12 @@ pub fn Footer() -> Element {
 
     rsx! {
         footer {
-            class: "border-t border-zinc-800/80 px-5 py-8 text-sm text-zinc-500 sm:px-8 lg:px-12",
+            class: "border-t border-[var(--blueprint-line-muted)] px-5 py-8 text-sm text-[var(--blueprint-subtle)] sm:px-8 lg:px-12",
             div {
                 class: "mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
-                p { "© 2026 {profile.name}. Built with Dioxus." }
+                p { "© 2026 {profile.name}. Dioxus / Rust / Cloudflare-ready." }
                 a {
-                    class: "w-fit rounded-sm text-zinc-400 underline-offset-4 outline-none transition hover:text-emerald-300 focus-visible:ring-2 focus-visible:ring-emerald-300",
+                    class: "w-fit rounded-sm text-[var(--blueprint-muted)] underline-offset-4 outline-none transition hover:text-[var(--blueprint-accent)] hover:underline focus-visible:ring-2 focus-visible:ring-[var(--blueprint-accent)]",
                     href: "mailto:{profile.email}",
                     "{profile.email}"
                 }
