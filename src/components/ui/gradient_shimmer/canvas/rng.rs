@@ -1,3 +1,5 @@
+const U32_MAX_F64: f64 = u32::MAX as f64;
+
 pub(super) struct PseudoRng {
     state: u32,
 }
@@ -14,6 +16,6 @@ impl PseudoRng {
         self.state ^= self.state >> 17;
         self.state ^= self.state << 5;
 
-        self.state as f64 / u32::MAX as f64
+        self.state as f64 / U32_MAX_F64
     }
 }

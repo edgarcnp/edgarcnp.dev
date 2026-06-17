@@ -90,12 +90,11 @@ impl Runtime {
     }
 
     pub(super) fn request_animation(&self) {
-        if self.reduced_motion_query.matches() || self.state.borrow().animation_frame.is_some() {
-            return;
-        }
-
         let frame = {
             let state = self.state.borrow();
+            if self.reduced_motion_query.matches() || state.animation_frame.is_some() {
+                return;
+            }
             let Some(callback) = state.draw_closure.as_ref() else {
                 return;
             };

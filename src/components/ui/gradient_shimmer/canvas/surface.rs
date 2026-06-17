@@ -1,6 +1,6 @@
 use wasm_bindgen::{Clamped, JsCast, JsValue};
 use web_sys::{
-    CssStyleDeclaration, CanvasPattern, CanvasRenderingContext2d, HtmlCanvasElement, ImageData,
+    CssStyleDeclaration, CanvasRenderingContext2d, HtmlCanvasElement, ImageData,
     Window,
 };
 
@@ -10,6 +10,7 @@ use super::{
     math::clamp,
     model::{Colors, StripeSizing},
     rng::PseudoRng,
+    state::RuntimeState,
 };
 
 pub(super) fn read_computed_styles(
@@ -46,28 +47,45 @@ pub(super) fn read_stripe_sizing(styles: &CssStyleDeclaration) -> StripeSizing {
     ))
 }
 
-pub(super) fn create_grain_pattern(
+pub(super) fn ensure_grain_pattern(
     window: &Window,
     context: &CanvasRenderingContext2d,
+    state: &mut RuntimeState,
     colors: &Colors,
-    seed: u32,
-) -> Result<Option<CanvasPattern>, JsValue> {
+) -> Result<(), JsValue> {
+    let params_changed = (state.grain_luminance - colors.grain_luminance).abs() > f64::EPSILON
+        || (state.grain_contrast - colors.grain_contrast).abs() > f64::EPSILON
+        || (state.grain_saturation - colors.grain_saturation).abs() > f64::EPSILON;
+
+    if state.grain_pattern.is_some() && !params_changed {
+        return Ok(());
+    }
+
     let document = window
         .document()
         .ok_or_else(|| JsValue::from_str("document is unavailable"))?;
-    let grain_canvas = document
-        .create_element("canvas")?
-        .dyn_into::<HtmlCanvasElement>()?;
+
+    let grain_canvas = match state.grain_canvas.take() {
+        Some(canvas) => canvas,
+        None => document
+            .create_element("canvas")?
+            .dyn_into::<HtmlCanvasElement>()?,
+    };
+    grain_canvas.set_width(GRAIN_SIZE);
+    grain_canvas.set_height(GRAIN_SIZE);
+
     let grain_context = grain_canvas
         .get_context("2d")?
         .ok_or_else(|| JsValue::from_str("2d grain context is unavailable"))?
         .dyn_into::<CanvasRenderingContext2d>()?;
 
-    grain_canvas.set_width(GRAIN_SIZE);
-    grain_canvas.set_height(GRAIN_SIZE);
+    let pixel_count = (GRAIN_SIZE * GRAIN_SIZE * 4) as usize;
+    state.grain_pixels.resize(pixel_count, 0);
+    let seed = state.next_seed();
+    let pixels = &mut state.grain_pixels[..pixel_count];
+    pixels.fill(0);
 
     let mut rng = PseudoRng::new(seed);
-    let mut pixels = vec![0; (GRAIN_SIZE * GRAIN_SIZE * 4) as usize];
 
     for pixel in pixels.chunks_exact_mut(4) {
         let luminance = colors.grain_luminance + (rng.next_f64() - 0.5) * colors.grain_contrast;
@@ -82,8 +100,15 @@ pub(super) fn create_grain_pattern(
     }
 
     let image_data =
-        ImageData::new_with_u8_clamped_array_and_sh(Clamped(&pixels), GRAIN_SIZE, GRAIN_SIZE)?;
+        ImageData::new_with_u8_clamped_array_and_sh(Clamped(pixels), GRAIN_SIZE, GRAIN_SIZE)?;
     grain_context.put_image_data(&image_data, 0.0, 0.0)?;
 
-    context.create_pattern_with_html_canvas_element(&grain_canvas, "repeat")
+    state.grain_pattern =
+        context.create_pattern_with_html_canvas_element(&grain_canvas, "repeat")?;
+    state.grain_canvas = Some(grain_canvas);
+    state.grain_luminance = colors.grain_luminance;
+    state.grain_contrast = colors.grain_contrast;
+    state.grain_saturation = colors.grain_saturation;
+
+    Ok(())
 }

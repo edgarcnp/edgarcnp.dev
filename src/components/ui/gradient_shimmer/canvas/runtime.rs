@@ -8,7 +8,7 @@ use super::{
     dom::match_media,
     drawing::{StripeFrame, draw_grain, draw_stripe},
     model::{IntroAnimation, Size},
-    speed::{trigger_speed_up_animation, update_speed_up_animation},
+    speed::{IDLE_SPEED_UP, trigger_speed_up_animation, update_speed_up_animation},
     state::RuntimeState,
     stripes::{is_intro_complete, sync_stripe_count},
     surface::{self, read_computed_styles},
@@ -124,9 +124,10 @@ impl Runtime {
             return;
         }
 
-        let current = self.state.borrow().speed_up_animation;
-        self.state.borrow_mut().speed_up_animation =
-            Some(trigger_speed_up_animation(time, current));
+        let mut state = self.state.borrow_mut();
+        let current = state.speed_up_animation;
+        state.speed_up_animation = Some(trigger_speed_up_animation(time, current));
+        drop(state);
         self.request_animation();
     }
 
@@ -156,15 +157,12 @@ impl Runtime {
         let styles = read_computed_styles(&self.window, &self.canvas)?;
         let colors = surface::read_colors(&styles);
         let stripe_sizing = surface::read_stripe_sizing(&styles);
-        let seed = self.state.borrow_mut().next_seed();
-        let grain_pattern =
-            surface::create_grain_pattern(&self.window, &self.context, &colors, seed)?;
         let mut state = self.state.borrow_mut();
+        surface::ensure_grain_pattern(&self.window, &self.context, &mut state, &colors)?;
         state.colors = colors;
         state.stripe_sizing = stripe_sizing;
         let width = state.size.width;
         state.stripe_width = sync_stripe_count(&mut state.stripes, width, stripe_sizing);
-        state.grain_pattern = grain_pattern;
 
         Ok(())
     }
@@ -180,7 +178,20 @@ impl Runtime {
         } else {
             0.0
         };
-        let speed_up = update_speed_up_animation(time, state.speed_up_animation);
+
+        let (multiplier, shine_progress, speed_up_animation) = if reduced_motion {
+            (1.0, 0.0, None)
+        } else if let Some(anim) = state.speed_up_animation {
+            let result = update_speed_up_animation(time, Some(anim));
+            (result.multiplier, result.shine_progress, result.animation)
+        } else {
+            (
+                IDLE_SPEED_UP.multiplier,
+                IDLE_SPEED_UP.shine_progress,
+                None,
+            )
+        };
+
         let active_intro_animation = if reduced_motion {
             None
         } else {
@@ -188,16 +199,12 @@ impl Runtime {
         };
 
         state.last_frame_time = if reduced_motion { None } else { Some(time) };
-        state.speed_up_animation = if reduced_motion {
-            None
-        } else {
-            speed_up.animation
-        };
+        state.speed_up_animation = speed_up_animation;
 
         if !reduced_motion {
-            state.wave_phase += IDLE_WAVE_SPEED * speed_up.multiplier * delta_seconds;
+            state.wave_phase += IDLE_WAVE_SPEED * multiplier * delta_seconds;
             state.secondary_wave_phase +=
-                IDLE_WAVE_SECONDARY_SPEED * speed_up.multiplier * delta_seconds;
+                IDLE_WAVE_SECONDARY_SPEED * multiplier * delta_seconds;
         }
 
         self.context.set_global_alpha(1.0);
@@ -205,6 +212,19 @@ impl Runtime {
             .clear_rect(0.0, 0.0, state.size.width, state.size.height);
 
         let stripe_count = state.stripes.len();
+        let frame = StripeFrame {
+            time,
+            intro_animation: active_intro_animation,
+            stripe_count,
+            wave_phase: state.wave_phase,
+            secondary_wave_phase: state.secondary_wave_phase,
+            shine_progress: if reduced_motion {
+                0.0
+            } else {
+                shine_progress
+            },
+        };
+
         for (index, stripe) in state.stripes.iter().enumerate() {
             draw_stripe(
                 &self.context,
@@ -213,18 +233,7 @@ impl Runtime {
                 state.stripe_width,
                 state.size,
                 &state.colors,
-                StripeFrame {
-                    time,
-                    intro_animation: active_intro_animation,
-                    stripe_count,
-                    wave_phase: state.wave_phase,
-                    secondary_wave_phase: state.secondary_wave_phase,
-                    shine_progress: if reduced_motion {
-                        0.0
-                    } else {
-                        speed_up.shine_progress
-                    },
-                },
+                &frame,
             );
         }
 

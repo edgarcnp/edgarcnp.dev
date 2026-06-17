@@ -1,4 +1,4 @@
-pub(super) const GRAIN_SIZE: u32 = 180;
+pub(super) const GRAIN_SIZE: u32 = 64;
 
 pub(super) const STRIPE_WIDTH_MIN: f64 = 64.0;
 

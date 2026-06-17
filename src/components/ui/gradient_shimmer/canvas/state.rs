@@ -1,5 +1,5 @@
 use wasm_bindgen::closure::Closure;
-use web_sys::{CanvasPattern, MutationObserver, ResizeObserver};
+use web_sys::{CanvasPattern, HtmlCanvasElement, MutationObserver, ResizeObserver};
 
 use super::{
     config::FULL_CIRCLE,
@@ -22,6 +22,11 @@ pub(super) struct RuntimeState {
     pub(super) last_frame_time: Option<f64>,
     pub(super) initialized: bool,
     seed: u32,
+    pub(super) grain_luminance: f64,
+    pub(super) grain_contrast: f64,
+    pub(super) grain_saturation: f64,
+    pub(super) grain_pixels: Vec<u8>,
+    pub(super) grain_canvas: Option<HtmlCanvasElement>,
     pub(super) draw_closure: Option<Closure<dyn FnMut(f64)>>,
     pub(super) resize_closure: Option<Closure<dyn FnMut()>>,
     pub(super) color_closure: Option<Closure<dyn FnMut()>>,
@@ -51,6 +56,11 @@ impl RuntimeState {
             last_frame_time: None,
             initialized: false,
             seed,
+            grain_luminance: 0.0,
+            grain_contrast: 0.0,
+            grain_saturation: 0.0,
+            grain_pixels: Vec::new(),
+            grain_canvas: None,
             draw_closure: None,
             resize_closure: None,
             color_closure: None,

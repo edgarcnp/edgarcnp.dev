@@ -26,7 +26,7 @@ pub(super) fn draw_stripe(
     stripe_width: f64,
     size: Size,
     colors: &Colors,
-    frame: StripeFrame,
+    frame: &StripeFrame,
 ) {
     let reveal_progress =
         get_intro_reveal_progress(frame.time, frame.intro_animation, index, frame.stripe_count);

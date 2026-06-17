@@ -7,7 +7,7 @@ use super::{
     model::{WaveSpeedUpAnimation, WaveSpeedUpAnimationState, WaveSpeedUpValues},
 };
 
-const IDLE_SPEED_UP: WaveSpeedUpValues = WaveSpeedUpValues {
+pub(super) const IDLE_SPEED_UP: WaveSpeedUpValues = WaveSpeedUpValues {
     multiplier: 1.0,
     shine_progress: 0.0,
 };
