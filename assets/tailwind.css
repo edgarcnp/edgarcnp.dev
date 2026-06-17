@@ -1940,7 +1940,6 @@
     background-size: 220% 100%, 180% 180%;
     animation: ui-gradient-shimmer 7s ease-in-out infinite;
     pointer-events: none;
-    will-change: transform;
   }
   .ui-gradient-shimmer.intro {
     animation: ui-gradient-intro 900ms ease-out both, ui-gradient-shimmer 7s ease-in-out 900ms infinite;
