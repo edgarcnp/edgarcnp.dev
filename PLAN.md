@@ -370,7 +370,7 @@
   - [x] short summary
 - [x] Consider grouping or visual sorting by:
   - [x] Pinned projects first.
-  - [x] Remaining projects sorted by upload date.
+  - [x] Remaining projects sorted by updated date.
   - [x] Add a clear pinned indicator/icon on pinned cards.
   - [x] Avoid status grouping unless the project count grows enough to justify it.
 - [x] Full card remains clickable.
@@ -527,16 +527,18 @@
   - [x] summary
   - [x] detail_html
   - [x] year
-  - [x] uploaded
+  - [x] published
+  - [x] updated
   - [x] status
   - [x] technologies
   - [x] featured
   - [x] pinned
 - [x] Add project ordering fields:
-  - [x] `uploaded`
+  - [x] `published`
+  - [x] `updated`
   - [x] `pinned`
 - [x] Add Markdown-backed project detail content:
-  - [x] Keep TOML frontmatter/metadata for title, slug, summary, year, status, technologies, featured, uploaded, and pinned.
+  - [x] Keep TOML frontmatter/metadata for title, slug, summary, year, published, updated, status, technologies, featured, and pinned.
   - [x] Move long project detail content to Markdown body.
   - [x] Render project Markdown with the same safe Markdown renderer used by writing.
   - [x] Theme project Markdown to match the blueprint visual system.
@@ -677,7 +679,7 @@
 - [x] Consider status grouping:
   - [x] Do not group by status in the next pass.
   - [x] Sort pinned projects first.
-  - [x] Sort remaining projects by upload date.
+  - [x] Sort remaining projects by updated date.
   - [x] Add pinned indicator/icon.
 - [x] If grouping is implemented, avoid complex runtime state.
 - [x] Ensure cards are full-card links.
@@ -1236,7 +1238,7 @@
 - [x] Should project details remain TOML-only or move to Markdown-backed case studies? Decision: Markdown-backed project details with the blueprint Markdown theme.
 - [x] Should the existing `assets/header.svg` be reused, redesigned, or ignored? Decision: redesign later; leave the existing asset untouched for now.
 - [x] Should nav active state be implemented in the first pass or deferred? Decision: implemented active route state with Dioxus Router state.
-- [x] Should project cards be grouped by status on the Projects page? Decision: do not group by status; sort pinned projects first, then by upload date, and show a pinned indicator/icon.
+- [x] Should project cards be grouped by status on the Projects page? Decision: do not group by status; sort pinned projects first, then by updated date, and show a pinned indicator/icon.
 - [x] Should the blueprint diagram be inline SVG component code or an asset file? Decision: inline Dioxus SVG component.
 - [x] Should capability content live in Rust constants or structured content files? Decision: structured content file. Keep the visual markup in `home.rs`, but load capability labels/titles/descriptions from content data.
 - [x] Should profile content gain availability/focus fields? Decision: no new profile fields until they are displayed.
@@ -1282,8 +1284,8 @@
 - [x] Project role removed from project TOML, Rust project schema, validation, and rendered project pages.
 - [x] Project detail page simplified to title, status/year, and one project details panel.
 - [x] Structured problem/constraints/approach/outcome/next-step project fields removed after simplifying the project detail design.
-- [x] Open decisions reviewed with user: homepage secondary CTA changed to Contact, project details changed to Markdown-backed content, header SVG deferred for later redesign, nav active state approved, project ordering changed to pinned-first then upload date, blueprint diagram remains inline SVG, capability content moves to structured content, profile fields unchanged, and no animation framework added.
-- [x] Implementation batch completed: homepage secondary CTA now points to Contact, capability cards load from `content/capabilities.toml`, nav links expose active route state, projects support `uploaded` and `pinned`, project lists sort pinned-first then upload date, and pinned cards show a visible indicator.
+- [x] Open decisions reviewed with user: homepage secondary CTA changed to Contact, project details changed to Markdown-backed content, header SVG deferred for later redesign, nav active state approved, project ordering changed to pinned-first then updated date, blueprint diagram remains inline SVG, capability content moves to structured content, profile fields unchanged, and no animation framework added.
+- [x] Implementation batch completed: homepage secondary CTA now points to Contact, capability cards load from `content/capabilities.toml`, nav links expose active route state, projects support `published`, `updated`, and `pinned`, project lists sort pinned-first then updated date, and pinned cards show a visible indicator.
 - [x] Implementation batch verified with `cargo fmt --check`, `cargo test`, `cargo check`, `cargo clippy --all-targets --no-default-features --features web -- -D warnings`, `dx check`, and `dx build --platform web --release`.
 - [x] Final implementation batch completed: project records migrated to Markdown-backed files, project detail renders safe Markdown in one details panel, homepage contact band includes Codeberg, retained skeletons use blueprint styling, and subtle text contrast was increased.
 - [x] Final QA batch captured screenshots for home, projects, project detail, writing, writing post, contact, 404, reduced-motion home, and home widths 320/375/390/640/768/1024/1280/1440.
@@ -1303,6 +1305,7 @@
 - [x] Batch 6 decisions implemented: release `wasm-opt` DWARF warning fixed by stripping debuginfo from the Dioxus `wasm-release` profile, Dioxus `fullstack` kept for the future Worker/SSR direction, and unused visual assets kept as intentional future source material.
 - [x] Batch 6 verification passed with `cargo fmt --check`, `cargo check`, `cargo test`, `cargo clippy --all-targets --no-default-features --features web -- -D warnings`, `dx check`, quiet `dx build --platform web --release`, no `.debug_*` sections in release wasm, manual `_headers` copy/diff, and `git diff --check`.
 - [x] Batch 7 decisions implemented: sticky header blur kept while the navigation was redesigned into a stronger brand/nav rail, `BreakpointStrip` is decorative with `aria-hidden`, and skeleton coverage was expanded for major route/content surfaces while remaining future-facing until async/server loading exists.
+- [x] Project date model migrated from `uploaded` to `published` and `updated`; project sorting now uses pinned-first, then updated date, then published date.
 - [x] Batch 7 verification passed with `cargo fmt --check`, `cargo check`, `cargo test`, `cargo clippy --all-targets --no-default-features --features web -- -D warnings`, `dx check`, quiet `dx build --platform web --release`, no `.debug_*` sections in release wasm, manual `_headers` copy/diff, and `git diff --check`.
 - [x] Batch 8 integration started: Helium Prism primitives ported into a native Dioxus `src/components/ui/` module with neutral `ui-*` CSS classes, including text, buttons, links, card links, inputs, search, dropdowns, checkboxes, toggles, skeletons, spinner, copy icon, tooltip, gradient shimmer, logo, and shared icons.
 - [x] Batch 8 verification completed: `cargo fmt --check`, `cargo check`, `cargo test`, `cargo clippy --all-targets --no-default-features --features web -- -D warnings`, `dx check`, `dx build --platform web --release`, `git diff --check`, release `_headers` diff, and WASM debug-string check all passed. Existing route skeletons now compose the shared `UiSkeleton` primitive.

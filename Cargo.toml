@@ -3,6 +3,7 @@ name = "edgarcnp-dev"
 version = "0.1.0"
 authors = ["Edgar Christian <me@edgarcnp.dev>"]
 edition = "2024"
+license = "GPL-3.0-or-later"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

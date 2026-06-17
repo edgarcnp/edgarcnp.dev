@@ -84,6 +84,13 @@ pub(super) fn validate_project(project: &Project) -> Result<(), String> {
         ));
     }
 
+    if project.updated < project.published {
+        return Err(format!(
+            "project updated date cannot be earlier than published date: {}",
+            project.slug
+        ));
+    }
+
     if project.technologies.is_empty() {
         return Err(format!("project has no technologies: {}", project.slug));
     }

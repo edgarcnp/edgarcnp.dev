@@ -128,6 +128,6 @@ Forgejo Actions are configured in `.forgejo/workflows/check.yml`. The current wo
 
 ## Licensing
 
-Source code is licensed under the MIT License. See `LICENSE-MIT`.
+Source code is licensed under the GNU General Public License version 3 or later. See `LICENSE-GPL-3.0`.
 
 Visual assets, written content, branding, and design elements are licensed under Creative Commons Attribution 4.0 International. See `LICENSE-CC-BY`.

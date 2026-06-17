@@ -20,7 +20,8 @@ struct ProjectFrontmatter {
     slug: String,
     summary: String,
     year: u16,
-    uploaded: String,
+    published: String,
+    updated: String,
     status: String,
     technologies: Vec<String>,
     featured: bool,
@@ -73,7 +74,8 @@ pub(super) fn parse_projects(sources: &[&str]) -> Result<Vec<Project>, String> {
     projects.sort_by(|a, b| {
         b.pinned
             .cmp(&a.pinned)
-            .then_with(|| b.uploaded.cmp(&a.uploaded))
+            .then_with(|| b.updated.cmp(&a.updated))
+            .then_with(|| b.published.cmp(&a.published))
             .then_with(|| a.title.cmp(&b.title))
     });
 
@@ -92,7 +94,8 @@ pub(super) fn parse_project(source: &str) -> Result<Project, String> {
         summary: frontmatter.summary,
         detail_html: render_markdown(markdown)?,
         year: frontmatter.year,
-        uploaded: IsoDate::parse("project.uploaded", frontmatter.uploaded)?,
+        published: IsoDate::parse("project.published", frontmatter.published)?,
+        updated: IsoDate::parse("project.updated", frontmatter.updated)?,
         status: parse_project_status(&frontmatter.status)?,
         technologies: frontmatter.technologies,
         featured: frontmatter.featured,

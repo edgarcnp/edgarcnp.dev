@@ -201,7 +201,8 @@ fn parses_project_frontmatter_and_markdown_body() {
         "slug = \"example-project\"\n",
         "summary = \"Example summary\"\n",
         "year = 2026\n",
-        "uploaded = \"2026-06-16\"\n",
+        "published = \"2026-06-16\"\n",
+        "updated = \"2026-06-16\"\n",
         "status = \"Planned\"\n",
         "technologies = [\"Rust\"]\n",
         "featured = false\n",
@@ -218,6 +219,8 @@ fn parses_project_frontmatter_and_markdown_body() {
     .expect("fixture project should parse");
 
     assert_eq!(project.slug, "example-project");
+    assert_eq!(project.published.as_str(), "2026-06-16");
+    assert_eq!(project.updated.as_str(), "2026-06-16");
     assert_eq!(project.links.len(), 1);
     assert!(project.detail_html.contains("<strong>details</strong>"));
 }
@@ -229,7 +232,7 @@ fn rejects_documents_without_frontmatter() {
 }
 
 #[test]
-fn projects_are_sorted_by_pinned_then_upload_date() {
+fn projects_are_sorted_by_pinned_then_updated_date() {
     let content = load_content().expect("bundled content should validate");
     let ordered_slugs: Vec<_> = content
         .projects
@@ -254,12 +257,26 @@ fn projects_are_sorted_by_pinned_then_upload_date() {
 
         if current.pinned == next.pinned {
             assert!(
-                current.uploaded >= next.uploaded,
+                current.updated >= next.updated,
                 "{} should not sort before {}",
                 next.slug,
                 current.slug
             );
         }
+    }
+}
+
+#[test]
+fn project_dates_are_valid() {
+    let content = load_content().expect("bundled content should validate");
+    for project in &content.projects {
+        assert!(is_iso_date(project.published.as_str()));
+        assert!(is_iso_date(project.updated.as_str()));
+        assert!(
+            project.updated >= project.published,
+            "{} has an update date before its publish date",
+            project.slug
+        );
     }
 }
 
