@@ -69,28 +69,33 @@ pub(super) fn draw_stripe(
         GRADIENT_MIN_STOP,
         GRADIENT_MAX_STOP,
     );
+
+    let gradient_alpha = clamp(
+        alpha * (1.0 + frame.shine_progress * colors.speed_up_shine_boost),
+        0.0,
+        1.0,
+    ) * reveal_progress;
+
     let gradient =
         context.create_linear_gradient(x, size.height * -0.35, next_x, size.height * 1.35);
-
-    context.set_global_alpha(alpha);
-    context.set_fill_style_str(&colors.start);
-    context.fill_rect(x, 0.0, width, size.height);
-
     let _ = gradient.add_color_stop(0.0, &colors.highlight);
     let _ = gradient.add_color_stop(band_start as f32, &colors.start);
     let _ = gradient.add_color_stop(center as f32, &colors.highlight);
     let _ = gradient.add_color_stop(band_end as f32, &colors.start);
-    let _ = gradient.add_color_stop(1.0, &colors.start);
 
-    context.set_global_alpha(
-        clamp(
-            alpha * (1.0 + frame.shine_progress * colors.speed_up_shine_boost),
-            0.0,
-            1.0,
-        ) * reveal_progress,
-    );
-    context.set_fill_style_canvas_gradient(&gradient);
-    context.fill_rect(x, 0.0, width, size.height);
+    if (gradient_alpha - alpha).abs() < f64::EPSILON {
+        context.set_global_alpha(alpha);
+        context.set_fill_style_canvas_gradient(&gradient);
+        context.fill_rect(x, 0.0, width, size.height);
+    } else {
+        context.set_global_alpha(alpha);
+        context.set_fill_style_str(&colors.start);
+        context.fill_rect(x, 0.0, width, size.height);
+
+        context.set_global_alpha(gradient_alpha);
+        context.set_fill_style_canvas_gradient(&gradient);
+        context.fill_rect(x, 0.0, width, size.height);
+    }
 }
 
 pub(super) fn draw_grain(

@@ -1011,6 +1011,7 @@
       180% 180%;
     animation: ui-gradient-shimmer 7s ease-in-out infinite;
     pointer-events: none;
+    will-change: transform;
   }
 
   .ui-gradient-shimmer.intro {
