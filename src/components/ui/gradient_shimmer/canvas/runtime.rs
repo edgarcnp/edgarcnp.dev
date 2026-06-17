@@ -19,7 +19,7 @@ pub struct GradientShimmerHandle(Rc<Runtime>);
 
 impl GradientShimmerHandle {
     pub fn intro(&self) {
-        let reduced_motion = self.0.reduced_motion_query.matches();
+        let reduced_motion = self.0.state.borrow().reduced_motion;
         self.0.start_intro(reduced_motion);
     }
 
@@ -62,7 +62,11 @@ pub fn mount(
         runtime.update_motion_preference();
     }
 
-    runtime.state.borrow_mut().initialized = true;
+    {
+        let mut state = runtime.state.borrow_mut();
+        state.reduced_motion = reduced_motion;
+        state.initialized = true;
+    }
 
     Ok(GradientShimmerHandle(runtime))
 }
@@ -118,7 +122,7 @@ impl Runtime {
     fn start_wave_speed_up(&self) {
         let time = self.now();
 
-        if self.reduced_motion_query.matches() {
+        if self.state.borrow().reduced_motion {
             self.state.borrow_mut().speed_up_animation = None;
             self.draw_frame(time);
             return;
@@ -168,8 +172,8 @@ impl Runtime {
     }
 
     pub(super) fn draw_frame(&self, time: f64) {
-        let reduced_motion = self.reduced_motion_query.matches();
         let mut state = self.state.borrow_mut();
+        let reduced_motion = state.reduced_motion;
 
         let delta_seconds = if reduced_motion {
             0.0

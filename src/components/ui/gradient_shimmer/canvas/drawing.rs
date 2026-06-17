@@ -28,11 +28,6 @@ pub(super) fn draw_stripe(
     colors: &Colors,
     frame: &StripeFrame,
 ) {
-    let reveal_progress =
-        get_intro_reveal_progress(frame.time, frame.intro_animation, index, frame.stripe_count);
-    let idle_progress =
-        get_intro_idle_progress(frame.time, frame.intro_animation, index, frame.stripe_count);
-    let alpha = colors.intro_alpha + (colors.alpha - colors.intro_alpha) * idle_progress;
     let x = snap_to_device_pixel(index as f64 * stripe_width, size.dpr);
     let next_x = if index == frame.stripe_count.saturating_sub(1) {
         size.width
@@ -40,9 +35,30 @@ pub(super) fn draw_stripe(
         snap_to_device_pixel((index + 1) as f64 * stripe_width, size.dpr)
     };
     let width = next_x - x;
-    let intro_center = lerp(INTRO_START_CENTER, INTRO_IDLE_CENTER, reveal_progress);
-    let idle_center = get_idle_center(stripe, frame.wave_phase, frame.secondary_wave_phase);
-    let center = intro_center + (idle_center - intro_center) * idle_progress;
+
+    let (alpha, center, reveal_progress) = if frame.intro_animation.is_none() {
+        let idle_center = get_idle_center(stripe, frame.wave_phase, frame.secondary_wave_phase);
+        (colors.alpha, idle_center, 1.0)
+    } else {
+        let reveal_progress = get_intro_reveal_progress(
+            frame.time,
+            frame.intro_animation,
+            index,
+            frame.stripe_count,
+        );
+        let idle_progress = get_intro_idle_progress(
+            frame.time,
+            frame.intro_animation,
+            index,
+            frame.stripe_count,
+        );
+        let alpha =
+            colors.intro_alpha + (colors.alpha - colors.intro_alpha) * idle_progress;
+        let intro_center = lerp(INTRO_START_CENTER, INTRO_IDLE_CENTER, reveal_progress);
+        let idle_center = get_idle_center(stripe, frame.wave_phase, frame.secondary_wave_phase);
+        let center = intro_center + (idle_center - intro_center) * idle_progress;
+        (alpha, center, reveal_progress)
+    };
     let band_start = clamp(
         center - GRADIENT_BAND_WIDTH,
         GRADIENT_MIN_STOP,

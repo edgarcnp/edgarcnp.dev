@@ -73,26 +73,29 @@ impl Runtime {
     }
 
     pub(super) fn update_motion_preference(&self) {
-        if self.reduced_motion_query.matches() {
-            {
-                let mut state = self.state.borrow_mut();
-                state.intro_animation = None;
-                state.speed_up_animation = None;
+        let reduced_motion = self.reduced_motion_query.matches();
+        {
+            let mut state = self.state.borrow_mut();
+            state.reduced_motion = reduced_motion;
+            state.intro_animation = None;
+            state.speed_up_animation = None;
+            if reduced_motion {
                 state.last_frame_time = None;
             }
-            self.cancel_animation();
-            self.draw_frame(self.now());
-            return;
         }
-
-        self.state.borrow_mut().last_frame_time = None;
-        self.request_animation();
+        if reduced_motion {
+            self.cancel_animation();
+        } else {
+            self.state.borrow_mut().last_frame_time = None;
+            self.request_animation();
+        }
+        self.draw_frame(self.now());
     }
 
     pub(super) fn request_animation(&self) {
         let frame = {
             let state = self.state.borrow();
-            if self.reduced_motion_query.matches() || state.animation_frame.is_some() {
+            if state.reduced_motion || state.animation_frame.is_some() {
                 return;
             }
             let Some(callback) = state.draw_closure.as_ref() else {
@@ -121,7 +124,7 @@ impl Runtime {
         self.state.borrow_mut().animation_frame = None;
         self.draw_frame(time);
 
-        if !self.reduced_motion_query.matches() {
+        if !self.state.borrow().reduced_motion {
             self.request_animation();
         }
     }
