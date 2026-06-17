@@ -1,5 +1,5 @@
+use super::{StatusBadge, TechTag};
 use crate::Route;
-use crate::components::{StatusBadge, TechTag};
 use crate::data::Project;
 use dioxus::prelude::*;
 

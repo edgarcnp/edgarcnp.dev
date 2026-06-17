@@ -1,38 +1,21 @@
-mod action_link;
-pub use action_link::{ActionSize, ActionVariant, LinkAction, RouteAction, SafeAnchor};
-
 mod footer;
 pub use footer::Footer;
 
-mod blueprint_diagram;
-pub use blueprint_diagram::BlueprintDiagram;
+mod navbar;
+pub use navbar::Navbar;
 
-mod blueprint_frame;
-pub use blueprint_frame::BlueprintFrame;
-
-mod breakpoint_strip;
-pub use breakpoint_strip::BreakpointStrip;
-
-mod capability_grid;
-pub use capability_grid::CapabilityGrid;
-
-mod contact_endpoint;
-pub use contact_endpoint::ContactEndpoint;
-
-mod project_card;
-pub use project_card::ProjectCard;
-
-mod section_heading;
-pub use section_heading::SectionHeading;
-
-mod skeleton;
+mod shared;
+pub use shared::{
+    ActionSize, ActionVariant, BlueprintBackground, BlueprintDiagram, BlueprintFrame,
+    BreakpointStrip, CapabilityGrid, ContactEndpoint, LinkAction, ProjectCard, RouteAction,
+    SectionHeading, StatusBadge, TechTag,
+};
 #[allow(unused_imports)]
-pub use skeleton::{
-    ArticleSkeleton, ProjectGridSkeleton, WritingListSkeleton, WritingPostSkeleton,
+pub use shared::{
+    ArticleSkeleton, CapabilityGridSkeleton, ContactEndpointSkeleton, ContactListSkeleton,
+    HomeSkeleton, NavSkeleton, ProjectCardSkeleton, ProjectDetailSkeleton, ProjectGridSkeleton,
+    ProjectStatsSkeleton, SectionHeadingSkeleton, SkeletonBlock, SkeletonText, WritingCardSkeleton,
+    WritingListSkeleton, WritingPostSkeleton,
 };
 
-mod status_badge;
-pub use status_badge::StatusBadge;
-
-mod tech_tag;
-pub use tech_tag::TechTag;
+pub mod ui;

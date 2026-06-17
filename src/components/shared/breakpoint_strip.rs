@@ -5,7 +5,7 @@ pub fn BreakpointStrip() -> Element {
     rsx! {
         aside {
             class: "breakpoint-strip",
-            aria_label: "Responsive breakpoint states",
+            aria_hidden: "true",
             div { class: "breakpoint-item breakpoint-mobile",
                 strong { "Mobile" }
                 span { "0-639px" }

@@ -1,4 +1,4 @@
-use crate::components::SafeAnchor;
+use super::SafeAnchor;
 use crate::data::ContactLink;
 use dioxus::prelude::*;
 

@@ -1750,6 +1750,8 @@ dependencies = [
  "pulldown-cmark",
  "serde",
  "toml",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]

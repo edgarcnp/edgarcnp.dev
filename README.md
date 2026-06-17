@@ -6,7 +6,10 @@ Personal portfolio site built with Dioxus 0.7, Rust, typed local content, and a 
 
 - Dioxus 0.7 web app with router-based pages.
 - Route definitions live in `src/main.rs`.
-- Shared UI lives in `src/components/`.
+- Shared UI lives in `src/components/`, grouped into `ui`, `footer`, `navbar`, and `shared`.
+- Dioxus-native Helium-style UI primitives live in `src/components/ui/` and use `ui-*` CSS classes in `tailwind.css`.
+- `UiGradientShimmer` uses a WASM canvas renderer on web with a CSS fallback for non-browser/server rendering.
+- Reusable one-off components live as flat `.rs` modules under `src/components/shared/`; keep `src/components/mod.rs`, `src/components/shared/mod.rs`, and `src/components/ui/mod.rs` as re-export indexes.
 - Route views live in `src/views/`.
 - Typed portfolio content loading, parsing, validation, and Markdown rendering live in `src/data/`.
 - `build.rs` generates the compile-time project/writing source manifest from the content directories.
