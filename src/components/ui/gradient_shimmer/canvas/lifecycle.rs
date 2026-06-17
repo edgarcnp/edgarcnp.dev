@@ -17,6 +17,9 @@ impl Runtime {
         let weak = Rc::downgrade(self);
         let resize_closure = Closure::<dyn FnMut()>::wrap(Box::new(move || {
             if let Some(runtime) = weak.upgrade() {
+                if !runtime.state.borrow().initialized {
+                    return;
+                }
                 if runtime.apply_resize().is_ok() {
                     runtime.draw_frame(runtime.now());
                 }
@@ -28,10 +31,10 @@ impl Runtime {
 
         let weak = Rc::downgrade(self);
         let color_closure = Closure::<dyn FnMut()>::wrap(Box::new(move || {
-            if let Some(runtime) = weak.upgrade() {
-                if runtime.read_colors().is_ok() {
-                    runtime.draw_frame(runtime.now());
-                }
+            if let Some(runtime) = weak.upgrade()
+                && runtime.read_colors().is_ok()
+            {
+                runtime.draw_frame(runtime.now());
             }
         }));
 

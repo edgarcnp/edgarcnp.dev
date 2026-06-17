@@ -11,7 +11,7 @@ use super::{
     speed::{trigger_speed_up_animation, update_speed_up_animation},
     state::RuntimeState,
     stripes::{is_intro_complete, sync_stripe_count},
-    surface,
+    surface::{self, read_computed_styles},
 };
 
 #[derive(Clone)]
@@ -19,7 +19,8 @@ pub struct GradientShimmerHandle(Rc<Runtime>);
 
 impl GradientShimmerHandle {
     pub fn intro(&self) {
-        self.0.start_intro();
+        let reduced_motion = self.0.reduced_motion_query.matches();
+        self.0.start_intro(reduced_motion);
     }
 
     pub fn emphasize(&self) {
@@ -50,14 +51,18 @@ pub fn mount(
         max_dpr,
     );
 
+    let reduced_motion = runtime.reduced_motion_query.matches();
+
     runtime.install_callbacks()?;
     runtime.apply_resize()?;
 
     if should_intro {
-        runtime.start_intro();
+        runtime.start_intro(reduced_motion);
+    } else {
+        runtime.update_motion_preference();
     }
 
-    runtime.update_motion_preference();
+    runtime.state.borrow_mut().initialized = true;
 
     Ok(GradientShimmerHandle(runtime))
 }
@@ -97,10 +102,10 @@ impl Runtime {
         })
     }
 
-    fn start_intro(&self) {
+    fn start_intro(&self, reduced_motion: bool) {
         let time = self.now();
 
-        if self.reduced_motion_query.matches() {
+        if reduced_motion {
             self.state.borrow_mut().intro_animation = None;
             self.draw_frame(time);
             return;
@@ -142,16 +147,15 @@ impl Runtime {
                 height: css_height,
                 dpr,
             };
-            let stripe_sizing = state.stripe_sizing;
-            state.stripe_width = sync_stripe_count(&mut state.stripes, css_width, stripe_sizing);
         }
 
         self.read_colors()
     }
 
     pub(super) fn read_colors(&self) -> Result<(), JsValue> {
-        let colors = surface::read_colors(&self.window, &self.canvas)?;
-        let stripe_sizing = surface::read_stripe_sizing(&self.window, &self.canvas)?;
+        let styles = read_computed_styles(&self.window, &self.canvas)?;
+        let colors = surface::read_colors(&styles);
+        let stripe_sizing = surface::read_stripe_sizing(&styles);
         let seed = self.state.borrow_mut().next_seed();
         let grain_pattern =
             surface::create_grain_pattern(&self.window, &self.context, &colors, seed)?;

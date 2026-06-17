@@ -1,5 +1,8 @@
 use wasm_bindgen::{Clamped, JsCast, JsValue};
-use web_sys::{CanvasPattern, CanvasRenderingContext2d, HtmlCanvasElement, ImageData, Window};
+use web_sys::{
+    CssStyleDeclaration, CanvasPattern, CanvasRenderingContext2d, HtmlCanvasElement, ImageData,
+    Window,
+};
 
 use super::{
     config::{GRAIN_SIZE, STRIPE_WIDTH_MIN},
@@ -9,39 +12,38 @@ use super::{
     rng::PseudoRng,
 };
 
-pub(super) fn read_colors(window: &Window, canvas: &HtmlCanvasElement) -> Result<Colors, JsValue> {
-    let styles = window
-        .get_computed_style(canvas)?
-        .ok_or_else(|| JsValue::from_str("computed styles are unavailable"))?;
-
-    Ok(Colors {
-        alpha: read_css_number(&styles, "--ui-shimmer-alpha", 0.7),
-        grain_alpha: read_css_number(&styles, "--ui-shimmer-grain-alpha", 0.15),
-        grain_luminance: read_css_number(&styles, "--ui-shimmer-grain-luminance", 144.0),
-        grain_contrast: read_css_number(&styles, "--ui-shimmer-grain-contrast", 64.0),
-        grain_saturation: read_css_number(&styles, "--ui-shimmer-grain-saturation", 32.0),
-        intro_alpha: read_css_number(&styles, "--ui-shimmer-intro-alpha", 1.0),
-        speed_up_shine_boost: read_css_number(&styles, "--ui-shimmer-speed-up-shine-boost", 0.15),
-        start: read_css_string(&styles, "--ui-shimmer-start", "#0b111d"),
-        highlight: read_css_string(&styles, "--ui-shimmer-highlight", "#5ed6ee"),
-    })
-}
-
-pub(super) fn read_stripe_sizing(
+pub(super) fn read_computed_styles(
     window: &Window,
     canvas: &HtmlCanvasElement,
-) -> Result<StripeSizing, JsValue> {
-    let styles = window
+) -> Result<CssStyleDeclaration, JsValue> {
+    window
         .get_computed_style(canvas)?
-        .ok_or_else(|| JsValue::from_str("computed styles are unavailable"))?;
-    let legacy_min_width =
-        read_css_number(&styles, "--ui-shimmer-stripe-width-min", STRIPE_WIDTH_MIN);
+        .ok_or_else(|| JsValue::from_str("computed styles are unavailable"))
+}
 
-    Ok(StripeSizing::new(read_css_number(
-        &styles,
+pub(super) fn read_colors(styles: &CssStyleDeclaration) -> Colors {
+    Colors {
+        alpha: read_css_number(styles, "--ui-shimmer-alpha", 0.7),
+        grain_alpha: read_css_number(styles, "--ui-shimmer-grain-alpha", 0.15),
+        grain_luminance: read_css_number(styles, "--ui-shimmer-grain-luminance", 144.0),
+        grain_contrast: read_css_number(styles, "--ui-shimmer-grain-contrast", 64.0),
+        grain_saturation: read_css_number(styles, "--ui-shimmer-grain-saturation", 32.0),
+        intro_alpha: read_css_number(styles, "--ui-shimmer-intro-alpha", 1.0),
+        speed_up_shine_boost: read_css_number(styles, "--ui-shimmer-speed-up-shine-boost", 0.15),
+        start: read_css_string(styles, "--ui-shimmer-start", "#0b111d"),
+        highlight: read_css_string(styles, "--ui-shimmer-highlight", "#5ed6ee"),
+    }
+}
+
+pub(super) fn read_stripe_sizing(styles: &CssStyleDeclaration) -> StripeSizing {
+    let legacy_min_width =
+        read_css_number(styles, "--ui-shimmer-stripe-width-min", STRIPE_WIDTH_MIN);
+
+    StripeSizing::new(read_css_number(
+        styles,
         "--ui-shimmer-stripe-min-width",
         legacy_min_width,
-    )))
+    ))
 }
 
 pub(super) fn create_grain_pattern(

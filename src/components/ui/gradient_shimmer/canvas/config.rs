@@ -6,7 +6,7 @@ pub(super) const GRADIENT_BAND_WIDTH: f64 = 0.48;
 pub(super) const GRADIENT_MIN_STOP: f64 = 0.14;
 pub(super) const GRADIENT_MAX_STOP: f64 = 0.96;
 
-pub(super) const INTRO_DELAY: f64 = 700.0;
+pub(super) const INTRO_DELAY: f64 = 0.0;
 pub(super) const INTRO_REVEAL_DURATION: f64 = 840.0;
 pub(super) const INTRO_IDLE_BLEND_DURATION: f64 = 500.0;
 pub(super) const INTRO_STAGGER: f64 = 45.0;
