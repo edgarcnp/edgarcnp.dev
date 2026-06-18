@@ -1,19 +1,13 @@
 import { onMount, onCleanup } from 'solid-js';
-import * as Shimmer from './shimmer-math';
+import type { Colors, Stripe, Size, IntroAnimation, GradientShimmerControls } from './types';
+import { IDLE_WAVE } from './config';
+import { syncStripeCount } from './stripe';
+import { getRandomWavePhase, isIntroComplete } from './intro';
+import { triggerSpeedUpAnimation, updateSpeedUpAnimation } from './speedup';
+import { resizeCanvas, readCssNumber, readCssString } from './canvas';
+import { createGrainPattern, drawGrain, drawStripe } from './draw';
 
 let introPlayed = false;
-
-type Colors = {
-    alpha: number;
-    grainAlpha: number;
-    grainLuminance: number;
-    grainContrast: number;
-    grainSaturation: number;
-    introAlpha: number;
-    start: string;
-    highlight: string;
-    speedUpShineBoost: number;
-};
 
 type Props = {
     intro?: boolean;
@@ -21,95 +15,9 @@ type Props = {
     class?: string;
 };
 
-const createGrainPattern = (
-    context: CanvasRenderingContext2D,
-    colors: Colors,
-): CanvasPattern => {
-    const grainCanvas = document.createElement('canvas');
-    const grainContext = grainCanvas.getContext('2d')!;
-
-    grainCanvas.width = 64;
-    grainCanvas.height = 64;
-
-    const imageData = grainContext.createImageData(64, 64);
-    const pixels = imageData.data;
-
-    for (let index = 0; index < pixels.length; index += 4) {
-        const luminance = colors.grainLuminance + (Math.random() - 0.5) * colors.grainContrast;
-        const redShift = (Math.random() - 0.5) * colors.grainSaturation;
-        const greenShift = (Math.random() - 0.5) * colors.grainSaturation;
-        const blueShift = (Math.random() - 0.5) * colors.grainSaturation;
-
-        pixels[index] = Shimmer.clamp(luminance + redShift, 0, 255);
-        pixels[index + 1] = Shimmer.clamp(luminance + greenShift, 0, 255);
-        pixels[index + 2] = Shimmer.clamp(luminance + blueShift, 0, 255);
-        pixels[index + 3] = 255;
-    }
-
-    grainContext.putImageData(imageData, 0, 0);
-
-    return context.createPattern(grainCanvas, 'repeat')!;
-};
-
-const drawGrain = (
-    context: CanvasRenderingContext2D,
-    pattern: CanvasPattern,
-    size: Shimmer.Size,
-    colors: Colors,
-) => {
-    context.save();
-    context.globalAlpha = colors.grainAlpha;
-    context.globalCompositeOperation = 'overlay';
-    context.fillStyle = pattern;
-    context.fillRect(0, 0, size.width, size.height);
-    context.restore();
-};
-
-const drawStripe = (
-    context: CanvasRenderingContext2D,
-    stripe: Shimmer.Stripe,
-    index: number,
-    stripeWidth: number,
-    size: Shimmer.Size,
-    colors: Colors,
-    time: number,
-    introAnimation: Shimmer.IntroAnimation | null,
-    stripeCount: number,
-    wavePhase: number,
-    secondaryWavePhase: number,
-    shineProgress: number,
-) => {
-    const revealProgress = Shimmer.getIntroRevealProgress(time, introAnimation, index, stripeCount);
-    const idleProgress = Shimmer.getIntroIdleProgress(time, introAnimation, index, stripeCount);
-    const alpha = colors.introAlpha + (colors.alpha - colors.introAlpha) * idleProgress;
-    const x = Shimmer.snapToDevicePixel(index * stripeWidth, size.dpr);
-    const nextX = index === stripeCount - 1
-        ? size.width
-        : Shimmer.snapToDevicePixel((index + 1) * stripeWidth, size.dpr);
-    const width = nextX - x;
-    const introCenter = Shimmer.lerp(Shimmer.INTRO.startCenter, Shimmer.INTRO.idleCenter, revealProgress);
-    const idleCenter = Shimmer.getIdleCenter(stripe, wavePhase, secondaryWavePhase);
-    const center = introCenter + (idleCenter - introCenter) * idleProgress;
-    const bandStart = Shimmer.clamp(center - Shimmer.GRADIENT.bandWidth, Shimmer.GRADIENT.minStop, Shimmer.GRADIENT.maxStop);
-    const bandEnd = Shimmer.clamp(center + Shimmer.GRADIENT.bandWidth, Shimmer.GRADIENT.minStop, Shimmer.GRADIENT.maxStop);
-    const gradient = context.createLinearGradient(x, size.height * -0.35, nextX, size.height * 1.35);
-
-    gradient.addColorStop(0, colors.highlight);
-    gradient.addColorStop(bandStart, colors.start);
-    gradient.addColorStop(center, colors.highlight);
-    gradient.addColorStop(bandEnd, colors.start);
-    gradient.addColorStop(1, colors.start);
-
-    const gradientAlpha = Shimmer.clamp(alpha * (1 + shineProgress * colors.speedUpShineBoost)) * revealProgress;
-
-    context.globalAlpha = gradientAlpha;
-    context.fillStyle = gradient;
-    context.fillRect(x, 0, width, size.height);
-};
-
 export default function GradientShimmer(props: Props) {
     let canvas!: HTMLCanvasElement;
-    let shimmerController: Shimmer.GradientShimmerControls | null = null;
+    let shimmerController: GradientShimmerControls | null = null;
 
     onMount(() => {
         const context = canvas.getContext('2d', {
@@ -119,19 +27,19 @@ export default function GradientShimmer(props: Props) {
 
         if (!context) return;
 
-        const stripes: Shimmer.Stripe[] = [];
+        const stripes: Stripe[] = [];
         const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
         const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-        let size: Shimmer.Size;
-        let stripeWidth: number;
-        let colors: Colors;
+        let size: Size = { width: 0, height: 0, dpr: 1 };
+        let stripeWidth: number = 0;
+        let colors: Colors = {} as Colors;
         let grainPattern: CanvasPattern | null = null;
         let animationFrame: number | null = null;
         let resizeFrame: number | null = null;
-        let introAnimation: Shimmer.IntroAnimation | null = null;
-        let speedUpAnimation: Shimmer.WaveSpeedUpAnimation | null = null;
-        let wavePhase = Shimmer.getRandomWavePhase();
+        let introAnimation: IntroAnimation | null = null;
+        let speedUpAnimation: ReturnType<typeof triggerSpeedUpAnimation> | null = null;
+        let wavePhase = getRandomWavePhase();
         let secondaryWavePhase = -wavePhase * 0.7;
         let lastFrameTime: number | null = null;
 
@@ -163,10 +71,10 @@ export default function GradientShimmer(props: Props) {
                 return;
             }
             const time = performance.now();
-            speedUpAnimation = Shimmer.triggerSpeedUpAnimation(time, speedUpAnimation);
+            speedUpAnimation = triggerSpeedUpAnimation(time, speedUpAnimation);
         };
 
-        const controller: Shimmer.GradientShimmerControls = {
+        const controller: GradientShimmerControls = {
             intro: startIntro,
             emphasize: startWaveSpeedUp,
         };
@@ -174,22 +82,22 @@ export default function GradientShimmer(props: Props) {
         const readColors = () => {
             const styles = getComputedStyle(canvas);
             colors = {
-                alpha: Shimmer.readCssNumber(styles, '--shimmer-alpha'),
-                grainAlpha: Shimmer.readCssNumber(styles, '--shimmer-grain-alpha'),
-                grainLuminance: Shimmer.readCssNumber(styles, '--shimmer-grain-luminance'),
-                grainContrast: Shimmer.readCssNumber(styles, '--shimmer-grain-contrast'),
-                grainSaturation: Shimmer.readCssNumber(styles, '--shimmer-grain-saturation'),
-                introAlpha: Shimmer.readCssNumber(styles, '--shimmer-intro-alpha'),
-                start: Shimmer.readCssString(styles, '--shimmer-start'),
-                highlight: Shimmer.readCssString(styles, '--shimmer-highlight'),
-                speedUpShineBoost: Shimmer.readCssNumber(styles, '--shimmer-speed-up-shine-boost'),
+                alpha: readCssNumber(styles, '--shimmer-alpha'),
+                grainAlpha: readCssNumber(styles, '--shimmer-grain-alpha'),
+                grainLuminance: readCssNumber(styles, '--shimmer-grain-luminance'),
+                grainContrast: readCssNumber(styles, '--shimmer-grain-contrast'),
+                grainSaturation: readCssNumber(styles, '--shimmer-grain-saturation'),
+                introAlpha: readCssNumber(styles, '--shimmer-intro-alpha'),
+                start: readCssString(styles, '--shimmer-start'),
+                highlight: readCssString(styles, '--shimmer-highlight'),
+                speedUpShineBoost: readCssNumber(styles, '--shimmer-speed-up-shine-boost'),
             };
             grainPattern = createGrainPattern(context, colors);
         };
 
         const applyResize = () => {
-            size = Shimmer.resizeCanvas(canvas, context);
-            stripeWidth = Shimmer.syncStripeCount(stripes, size.width);
+            size = resizeCanvas(canvas, context);
+            stripeWidth = syncStripeCount(stripes, size.width);
             readColors();
         };
 
@@ -206,15 +114,15 @@ export default function GradientShimmer(props: Props) {
             const deltaSeconds = reducedMotion || lastFrameTime === null
                 ? 0
                 : Math.min((time - lastFrameTime) / 1000, 0.064);
-            const speedUpState = Shimmer.updateSpeedUpAnimation(time, speedUpAnimation);
+            const speedUpState = updateSpeedUpAnimation(time, speedUpAnimation);
             const activeIntroAnimation = reducedMotion ? null : introAnimation;
 
             lastFrameTime = reducedMotion ? null : time;
             speedUpAnimation = reducedMotion ? null : speedUpState.animation;
 
             if (!reducedMotion) {
-                wavePhase += Shimmer.IDLE_WAVE.speed * speedUpState.multiplier * deltaSeconds;
-                secondaryWavePhase += Shimmer.IDLE_WAVE.secondarySpeed * speedUpState.multiplier * deltaSeconds;
+                wavePhase += IDLE_WAVE.speed * speedUpState.multiplier * deltaSeconds;
+                secondaryWavePhase += IDLE_WAVE.secondarySpeed * speedUpState.multiplier * deltaSeconds;
             }
 
             context.globalAlpha = 1;
@@ -241,7 +149,7 @@ export default function GradientShimmer(props: Props) {
                 drawGrain(context, grainPattern, size, colors);
             }
 
-            if (Shimmer.isIntroComplete(time, introAnimation, stripes.length)) {
+            if (isIntroComplete(time, introAnimation, stripes.length)) {
                 introAnimation = null;
             }
         };
@@ -261,9 +169,23 @@ export default function GradientShimmer(props: Props) {
 
         applyResize();
 
-        if (props.intro !== false && !introPlayed) {
-            introPlayed = true;
-            startIntro();
+        const startAfterResize = () => {
+            if (props.intro !== false && !introPlayed) {
+                introPlayed = true;
+                startIntro();
+            }
+        };
+
+        if (size.width === 0 || size.height === 0) {
+            const retryFrame = requestAnimationFrame(() => {
+                applyResize();
+                drawFrame(performance.now());
+                startAfterResize();
+            });
+
+            onCleanup(() => cancelAnimationFrame(retryFrame));
+        } else {
+            startAfterResize();
         }
 
         shimmerController = controller;

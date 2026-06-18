@@ -1,5 +1,5 @@
 ---
-import Shimmer from '../components/Shimmer';
+import GradientShimmer from '../components/background/GradientShimmer';
 import { ClientRouter } from 'astro:transitions';
 
 interface Props {
@@ -27,7 +27,7 @@ const links = [
     <ClientRouter />
   </head>
   <body class="blueprint-page">
-    <Shimmer client:load background intro class="shimmer-canvas" transition:persist />
+    <GradientShimmer client:load background intro class="shimmer-canvas" transition:persist />
 
     <header class="sticky top-0 z-20 border-b border-(--blueprint-line-muted) bg-[rgba(8,10,15,0.82)] px-4 py-3 shadow-[0_18px_48px_rgba(0,0,0,0.22)] backdrop-blur-xl sm:px-8 lg:px-12">
       <nav aria-label="Primary navigation" class="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
