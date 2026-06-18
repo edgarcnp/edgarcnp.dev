@@ -9,10 +9,10 @@ import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'server',
-  vite: {
-    plugins: [tailwindcss()]
-  },
-  integrations: [solidJs()],
-  adapter: cloudflare()
+    output: 'server',
+    vite: {
+        plugins: [tailwindcss()]
+    },
+    integrations: [solidJs()],
+    adapter: cloudflare()
 });
