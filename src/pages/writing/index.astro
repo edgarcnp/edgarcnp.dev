@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import SectionHeading from '../../components/SectionHeading.astro';
-import TechTag from '../../components/TechTag.astro';
+import SectionHeading from '../../components/shared/SectionHeading.astro';
+import TechTag from '../../components/shared/TechTag.astro';
 import { getCollection } from 'astro:content';
 
 const posts = await getCollection('writing').then((ws) =>

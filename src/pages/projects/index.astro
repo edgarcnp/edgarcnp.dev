@@ -1,8 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import SectionHeading from '../../components/SectionHeading.astro';
-import ProjectCard from '../../components/ProjectCard.astro';
-import StatusBadge from '../../components/StatusBadge.astro';
+import SectionHeading from '../../components/shared/SectionHeading.astro';
+import Card2 from '../../components/shared/Card-2.astro';
+import StatusBadge from '../../components/shared/StatusBadge.astro';
 import { getCollection } from 'astro:content';
 
 const projects = await getCollection('projects').then((ps) =>
@@ -41,9 +41,9 @@ const statCards = [
 
     <section class="section-motion motion-delay-1 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {projects.map((p) => (
-        <ProjectCard
+        <Card2
           title={p.data.title}
-          slug={p.data.slug}
+          href={`/projects/${p.data.slug}`}
           summary={p.data.summary}
           year={p.data.year}
           status={p.data.status}

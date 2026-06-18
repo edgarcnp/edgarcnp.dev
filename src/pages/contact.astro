@@ -1,7 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import SectionHeading from '../components/SectionHeading.astro';
-import ContactEndpoint from '../components/ContactEndpoint.astro';
+import SectionHeading from '../components/shared/SectionHeading.astro';
 import contact from '../data/contact.json';
 ---
 <Layout title="Contact">
@@ -13,13 +12,16 @@ import contact from '../data/contact.json';
     />
     <div class="section-motion motion-delay-1 grid gap-4 sm:grid-cols-2">
       {contact.links.map((link) => (
-        <ContactEndpoint
-          label={link.label}
-          kind={link.kind}
+        <a
           href={link.href}
-          detail={link.detail}
-          external={link.external}
-        />
+          target={link.external ? '_blank' : undefined}
+          rel={link.external ? 'noopener noreferrer' : undefined}
+          class="blueprint-module blueprint-module-link group p-5 outline-none focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
+        >
+          <span class="blueprint-label block">{link.kind}</span>
+          <span class="mt-4 block text-lg font-semibold text-(--blueprint-text) group-hover:text-(--blueprint-accent)">{link.label}</span>
+          <span class="mt-2 block text-sm leading-6 text-(--blueprint-muted)">{link.detail}</span>
+        </a>
       ))}
     </div>
   </section>

@@ -1,12 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import BlueprintFrame from '../components/BlueprintFrame.astro';
-import SectionHeading from '../components/SectionHeading.astro';
-import ProjectCard from '../components/ProjectCard.astro';
-import CapabilityGrid from '../components/CapabilityGrid.astro';
-import LinkAction from '../components/LinkAction.astro';
+import BlueprintFrame from '../components/shared/BlueprintFrame.astro';
+import SectionHeading from '../components/shared/SectionHeading.astro';
+import Card2 from '../components/shared/Card-2.astro';
+import Grid4 from '../components/shared/Grid-4.astro';
+import LinkAction from '../components/ui/astro/LinkAction.astro';
 import profile from '../data/profile.json';
 import contact from '../data/contact.json';
+import capabilities from '../data/capabilities.json';
 import { getCollection } from 'astro:content';
 
 const [featuredProjects, latestWriting] = await Promise.all([
@@ -91,9 +92,9 @@ const breakpoints = [
       />
       <div class="grid gap-4 md:grid-cols-2">
         {featuredProjects.map((p) => (
-          <ProjectCard
+          <Card2
             title={p.data.title}
-            slug={p.data.slug}
+            href={`/projects/${p.data.slug}`}
             summary={p.data.summary}
             year={p.data.year}
             status={p.data.status}
@@ -104,7 +105,7 @@ const breakpoints = [
       </div>
     </section>
 
-    <CapabilityGrid />
+    <Grid4 items={capabilities.capabilities} />
 
     {/* Writing + Contact */}
     <section class="section-motion motion-delay-2 grid gap-4 lg:grid-cols-[1fr_1fr]">

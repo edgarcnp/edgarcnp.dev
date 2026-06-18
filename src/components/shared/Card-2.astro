@@ -1,22 +1,23 @@
 ---
-import { type ProjectStatus } from '../lib/types';
+import { type ProjectStatus, STATUS_CLASSES } from '../../lib/types';
 import StatusBadge from './StatusBadge.astro';
 import TechTag from './TechTag.astro';
 
 interface Props {
   title: string;
-  slug: string;
+  href: string;
   summary: string;
   year: number;
   status: ProjectStatus;
   technologies: string[];
   pinned?: boolean;
+  actionLabel?: string;
 }
 
-const { title, slug, summary, year, status, technologies, pinned } = Astro.props;
+const { title, href, summary, year, status, technologies, pinned, actionLabel = 'Inspect' } = Astro.props;
 ---
 <a
-  href={`/projects/${slug}`}
+  href={href}
   class="blueprint-module blueprint-module-link group flex h-full min-h-72 flex-col justify-between p-5 outline-none focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
 >
   <div class="space-y-5">
@@ -41,6 +42,6 @@ const { title, slug, summary, year, status, technologies, pinned } = Astro.props
   </div>
   <div class="mt-8 flex items-center justify-between gap-4">
     <StatusBadge status={status} />
-    <span class="font-mono text-xs font-semibold uppercase tracking-wide text-(--blueprint-accent) underline-offset-4 group-hover:underline">Inspect</span>
+    <span class="font-mono text-xs font-semibold uppercase tracking-wide text-(--blueprint-accent) underline-offset-4 group-hover:underline">{actionLabel}</span>
   </div>
 </a>
