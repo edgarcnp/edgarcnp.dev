@@ -1,17 +1,16 @@
 import type { Stripe, IntroAnimation } from './types';
 import { INTRO, IDLE_WAVE } from './config';
-import { clamp, easeOutCubic, lerp } from './easing';
-import { GRADIENT } from './config';
+import { clamp, easeOutCubic } from './easing';
 
 const FULL_CIRCLE = Math.PI * 2;
 
-export const getRandomWavePhase = () => Math.random() * FULL_CIRCLE;
+export const getRandomWavePhase = (): number => Math.random() * FULL_CIRCLE;
 
 const getRevealDelay = (
     index: number,
     stripeCount: number,
-    stagger = INTRO.stagger,
-) => {
+    stagger: number = INTRO.stagger,
+): number => {
     const centerIndex = (stripeCount - 1) / 2;
     const centerDistance = stripeCount % 2 === 0 ? 0.5 : 0;
     const distanceFromCenter = Math.abs(index - centerIndex) - centerDistance;
@@ -19,7 +18,7 @@ const getRevealDelay = (
     return Math.max(0, distanceFromCenter) * stagger;
 };
 
-const getMaxRevealDelay = (stripeCount: number, stagger = INTRO.stagger) => {
+const getMaxRevealDelay = (stripeCount: number, stagger: number = INTRO.stagger): number => {
     if (stripeCount <= 0) {
         return 0;
     }
@@ -38,7 +37,7 @@ const getStaggeredProgress = (
     duration: number,
     stagger: number,
     delay = 0,
-) => {
+): number => {
     const elapsed = time - startedAt - delay
         - getRevealDelay(index, stripeCount, stagger);
 
@@ -50,7 +49,7 @@ export const getIntroRevealProgress = (
     introAnimation: IntroAnimation | null,
     index: number,
     stripeCount: number,
-) => {
+): number => {
     if (!introAnimation) {
         return 1;
     }
@@ -71,7 +70,7 @@ export const getIntroIdleProgress = (
     introAnimation: IntroAnimation | null,
     index: number,
     stripeCount: number,
-) => {
+): number => {
     if (!introAnimation) {
         return 1;
     }
@@ -89,7 +88,7 @@ export const isIntroComplete = (
     time: number,
     introAnimation: IntroAnimation | null,
     stripeCount: number,
-) => {
+): boolean => {
     if (!introAnimation) {
         return true;
     }
@@ -107,7 +106,7 @@ export const getIdleCenter = (
     stripe: Stripe,
     wavePhase: number,
     secondaryWavePhase: number,
-) => {
+): number => {
     const primaryWave = Math.sin(wavePhase - stripe.phase);
     const secondaryWave = Math.sin(secondaryWavePhase + stripe.secondaryPhase);
 

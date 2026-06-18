@@ -6,7 +6,12 @@ import LinkAction from '../../components/ui/astro/LinkAction.astro';
 import { getEntry, render } from 'astro:content';
 
 const { slug } = Astro.params;
-const project = await getEntry('projects', slug!);
+
+if (!slug) {
+  return Astro.redirect('/404');
+}
+
+const project = await getEntry('projects', slug);
 
 if (!project) {
   return Astro.redirect('/404');

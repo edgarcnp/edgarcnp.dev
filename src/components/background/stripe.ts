@@ -6,10 +6,10 @@ const createStripe = (index: number): Stripe => ({
     secondaryPhase: index * IDLE_WAVE.secondaryStripePhase,
 });
 
-const getStripeCount = (canvasWidth: number) =>
+const getStripeCount = (canvasWidth: number): number =>
     Math.max(1, Math.floor(canvasWidth / STRIPE_WIDTH));
 
-export const syncStripeCount = (stripes: Stripe[], width: number) => {
+export const syncStripeCount = (stripes: Stripe[], width: number): number => {
     const count = getStripeCount(width);
 
     while (stripes.length < count) {

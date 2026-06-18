@@ -33,7 +33,17 @@ export default function GradientShimmer(props: Props) {
 
         let size: Size = { width: 0, height: 0, dpr: 1 };
         let stripeWidth: number = 0;
-        let colors: Colors = {} as Colors;
+        let colors: Colors = {
+            alpha: 0,
+            grainAlpha: 0,
+            grainLuminance: 0,
+            grainContrast: 0,
+            grainSaturation: 0,
+            introAlpha: 0,
+            start: '',
+            highlight: '',
+            speedUpShineBoost: 0,
+        };
         let grainPattern: CanvasPattern | null = null;
         let animationFrame: number | null = null;
         let resizeFrame: number | null = null;

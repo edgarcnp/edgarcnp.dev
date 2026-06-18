@@ -11,9 +11,11 @@ import {
 export const createGrainPattern = (
     context: CanvasRenderingContext2D,
     colors: Colors,
-): CanvasPattern => {
+): CanvasPattern | null => {
     const grainCanvas = document.createElement('canvas');
-    const grainContext = grainCanvas.getContext('2d')!;
+    const grainContext = grainCanvas.getContext('2d');
+
+    if (!grainContext) return null;
 
     grainCanvas.width = 64;
     grainCanvas.height = 64;
@@ -35,7 +37,7 @@ export const createGrainPattern = (
 
     grainContext.putImageData(imageData, 0, 0);
 
-    return context.createPattern(grainCanvas, 'repeat')!;
+    return context.createPattern(grainCanvas, 'repeat');
 };
 
 export const drawGrain = (

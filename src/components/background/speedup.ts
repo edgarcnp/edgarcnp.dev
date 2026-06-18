@@ -25,10 +25,10 @@ const lerpSpeedUpValues = (
     shineProgress: lerp(from.shineProgress, to.shineProgress, progress),
 });
 
-const getProgress = (time: number, startedAt: number, duration: number) =>
+const getProgress = (time: number, startedAt: number, duration: number): number =>
     clamp((time - startedAt) / duration);
 
-const getSpeedUpRampUpDuration = (from: WaveSpeedUpValues) => {
+const getSpeedUpRampUpDuration = (from: WaveSpeedUpValues): number => {
     const multiplierRemaining = clamp(
         (WAVE_SPEED_UP.multiplier - from.multiplier)
             / (WAVE_SPEED_UP.multiplier - 1),
@@ -42,7 +42,7 @@ const getSpeedUpRampUpDuration = (from: WaveSpeedUpValues) => {
     );
 };
 
-const isSpeedUpAtPeak = ({ multiplier, shineProgress }: WaveSpeedUpValues) =>
+const isSpeedUpAtPeak = ({ multiplier, shineProgress }: WaveSpeedUpValues): boolean =>
     multiplier >= WAVE_SPEED_UP.multiplier && shineProgress >= 1;
 
 export const triggerSpeedUpAnimation = (

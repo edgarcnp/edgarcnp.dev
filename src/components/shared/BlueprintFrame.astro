@@ -1,5 +1,9 @@
 ---
-const { class: className = '' } = Astro.props as { class?: string };
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
 ---
 <div class:list={['blueprint-frame', className]}>
   <slot />

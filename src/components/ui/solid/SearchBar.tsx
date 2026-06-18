@@ -1,4 +1,3 @@
-import { type JSX } from "solid-js";
 import Input from "./Input";
 
 interface SearchBarProps {

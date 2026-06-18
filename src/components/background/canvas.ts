@@ -1,6 +1,6 @@
 import type { Size } from './types';
 
-export const snapToDevicePixel = (value: number, dpr: number) =>
+export const snapToDevicePixel = (value: number, dpr: number): number =>
     dpr === 1 ? Math.round(value) : Math.round(value * dpr) / dpr;
 
 export const resizeCanvas = (
@@ -23,7 +23,7 @@ export const resizeCanvas = (
 export const readCssNumber = (
     styles: CSSStyleDeclaration,
     name: string,
-) => {
+): number => {
     const rawValue = styles.getPropertyValue(name).trim();
     const value = Number(rawValue);
 
@@ -37,7 +37,7 @@ export const readCssNumber = (
 export const readCssString = (
     styles: CSSStyleDeclaration,
     name: string,
-) => {
+): string => {
     const value = styles.getPropertyValue(name).trim();
 
     if (!value) {
