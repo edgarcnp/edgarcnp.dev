@@ -44,3 +44,12 @@ All commands are run from the root of the project, from a terminal:
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+
+## License
+
+This repository contains materials covered by two licenses:
+
+* All software source code is licensed under the **GNU General Public License, version 3 or any later version [GPL-3.0-or-later](LICENSE-GPL-3.0)**.
+* All non-code content, including documentation, written materials, and design work, is licensed under the **Creative Commons Attribution 4.0 International License [CC BY 4.0](LICENSE-CC-BY)**.
+
+*Unless otherwise stated, these licenses apply to all content within this repository.*
