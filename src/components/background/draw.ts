@@ -65,6 +65,8 @@ export const drawStripe = (
     wavePhase: number,
     secondaryWavePhase: number,
     shineProgress: number,
+    heightTop: number,
+    heightBottom: number,
 ) => {
     const revealProgress = getIntroRevealProgress(time, introAnimation, index, stripeCount);
     const idleProgress = getIntroIdleProgress(time, introAnimation, index, stripeCount);
@@ -79,7 +81,7 @@ export const drawStripe = (
     const center = introCenter + (idleCenter - introCenter) * idleProgress;
     const bandStart = clamp(center - GRADIENT.bandWidth, GRADIENT.minStop, GRADIENT.maxStop);
     const bandEnd = clamp(center + GRADIENT.bandWidth, GRADIENT.minStop, GRADIENT.maxStop);
-    const gradient = context.createLinearGradient(x, size.height * -0.35, nextX, size.height * 1.35);
+    const gradient = context.createLinearGradient(x, heightTop, nextX, heightBottom);
 
     gradient.addColorStop(0, colors.highlight);
     gradient.addColorStop(bandStart, colors.start);

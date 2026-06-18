@@ -128,6 +128,9 @@ export default function GradientShimmer(props: Props) {
             context.globalAlpha = 1;
             context.clearRect(0, 0, size.width, size.height);
 
+            const heightTop = size.height * -0.35;
+            const heightBottom = size.height * 1.35;
+
             for (const [index, stripe] of stripes.entries()) {
                 drawStripe(
                     context,
@@ -142,6 +145,8 @@ export default function GradientShimmer(props: Props) {
                     wavePhase,
                     secondaryWavePhase,
                     reducedMotion ? 0 : speedUpState.shineProgress,
+                    heightTop,
+                    heightBottom,
                 );
             }
 

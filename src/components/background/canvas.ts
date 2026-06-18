@@ -1,7 +1,7 @@
 import type { Size } from './types';
 
 export const snapToDevicePixel = (value: number, dpr: number) =>
-    Math.round(value * dpr) / dpr;
+    dpr === 1 ? Math.round(value) : Math.round(value * dpr) / dpr;
 
 export const resizeCanvas = (
     visibleCanvas: HTMLCanvasElement,
