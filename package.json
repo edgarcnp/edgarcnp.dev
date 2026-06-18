@@ -1,22 +1,33 @@
 {
   "name": "edgarcnp-dev",
-  "private": true,
-  "license": "GPL-3.0-or-later",
   "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
-    "build": "dx build --platform web --release",
-    "check": "cargo check",
-    "clippy": "cargo clippy --all-targets --no-default-features --features web -- -D warnings",
-    "cloudflare:headers": "cp cloudflare/_headers target/dx/edgarcnp-dev/release/web/public/_headers",
-    "cloudflare:prepare": "npm run build && npm run cloudflare:headers",
-    "deploy": "npm run cloudflare:prepare && wrangler deploy",
-    "deploy:dry-run": "npm run cloudflare:prepare && wrangler deploy --dry-run",
-    "dx:check": "dx check",
-    "fmt:check": "cargo fmt --check",
-    "test": "cargo test",
-    "wrangler:dev": "npm run cloudflare:prepare && wrangler dev"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "generate-types": "wrangler types"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^13.7.0",
+    "@astrojs/solid-js": "^6.0.1",
+    "@tailwindcss/vite": "^4.3.1",
+    "astro": "^6.4.8",
+    "hono": "^4.12.25",
+    "solid-js": "^1.9.13",
+    "tailwindcss": "^4.3.1",
+    "wrangler": "^4.102.0",
+    "zod": "^4.4.3"
+  },
+  "overrides": {
+    "vite": "^7"
   },
   "devDependencies": {
-    "wrangler": "4.92.0"
+    "@astrojs/check": "^0.9.9",
+    "typescript": "^6.0.3"
   }
 }

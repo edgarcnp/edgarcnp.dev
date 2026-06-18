@@ -1,0 +1,60 @@
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blueprint-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ui-skeleton {
+  from {
+    background-position: -350px 0;
+  }
+  to {
+    background-position: calc(350px + 100%) 0;
+  }
+}
+
+@keyframes ui-spinner {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.page-motion {
+  animation: page-enter 200ms ease-out both;
+}
+
+.section-motion {
+  animation: page-enter 200ms ease-out both;
+}
+
+.motion-delay-1 {
+  animation-delay: 50ms;
+}
+
+.motion-delay-2 {
+  animation-delay: 100ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,95 @@
+---
+import Shimmer from '../components/Shimmer';
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Software engineer building secure, pragmatic web systems.' } = Astro.props;
+const path = Astro.url.pathname;
+
+const links = [
+  { href: '/projects', label: 'Projects', match: (p: string) => p.startsWith('/projects') },
+  { href: '/writing', label: 'Writing', match: (p: string) => p.startsWith('/writing') },
+  { href: '/contact', label: 'Contact', match: (p: string) => p === '/contact' },
+] as const;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title} | edgarcnp.dev</title>
+    <ClientRouter />
+  </head>
+  <body class="blueprint-page">
+    <Shimmer client:load background intro class="shimmer-canvas" transition:persist />
+
+    <header class="sticky top-0 z-20 border-b border-(--blueprint-line-muted) bg-[rgba(8,10,15,0.82)] px-4 py-3 shadow-[0_18px_48px_rgba(0,0,0,0.22)] backdrop-blur-xl sm:px-8 lg:px-12">
+      <nav aria-label="Primary navigation" class="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <a
+          href="/"
+          aria-current={path === '/' ? 'page' : undefined}
+          class="group flex min-h-11 w-fit items-center gap-3 rounded-sm pr-3 font-mono outline-none transition focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
+        >
+          <span class:list={[
+            'grid size-9 place-items-center rounded-sm border transition',
+            path === '/'
+              ? 'border-(--blueprint-accent) bg-[rgba(94,214,238,0.12)] text-(--blueprint-accent) shadow-[0_0_24px_rgba(94,214,238,0.12)]'
+              : 'border-(--blueprint-line-muted) bg-[rgba(244,247,251,0.035)] text-(--blueprint-muted) group-hover:border-(--blueprint-accent) group-hover:text-(--blueprint-accent)',
+          ]}>
+            <span class="text-xs font-semibold">EC</span>
+          </span>
+          <span class="flex flex-col leading-none">
+            <span class="text-sm font-semibold text-(--blueprint-text) transition group-hover:text-(--blueprint-accent)">edgarcnp.dev</span>
+            <span class="mt-1 text-[0.65rem] uppercase tracking-[0.18em] text-(--blueprint-muted)">Portfolio</span>
+          </span>
+        </a>
+
+        <div class="grid grid-cols-3 gap-1 rounded-sm border border-(--blueprint-line-muted) bg-[rgba(244,247,251,0.035)] p-1 text-sm text-(--blueprint-muted) shadow-[inset_0_1px_0_rgba(244,247,251,0.05)] sm:flex sm:w-fit">
+          {links.map(({ href, label, match }) => {
+            const active = match(path);
+            return (
+              <a
+                href={href}
+                aria-current={active ? 'page' : undefined}
+                class:list={[
+                  'inline-flex min-h-10 items-center justify-center rounded-sm px-3 py-2 outline-none transition focus-visible:ring-2 focus-visible:ring-(--blueprint-accent) sm:min-w-24',
+                  active
+                    ? 'bg-[rgba(94,214,238,0.12)] font-semibold text-(--blueprint-accent) ring-1 ring-[rgba(94,214,238,0.24)] hover:bg-[rgba(94,214,238,0.16)]'
+                    : 'hover:bg-[rgba(94,214,238,0.08)] hover:text-(--blueprint-accent)',
+                ]}
+              >
+                {label}
+              </a>
+            );
+          })}
+        </div>
+      </nav>
+    </header>
+
+    <main class="page-motion mx-auto max-w-6xl px-4 py-10 sm:px-8 lg:px-12">
+      <slot />
+    </main>
+
+    <footer class="border-t border-(--blueprint-line-muted) px-5 py-8 text-sm text-(--blueprint-subtle) sm:px-8 lg:px-12">
+      <div class="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p>&copy; 2026 Edgar Christian. Astro / SolidJS / Cloudflare-ready.</p>
+        <a
+          href="mailto:hello@edgarcnp.dev"
+          class="w-fit rounded-sm text-(--blueprint-muted) underline-offset-4 outline-none transition hover:text-(--blueprint-accent) hover:underline focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
+        >
+          hello@edgarcnp.dev
+        </a>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  @import '../styles/global.css';
+</style>

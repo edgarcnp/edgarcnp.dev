@@ -1,45 +1,31 @@
 name: Checks
 
 on:
-  workflow_dispatch:
+    workflow_dispatch:
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
+    check:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10
 
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
-          targets: wasm32-unknown-unknown
+            - name: Install Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 26
+                  cache: pnpm
 
-      - name: Install Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
 
-      - name: Install npm dependencies
-        run: npm ci
+            - name: Type check
+              run: pnpm astro check
 
-      - name: Install Dioxus CLI
-        run: cargo install dioxus-cli --version 0.7.9 --locked
-
-      - name: Check formatting
-        run: npm run fmt:check
-
-      - name: Run tests
-        run: npm test
-
-      - name: Run clippy
-        run: npm run clippy
-
-      - name: Run Dioxus check
-        run: npm run dx:check
-
-      - name: Build web bundle
-        run: npm run build
+            - name: Build
+              run: pnpm build

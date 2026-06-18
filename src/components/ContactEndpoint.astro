@@ -1,0 +1,21 @@
+---
+interface Props {
+  label: string;
+  kind: string;
+  href: string;
+  detail: string;
+  external?: boolean;
+}
+
+const { label, kind, href, detail, external } = Astro.props;
+---
+<a
+  href={href}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener noreferrer' : undefined}
+  class="blueprint-module blueprint-module-link group p-5 outline-none focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
+>
+  <span class="blueprint-label block">{kind}</span>
+  <span class="mt-4 block text-lg font-semibold text-(--blueprint-text) group-hover:text-(--blueprint-accent)">{label}</span>
+  <span class="mt-2 block text-sm leading-6 text-(--blueprint-muted)">{detail}</span>
+</a>

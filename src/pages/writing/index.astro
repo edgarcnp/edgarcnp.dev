@@ -1,0 +1,42 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import TechTag from '../../components/TechTag.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('writing').then((ws) =>
+  ws.sort((a, b) => new Date(b.data.published).getTime() - new Date(a.data.published).getTime())
+);
+---
+<Layout title="Writing">
+  <section class="max-w-3xl space-y-7">
+    <SectionHeading
+      label="Writing Records"
+      title="Notes and technical writing."
+      description="Markdown-backed notes from building the portfolio: Astro, content safety, responsive UI, and Cloudflare deployment."
+    />
+    <div class="section-motion motion-delay-1 space-y-4">
+      {posts.map(({ data }) => (
+        <a
+          href={`/writing/${data.slug}`}
+          class="blueprint-module blueprint-module-link group block p-5 outline-none focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
+        >
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="space-y-3">
+              <div class="blueprint-label flex flex-wrap gap-x-4 gap-y-1 text-[0.68rem]">
+                <span class="whitespace-nowrap">Published {data.published}</span>
+                <span class="whitespace-nowrap">Updated {data.updated}</span>
+              </div>
+              <h2 class="text-xl font-semibold text-(--blueprint-text)">{data.title}</h2>
+              <p class="leading-7 text-(--blueprint-muted)">{data.summary}</p>
+              <ul class="flex flex-wrap gap-2">
+                {data.tags.map((tag) => <li><TechTag label={tag} /></li>)}
+              </ul>
+            </div>
+            <span class="w-fit shrink-0 rounded-sm font-mono text-xs font-semibold uppercase tracking-wide text-(--blueprint-accent) underline-offset-4 group-hover:underline">Read</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</Layout>

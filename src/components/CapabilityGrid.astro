@@ -1,0 +1,12 @@
+---
+import capabilities from '../data/capabilities.json';
+---
+<section class="section-motion motion-delay-2 grid gap-4 lg:grid-cols-4">
+  {capabilities.capabilities.map(({ label, title, description }) => (
+    <article class="blueprint-module p-5">
+      <p class="blueprint-label">{label}</p>
+      <h3 class="mt-4 text-lg font-semibold text-(--blueprint-text)">{title}</h3>
+      <p class="mt-3 text-sm leading-6 text-(--blueprint-muted)">{description}</p>
+    </article>
+  ))}
+</section>
