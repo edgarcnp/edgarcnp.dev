@@ -1,6 +1,21 @@
 import { z, defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 
+const ALLOWED_HREF_SCHEMES = ['https:', 'http:', 'mailto:', '#'];
+
+const safeHref = z.string().refine(
+  (val) => {
+    if (val === '#') return true;
+    try {
+      const url = new URL(val);
+      return ALLOWED_HREF_SCHEMES.includes(url.protocol);
+    } catch {
+      return false;
+    }
+  },
+  { message: 'href must use https:, http:, mailto:, or be "#"' },
+);
+
 const projectSchema = z.object({
   title: z.string(),
   slug: z.string(),
@@ -14,7 +29,7 @@ const projectSchema = z.object({
   pinned: z.boolean().default(false),
   links: z.array(z.object({
     label: z.string(),
-    href: z.string(),
+    href: safeHref,
     external: z.boolean(),
   })).default([]),
 });

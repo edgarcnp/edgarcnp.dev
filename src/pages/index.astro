@@ -5,10 +5,15 @@ import SectionHeading from '../components/shared/SectionHeading.astro';
 import Card2 from '../components/shared/Card-2.astro';
 import Grid4 from '../components/shared/Grid-4.astro';
 import LinkAction from '../components/ui/astro/LinkAction.astro';
-import profile from '../data/profile.json';
-import contact from '../data/contact.json';
-import capabilities from '../data/capabilities.json';
+import profileRaw from '../data/profile.json';
+import contactRaw from '../data/contact.json';
+import capabilitiesRaw from '../data/capabilities.json';
+import { ProfileSchema, ContactSchema, CapabilitiesSchema, validate } from '../data/schemas';
 import { getCollection } from 'astro:content';
+
+const profile = validate(ProfileSchema, profileRaw, 'profile.json');
+const contact = validate(ContactSchema, contactRaw, 'contact.json');
+const capabilities = validate(CapabilitiesSchema, capabilitiesRaw, 'capabilities.json');
 
 const [featuredProjects, latestWriting] = await Promise.all([
   getCollection('projects').then((ps) =>
