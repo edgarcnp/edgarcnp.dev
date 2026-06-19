@@ -1,18 +1,27 @@
 import { Show, Suspense } from "solid-js";
-import { useLocation, createAsync } from "@solidjs/router";
+import { useParams, createAsync, cache } from "@solidjs/router";
 import { getWritingPost } from "~/lib/server-content";
 import type { WritingPost } from "~/lib/content";
 import TechTag from "~/components/shared/TechTag";
 import { LinkAction } from "~/components/ui/static/LinkAction";
 
+const fetchWritingPost = cache(async (slug: string) => getWritingPost(slug) as WritingPost | undefined, "writingPost");
+
 export default function WritingPost() {
-  const location = useLocation();
-  const slug = () => location.pathname.split("/").pop() ?? "";
-  const post = createAsync(async () => getWritingPost(slug()) as WritingPost | undefined);
+  const params = useParams<{ slug: string }>();
+  const post = createAsync(() => fetchWritingPost(params.slug));
 
   return (
     <Suspense fallback={<div class="blueprint-label">Loading post...</div>}>
-      <Show when={post()}>
+      <Show
+        when={post()}
+        fallback={
+          <section class="blueprint-frame max-w-2xl space-y-5 p-5 sm:p-6">
+            <h1 class="text-3xl font-semibold text-(--blueprint-text)">Post not found</h1>
+            <LinkAction href="/writings" variant="secondary">Back to writings</LinkAction>
+          </section>
+        }
+      >
         {(p) => (
           <article class="mx-auto max-w-3xl space-y-8">
             <header class="blueprint-frame space-y-5 p-5 sm:p-6">

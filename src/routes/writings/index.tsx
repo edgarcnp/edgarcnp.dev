@@ -1,11 +1,13 @@
 import { For, Suspense } from "solid-js";
-import { createAsync } from "@solidjs/router";
+import { A, createAsync, cache } from "@solidjs/router";
 import { getWriting } from "~/lib/server-content";
 import SectionHeading from "~/components/shared/SectionHeading";
 import TechTag from "~/components/shared/TechTag";
 
+const fetchWriting = cache(async () => getWriting(), "writing");
+
 export default function Writing() {
-  const posts = createAsync(async () => getWriting());
+  const posts = createAsync(() => fetchWriting());
 
   return (
     <div class="space-y-8">
@@ -19,7 +21,7 @@ export default function Writing() {
         <div class="space-y-4">
           <For each={posts() ?? []}>
             {(post) => (
-              <a
+              <A
                 href={`/writings/${post.slug}`}
                 class="blueprint-module blueprint-module-link block p-5 outline-none focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
               >
@@ -35,7 +37,7 @@ export default function Writing() {
                   ))}
                 </ul>
                 <span class="mt-5 inline-flex font-mono text-xs font-semibold uppercase tracking-wide text-(--blueprint-accent)">Read note</span>
-              </a>
+              </A>
             )}
           </For>
         </div>

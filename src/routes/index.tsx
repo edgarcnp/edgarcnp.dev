@@ -1,5 +1,5 @@
 import { For, Suspense } from "solid-js";
-import { createAsync } from "@solidjs/router";
+import { createAsync, cache } from "@solidjs/router";
 import { validate, ProfileSchema, ContactSchema, CapabilitiesSchema } from "~/data/schemas";
 import profileRaw from "~/data/profile.json";
 import contactRaw from "~/data/contact.json";
@@ -11,14 +11,16 @@ import ProjectCard from "~/components/shared/ProjectCard";
 import Grid4 from "~/components/shared/Grid4";
 import { LinkAction } from "~/components/ui/static/LinkAction";
 
-const profile = validate(ProfileSchema, profileRaw, "profile.json");
-const contact = validate(ContactSchema, contactRaw, "contact.json");
-const capabilities = validate(CapabilitiesSchema, capabilitiesRaw, "capabilities.json");
+const fetchFeaturedProjects = cache(async () => (await getProjects()).filter((p) => p.featured), "featuredProjects");
+const fetchLatestWriting = cache(async () => (await getWriting()).slice(0, 3), "latestWriting");
 
 export default function Home() {
+  const profile = validate(ProfileSchema, profileRaw, "profile.json");
+  const contact = validate(ContactSchema, contactRaw, "contact.json");
+  const capabilities = validate(CapabilitiesSchema, capabilitiesRaw, "capabilities.json");
   const codeberg = contact.links.find((l) => l.label === "Codeberg");
-  const featuredProjects = createAsync(async () => (await getProjects()).filter((p) => p.featured));
-  const latestWriting = createAsync(async () => (await getWriting()).slice(0, 3));
+  const featuredProjects = createAsync(() => fetchFeaturedProjects());
+  const latestWriting = createAsync(() => fetchLatestWriting());
 
   const stats = [
     { label: "Runtime", value: "Cloudflare Workers" },

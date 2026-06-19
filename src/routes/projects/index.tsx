@@ -1,11 +1,13 @@
 import { For, Suspense } from "solid-js";
-import { createAsync } from "@solidjs/router";
+import { createAsync, cache } from "@solidjs/router";
 import { getProjects } from "~/lib/server-content";
 import SectionHeading from "~/components/shared/SectionHeading";
 import ProjectCard from "~/components/shared/ProjectCard";
 
+const fetchProjects = cache(async () => getProjects(), "projects");
+
 export default function Projects() {
-  const projects = createAsync(async () => await getProjects());
+  const projects = createAsync(() => fetchProjects());
   const total = () => projects()?.length ?? 0;
   const inProgress = () => projects()?.filter((p) => p.status === "In Progress").length ?? 0;
   const planned = () => projects()?.filter((p) => p.status === "Planned").length ?? 0;

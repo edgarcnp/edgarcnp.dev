@@ -1,19 +1,28 @@
 import { Show, Suspense } from "solid-js";
-import { useLocation, createAsync } from "@solidjs/router";
+import { useParams, createAsync, cache } from "@solidjs/router";
 import { getProject } from "~/lib/server-content";
 import type { Project } from "~/lib/content";
 import TechTag from "~/components/shared/TechTag";
 import StatusBadge from "~/components/shared/StatusBadge";
 import { LinkAction } from "~/components/ui/static/LinkAction";
 
+const fetchProject = cache(async (slug: string) => getProject(slug) as Project | undefined, "project");
+
 export default function ProjectPost() {
-  const location = useLocation();
-  const slug = () => location.pathname.split("/").pop() ?? "";
-  const project = createAsync(async () => getProject(slug()) as Project | undefined);
+  const params = useParams<{ slug: string }>();
+  const project = createAsync(() => fetchProject(params.slug));
 
   return (
     <Suspense fallback={<div class="blueprint-label">Loading project...</div>}>
-      <Show when={project()}>
+      <Show
+        when={project()}
+        fallback={
+          <section class="blueprint-frame max-w-2xl space-y-5 p-5 sm:p-6">
+            <h1 class="text-3xl font-semibold text-(--blueprint-text)">Project not found</h1>
+            <LinkAction href="/projects" variant="secondary">Back to projects</LinkAction>
+          </section>
+        }
+      >
         {(p) => (
           <article class="mx-auto max-w-3xl space-y-8">
             <header class="blueprint-frame space-y-5 p-5 sm:p-6">

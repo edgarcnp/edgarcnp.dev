@@ -1,7 +1,8 @@
 import { Router, A, useLocation } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { Show, Suspense } from "solid-js";
+import { Show, Suspense, ErrorBoundary } from "solid-js";
 import GradientShimmer from "~/components/background/GradientShimmer";
+import { LinkAction } from "~/components/ui/static/LinkAction";
 import "./app.css";
 
 const links = [
@@ -50,7 +51,16 @@ export default function App() {
           <main class="mx-auto max-w-6xl px-4 py-10 sm:px-8 lg:px-12">
             <Show when={useLocation().pathname} keyed>
               <div class="page-motion">
-                <Suspense>{props.children}</Suspense>
+                <ErrorBoundary fallback={(err) => (
+                  <section class="blueprint-frame max-w-2xl space-y-5 p-5 sm:p-6">
+                    <p class="blueprint-label">Error</p>
+                    <h1 class="text-3xl font-semibold text-(--blueprint-text)">Something went wrong</h1>
+                    <p class="leading-7 text-(--blueprint-muted)">{err.message}</p>
+                    <LinkAction href="/" variant="primary">Return home</LinkAction>
+                  </section>
+                )}>
+                  <Suspense>{props.children}</Suspense>
+                </ErrorBoundary>
               </div>
             </Show>
           </main>

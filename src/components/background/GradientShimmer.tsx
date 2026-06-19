@@ -1,4 +1,4 @@
-import { onMount, onCleanup, createEffect } from 'solid-js';
+import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
 import { useLocation } from '@solidjs/router';
 import type { Colors, Stripe, Size, IntroAnimation, GradientShimmerControls } from '~/lib/types';
 import { IDLE_WAVE } from './config';
@@ -8,8 +8,6 @@ import { triggerSpeedUpAnimation, updateSpeedUpAnimation } from './speedup';
 import { resizeCanvas, readCssNumber, readCssString } from './canvas';
 import { createGrainPattern, drawGrain, drawStripe } from './draw';
 
-let introPlayed = false;
-
 type Props = {
     intro?: boolean;
     background?: boolean;
@@ -17,7 +15,8 @@ type Props = {
 };
 
 export default function GradientShimmer(props: Props) {
-    let canvas!: HTMLCanvasElement;
+  const [introPlayed, setIntroPlayed] = createSignal(false);
+  let canvas!: HTMLCanvasElement;
     let shimmerController: GradientShimmerControls | null = null;
 
     onMount(() => {
@@ -186,8 +185,8 @@ export default function GradientShimmer(props: Props) {
         applyResize();
 
         const startAfterResize = () => {
-            if (props.intro !== false && !introPlayed) {
-                introPlayed = true;
+            if (props.intro !== false && !introPlayed()) {
+                setIntroPlayed(true);
                 startIntro();
             }
         };
@@ -258,14 +257,10 @@ export default function GradientShimmer(props: Props) {
     });
 
     const location = useLocation();
-    let prevPath = location.pathname;
 
     createEffect(() => {
-        const currentPath = location.pathname;
-        if (currentPath !== prevPath) {
-            prevPath = currentPath;
-            shimmerController?.emphasize();
-        }
+        location.pathname;
+        shimmerController?.emphasize();
     });
 
     const classes = () => {

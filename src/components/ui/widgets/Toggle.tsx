@@ -1,4 +1,4 @@
-import { createSignal, type JSX } from "solid-js";
+import { type JSX } from "solid-js";
 
 interface ToggleProps {
     class?: string;
@@ -12,13 +12,11 @@ interface ToggleProps {
 }
 
 export function Toggle(props: ToggleProps) {
-    const [checked, setChecked] = createSignal(props.checked ?? false);
+    const checked = () => props.checked ?? false;
 
     const toggle = () => {
         if (props.disabled) return;
-        const next = !checked();
-        setChecked(next);
-        props.onchange?.(next);
+        props.onchange?.(!checked());
     };
 
     return (

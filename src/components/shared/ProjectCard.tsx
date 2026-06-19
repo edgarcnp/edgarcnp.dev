@@ -1,4 +1,5 @@
 import type { ProjectStatus } from '~/lib/types';
+import { A } from '@solidjs/router';
 import StatusBadge from './StatusBadge';
 import TechTag from './TechTag';
 
@@ -15,7 +16,7 @@ interface Props {
 
 export default function ProjectCard(props: Props) {
   return (
-    <a
+    <A
       href={props.href}
       class="blueprint-module blueprint-module-link group flex h-full min-h-72 flex-col justify-between p-5 outline-none focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
     >
@@ -47,6 +48,6 @@ export default function ProjectCard(props: Props) {
           {props.actionLabel ?? 'Inspect'}
         </span>
       </div>
-    </a>
+    </A>
   );
 }

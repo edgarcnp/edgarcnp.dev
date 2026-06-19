@@ -3,9 +3,8 @@ import { validate, ContactSchema } from "~/data/schemas";
 import contactRaw from "~/data/contact.json";
 import SectionHeading from "~/components/shared/SectionHeading";
 
-const contact = validate(ContactSchema, contactRaw, "contact.json");
-
 export default function Contact() {
+  const contact = validate(ContactSchema, contactRaw, "contact.json");
   return (
     <section class="max-w-3xl space-y-8">
       <SectionHeading

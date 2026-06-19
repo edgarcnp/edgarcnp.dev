@@ -12,12 +12,14 @@ interface CheckboxProps {
 }
 
 export function Checkbox(props: CheckboxProps) {
-    const [checked, setChecked] = createSignal(props.checked ?? false);
-    const [previousChecked, setPreviousChecked] = createSignal(checked());
+    const [localChecked, setLocalChecked] = createSignal(props.checked ?? false);
+    const [previousChecked, setPreviousChecked] = createSignal(localChecked());
     const [toggling, setToggling] = createSignal(false);
 
+    createEffect(() => setLocalChecked(props.checked ?? false));
+
     createEffect(() => {
-        const current = checked();
+        const current = localChecked();
         const prev = previousChecked();
         if (current === prev) return;
 
@@ -28,7 +30,7 @@ export function Checkbox(props: CheckboxProps) {
 
     const handleChange = (e: Event) => {
         const input = e.target as HTMLInputElement;
-        setChecked(input.checked);
+        setLocalChecked(input.checked);
         props.onChange?.(input.checked);
     };
 
@@ -44,7 +46,7 @@ export function Checkbox(props: CheckboxProps) {
             <input
                 id={props.id}
                 type="checkbox"
-                checked={checked()}
+                checked={localChecked()}
                 disabled={props.disabled}
                 aria-label={props["aria-label"]}
                 aria-labelledby={props["aria-labelledby"]}
