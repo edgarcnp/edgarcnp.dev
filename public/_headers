@@ -1,12 +1,12 @@
 /_build/assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-https://:version.:project.pages.dev/*
+https://:version.:project.workers.dev/*
   X-Robots-Tag: noindex
 
-https://dev.:project.pages.dev/*
+https://dev.:project.workers.dev/*
   X-Robots-Tag: noindex
 
-https://:project.pages.dev/*
+https://:project.workers.dev/*
   Access-Control-Allow-Origin: https://staging.:project.pages.dev/
   X-Robots-Tag: noindex
