@@ -1,4 +1,5 @@
 import type { Size } from '~/lib/types';
+import { assertFiniteNumber, assertNonEmpty } from '~/lib/errors';
 
 export const snapToDevicePixel = (value: number, dpr: number): number =>
     dpr === 1 ? Math.round(value) : Math.round(value * dpr) / dpr;
@@ -24,25 +25,12 @@ export const readCssNumber = (
     styles: CSSStyleDeclaration,
     name: string,
 ): number => {
-    const rawValue = styles.getPropertyValue(name).trim();
-    const value = Number(rawValue);
-
-    if (!rawValue || !Number.isFinite(value)) {
-        throw new Error(`Missing or invalid CSS number: ${name}`);
-    }
-
-    return value;
+    return assertFiniteNumber(styles.getPropertyValue(name).trim(), name);
 };
 
 export const readCssString = (
     styles: CSSStyleDeclaration,
     name: string,
 ): string => {
-    const value = styles.getPropertyValue(name).trim();
-
-    if (!value) {
-        throw new Error(`Missing CSS value: ${name}`);
-    }
-
-    return value;
+    return assertNonEmpty(styles.getPropertyValue(name).trim(), name);
 };

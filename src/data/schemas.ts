@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { safeHref } from '~/lib/schemas';
+import { ValidationError } from '~/lib/errors';
 
 export const ProfileSchema = z.object({
     name: z.string(),
@@ -38,10 +39,15 @@ export type Capability = z.infer<typeof CapabilitySchema>;
 export function validate<T>(schema: z.ZodSchema<T>, data: unknown, source: string): T {
     const result = schema.safeParse(data);
     if (!result.success) {
-        const issues = result.error.issues
-            .map((i) => `  - ${i.path.join('.')}: ${i.message}`)
-            .join('\n');
-        throw new Error(`Validation failed for ${source}:\n${issues}`);
+        const issues = result.error.issues.map((i) => ({
+            path: i.path.join('.'),
+            message: i.message,
+        }));
+        throw new ValidationError(
+            source,
+            issues.map((i) => `${i.path}: ${i.message}`).join("; "),
+            issues,
+        );
     }
     return result.data;
 }

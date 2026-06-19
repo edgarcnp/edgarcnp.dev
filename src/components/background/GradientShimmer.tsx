@@ -21,6 +21,7 @@ export default function GradientShimmer(props: Props) {
 
     onMount(() => {
         const init = () => {
+        try {
         const context = canvas.getContext('2d', {
             alpha: true,
             colorSpace: 'display-p3',
@@ -90,33 +91,40 @@ export default function GradientShimmer(props: Props) {
             emphasize: startWaveSpeedUp,
         };
 
-        const readColors = () => {
-            const styles = getComputedStyle(canvas);
-            colors = {
-                alpha: readCssNumber(styles, '--shimmer-alpha'),
-                grainAlpha: readCssNumber(styles, '--shimmer-grain-alpha'),
-                grainLuminance: readCssNumber(styles, '--shimmer-grain-luminance'),
-                grainContrast: readCssNumber(styles, '--shimmer-grain-contrast'),
-                grainSaturation: readCssNumber(styles, '--shimmer-grain-saturation'),
-                introAlpha: readCssNumber(styles, '--shimmer-intro-alpha'),
-                start: readCssString(styles, '--shimmer-start'),
-                highlight: readCssString(styles, '--shimmer-highlight'),
-                speedUpShineBoost: readCssNumber(styles, '--shimmer-speed-up-shine-boost'),
-            };
-            grainPattern = createGrainPattern(context, colors);
+        const readColors = (): boolean => {
+            try {
+                const styles = getComputedStyle(canvas);
+                colors = {
+                    alpha: readCssNumber(styles, '--shimmer-alpha'),
+                    grainAlpha: readCssNumber(styles, '--shimmer-grain-alpha'),
+                    grainLuminance: readCssNumber(styles, '--shimmer-grain-luminance'),
+                    grainContrast: readCssNumber(styles, '--shimmer-grain-contrast'),
+                    grainSaturation: readCssNumber(styles, '--shimmer-grain-saturation'),
+                    introAlpha: readCssNumber(styles, '--shimmer-intro-alpha'),
+                    start: readCssString(styles, '--shimmer-start'),
+                    highlight: readCssString(styles, '--shimmer-highlight'),
+                    speedUpShineBoost: readCssNumber(styles, '--shimmer-speed-up-shine-boost'),
+                };
+                grainPattern = createGrainPattern(context, colors);
+                return true;
+            } catch (e) {
+                console.error("[GradientShimmer] CSS read failed:", e instanceof Error ? e.message : e);
+                return false;
+            }
         };
 
-        const applyResize = () => {
+        const applyResize = (): boolean => {
             size = resizeCanvas(canvas, context);
             stripeWidth = syncStripeCount(stripes, size.width);
-            readColors();
+            return readColors();
         };
 
         const scheduleResize = () => {
             cancelResizeFrame();
             resizeFrame = requestAnimationFrame((time) => {
-                applyResize();
-                drawFrame(time);
+                if (applyResize()) {
+                    drawFrame(time);
+                }
             });
         };
 
@@ -183,7 +191,10 @@ export default function GradientShimmer(props: Props) {
             animationFrame = requestAnimationFrame(draw);
         };
 
-        applyResize();
+        if (!applyResize()) {
+            onCleanup(() => {});
+            return;
+        }
 
         const startAfterResize = () => {
             if (props.intro !== false && !introPlayed()) {
@@ -194,9 +205,10 @@ export default function GradientShimmer(props: Props) {
 
         if (size.width === 0 || size.height === 0) {
             const retryFrame = requestAnimationFrame(() => {
-                applyResize();
-                drawFrame(performance.now());
-                startAfterResize();
+                if (applyResize()) {
+                    drawFrame(performance.now());
+                    startAfterResize();
+                }
             });
 
             onCleanup(() => cancelAnimationFrame(retryFrame));
@@ -212,8 +224,9 @@ export default function GradientShimmer(props: Props) {
         const scheduleColorRead = () => {
             cancelResizeFrame();
             resizeFrame = requestAnimationFrame((time) => {
-                readColors();
-                drawFrame(time);
+                if (readColors()) {
+                    drawFrame(time);
+                }
             });
         };
 
@@ -256,6 +269,9 @@ export default function GradientShimmer(props: Props) {
             reducedMotionQuery.removeEventListener('change', updateMotionPreference);
         });
 
+        } catch (e) {
+            console.error("[GradientShimmer] Init failed:", e instanceof Error ? e.message : e);
+        }
         };
 
         if (typeof requestIdleCallback !== 'undefined') {

@@ -3,6 +3,7 @@ import { FileRoutes } from "@solidjs/start/router";
 import { Show, Suspense, ErrorBoundary } from "solid-js";
 import GradientShimmer from "~/components/background/GradientShimmer";
 import { LinkAction } from "~/components/ui/static/LinkAction";
+import { AppError, ValidationError, NotFoundError, IoError, ParseError, CssError, DateError } from "~/lib/errors";
 import "./app.css";
 
 const links = [
@@ -10,6 +11,28 @@ const links = [
   { href: "/writings", label: "Writings", match: (p: string) => p.startsWith("/writings") },
   { href: "/contact", label: "Contact", match: (p: string) => p === "/contact" },
 ] as const;
+
+function getErrorMessage(err: unknown): string {
+  if (err instanceof ValidationError) return err.displayMessage;
+  if (err instanceof NotFoundError) return err.displayMessage;
+  if (err instanceof IoError) return err.displayMessage;
+  if (err instanceof ParseError) return err.displayMessage;
+  if (err instanceof CssError) return err.displayMessage;
+  if (err instanceof DateError) return err.displayMessage;
+  if (err instanceof AppError) return err.displayMessage;
+  if (err instanceof Error) return "Something went wrong";
+  return "Something went wrong";
+}
+
+function logError(err: unknown): void {
+  if (err instanceof AppError) {
+    console.error(`[${err.name}]`, err.message, err.cause ?? "");
+  } else if (err instanceof Error) {
+    console.error("[Error]", err.message, err.stack ?? "");
+  } else {
+    console.error("[Error]", err);
+  }
+}
 
 export default function App() {
   return (
@@ -51,14 +74,17 @@ export default function App() {
           <main class="mx-auto max-w-6xl px-4 py-10 sm:px-8 lg:px-12">
             <Show when={useLocation().pathname} keyed>
               <div class="page-motion">
-                <ErrorBoundary fallback={(err) => (
-                  <section class="blueprint-frame max-w-2xl space-y-5 p-5 sm:p-6">
-                    <p class="blueprint-label">Error</p>
-                    <h1 class="text-3xl font-semibold text-(--blueprint-text)">Something went wrong</h1>
-                    <p class="leading-7 text-(--blueprint-muted)">{err.message}</p>
-                    <LinkAction href="/" variant="primary">Return home</LinkAction>
-                  </section>
-                )}>
+                <ErrorBoundary fallback={(err) => {
+                  logError(err);
+                  return (
+                    <section class="blueprint-frame max-w-2xl space-y-5 p-5 sm:p-6">
+                      <p class="blueprint-label text-red-400">Error</p>
+                      <h1 class="text-3xl font-semibold text-(--blueprint-text)">Something went wrong</h1>
+                      <p class="leading-7 text-(--blueprint-muted)">{getErrorMessage(err)}</p>
+                      <LinkAction href="/" variant="primary">Return home</LinkAction>
+                    </section>
+                  );
+                }}>
                   <Suspense>{props.children}</Suspense>
                 </ErrorBoundary>
               </div>

@@ -5,12 +5,19 @@ import { Marked } from 'marked';
 import DOMPurify from 'isomorphic-dompurify';
 import { z } from 'zod';
 import { safeHref } from './schemas';
+import { ValidationError, IoError, ParseError, DateError } from './errors';
 
 const marked = new Marked({ gfm: true, breaks: false });
 
-function sanitizeMarkdown(content: string): string {
-  const html = marked.parse(content) as string;
-  return DOMPurify.sanitize(html, {
+function sanitizeMarkdown(content: string, source: string): string {
+  let html: string;
+  try {
+    html = marked.parse(content) as string;
+  } catch (e) {
+    throw new ParseError(source, `Markdown parse failed: ${e instanceof Error ? e.message : String(e)}`, e instanceof Error ? e : undefined);
+  }
+
+  const sanitized = DOMPurify.sanitize(html, {
     ALLOWED_TAGS: [
       'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
       'p', 'br', 'hr',
@@ -26,6 +33,12 @@ function sanitizeMarkdown(content: string): string {
     ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'width', 'height'],
     ALLOW_DATA_ATTR: false,
   });
+
+  if (!sanitized || sanitized.trim().length === 0) {
+    throw new ParseError(source, "Sanitized output is empty — input may be malformed");
+  }
+
+  return sanitized;
 }
 
 // --- Schemas ---
@@ -71,21 +84,54 @@ async function readMarkdownFiles(subdir: string): Promise<string[]> {
   } catch {
     return [];
   }
-  const entries = await fs.readdir(dir);
-  return entries
-    .filter((f) => f.endsWith('.md'))
-    .map((f) => path.join(dir, f));
+
+  let entries: string[];
+  try {
+    entries = await fs.readdir(dir);
+  } catch (e) {
+    throw new IoError("read directory", dir, e instanceof Error ? e : undefined);
+  }
+
+  return entries.filter((f) => f.endsWith('.md')).map((f) => path.join(dir, f));
+}
+
+function parseDate(value: string, source: string): Date {
+  const timestamp = new Date(value).getTime();
+  if (Number.isNaN(timestamp)) {
+    throw new DateError(value, source);
+  }
+  return new Date(value);
 }
 
 async function parseMarkdown<T extends z.ZodTypeAny>(
   filePath: string,
   schema: T,
 ): Promise<z.infer<T> & { body: string }> {
-  const raw = await fs.readFile(filePath, 'utf-8');
+  let raw: string;
+  try {
+    raw = await fs.readFile(filePath, 'utf-8');
+  } catch (e) {
+    throw new IoError("read file", filePath, e instanceof Error ? e : undefined);
+  }
+
   const { data, content } = matter(raw);
-  const parsed = schema.parse(data);
-  const body = sanitizeMarkdown(content);
-  return { ...(parsed as Record<string, unknown>), body } as z.infer<T> & { body: string };
+
+  const parsed = schema.safeParse(data);
+  if (!parsed.success) {
+    const issues = parsed.error.issues.map((i) => ({
+      path: i.path.join("."),
+      message: i.message,
+    }));
+    throw new ValidationError(
+      filePath,
+      issues.map((i) => `${i.path}: ${i.message}`).join("; "),
+      issues,
+    );
+  }
+
+  const body = sanitizeMarkdown(content, filePath);
+
+  return { ...(parsed.data as Record<string, unknown>), body } as z.infer<T> & { body: string };
 }
 
 // --- Content loaders ---
@@ -95,8 +141,15 @@ let writingCache: WritingPost[] | null = null;
 
 export async function getProjects(): Promise<Project[]> {
   if (projectsCache) return projectsCache;
+
   const files = await readMarkdownFiles('projects');
-  const projects = await Promise.all(files.map((f) => parseMarkdown(f, projectSchema)));
+  const projects: Project[] = [];
+
+  for (const f of files) {
+    const project = await parseMarkdown(f, projectSchema);
+    projects.push(project);
+  }
+
   projectsCache = projects.sort((a, b) => b.year - a.year);
   return projectsCache;
 }
@@ -108,9 +161,21 @@ export async function getProject(slug: string): Promise<Project | undefined> {
 
 export async function getWriting(): Promise<WritingPost[]> {
   if (writingCache) return writingCache;
+
   const files = await readMarkdownFiles('writing');
-  const posts = await Promise.all(files.map((f) => parseMarkdown(f, writingSchema)));
-  writingCache = posts.sort((a, b) => new Date(b.published).getTime() - new Date(a.published).getTime());
+  const posts: WritingPost[] = [];
+
+  for (const f of files) {
+    const post = await parseMarkdown(f, writingSchema);
+    posts.push(post);
+  }
+
+  writingCache = posts.sort((a, b) => {
+    const aTime = parseDate(a.published, `writing/${a.slug}.published`).getTime();
+    const bTime = parseDate(b.published, `writing/${b.slug}.published`).getTime();
+    return bTime - aTime;
+  });
+
   return writingCache;
 }
 

@@ -22,6 +22,8 @@ export default createHandler(
     />
   ),
   (context) => ({
-    nonce: context.nativeEvent.context.nonce as string,
+    nonce: typeof context.nativeEvent.context.nonce === "string"
+      ? context.nativeEvent.context.nonce
+      : "",
   })
 );
