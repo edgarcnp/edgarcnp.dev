@@ -1,19 +1,5 @@
 import { z } from 'zod';
-
-const ALLOWED_HREF_SCHEMES = ['https:', 'http:', 'mailto:', '#'];
-
-const safeHref = z.string().refine(
-    (val) => {
-        if (val === '#') return true;
-        try {
-            const url = new URL(val);
-            return ALLOWED_HREF_SCHEMES.includes(url.protocol);
-        } catch {
-            return false;
-        }
-    },
-    { message: 'href must use https:, http:, mailto:, or be "#"' },
-);
+import { safeHref } from '~/lib/types';
 
 export const ProfileSchema = z.object({
     name: z.string(),
