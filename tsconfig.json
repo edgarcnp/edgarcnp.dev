@@ -1,15 +1,29 @@
 {
-  "extends": "astro/tsconfigs/strict",
-  "include": [
-    ".astro/types.d.ts",
-    "**/*",
-    "./worker-configuration.d.ts"
-  ],
-  "exclude": [
-    "dist"
-  ],
-  "compilerOptions": {
-    "jsx": "preserve",
-    "jsxImportSource": "solid-js"
-  }
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "jsx": "preserve",
+        "jsxImportSource": "solid-js",
+        "allowJs": true,
+        "noEmit": true,
+        "strict": true,
+        "types": [
+            "vite/client"
+        ],
+        "isolatedModules": true,
+        "skipLibCheck": true,
+        "paths": {
+            "~/*": [
+                "./src/*"
+            ]
+        }
+    },
+    "exclude": [
+        "edgarcnp.dev-astro",
+        "node_modules",
+        "server"
+    ]
 }

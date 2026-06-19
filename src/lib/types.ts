@@ -1,11 +1,93 @@
 import { z } from 'zod';
 
+// --- Shared Schemas ---
+
+const ALLOWED_HREF_SCHEMES = ['https:', 'http:', 'mailto:', '#'];
+
+export const safeHref = z.string().refine(
+  (val) => {
+    if (val === '#') return true;
+    try {
+      const url = new URL(val);
+      return ALLOWED_HREF_SCHEMES.includes(url.protocol);
+    } catch {
+      return false;
+    }
+  },
+  { message: 'href must use https:, http:, mailto:, or be "#"' },
+);
+
+// --- UI Icon Types ---
+
+export interface IconProps {
+  class?: string;
+}
+
+// --- Background Types ---
+
+export type Stripe = {
+  phase: number;
+  secondaryPhase: number;
+};
+
+export type IntroAnimation = {
+  startedAt: number;
+};
+
+export type WaveSpeedUpValues = {
+  multiplier: number;
+  shineProgress: number;
+};
+
+export type WaveSpeedUpAnimation = {
+  phase: "ramp-up";
+  startedAt: number;
+  duration: number;
+  from: WaveSpeedUpValues;
+} | {
+  phase: "hold";
+  startedAt: number;
+} | {
+  phase: "ramp-down";
+  startedAt: number;
+  from: WaveSpeedUpValues;
+};
+
+export type WaveSpeedUpAnimationState = WaveSpeedUpValues & {
+  animation: WaveSpeedUpAnimation | null;
+};
+
+export type Size = {
+  width: number;
+  height: number;
+  dpr: number;
+};
+
+export type GradientShimmerControls = {
+  intro: () => void;
+  emphasize: () => void;
+};
+
+export type Colors = {
+  alpha: number;
+  grainAlpha: number;
+  grainLuminance: number;
+  grainContrast: number;
+  grainSaturation: number;
+  introAlpha: number;
+  start: string;
+  highlight: string;
+  speedUpShineBoost: number;
+};
+
+// --- Data Types ---
+
 export const ProjectStatus = z.enum(['Planned', 'In Progress', 'Archived']);
 export type ProjectStatus = z.infer<typeof ProjectStatus>;
 
 export const ProjectLink = z.object({
   label: z.string(),
-  href: z.string(),
+  href: safeHref,
   external: z.boolean(),
 });
 export type ProjectLink = z.infer<typeof ProjectLink>;

@@ -1,4 +1,4 @@
-import type { Size } from './types';
+import type { Size } from '~/lib/types';
 
 export const snapToDevicePixel = (value: number, dpr: number): number =>
     dpr === 1 ? Math.round(value) : Math.round(value * dpr) / dpr;

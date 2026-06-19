@@ -2,7 +2,7 @@ import type {
     WaveSpeedUpAnimation,
     WaveSpeedUpAnimationState,
     WaveSpeedUpValues,
-} from './types';
+} from '~/lib/types';
 import { WAVE_SPEED_UP } from './config';
 import { clamp, lerp, easeOutCubic, easeInOutCubic } from './easing';
 

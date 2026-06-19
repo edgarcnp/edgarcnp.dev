@@ -1,4 +1,4 @@
-import type { Stripe } from './types';
+import type { Stripe } from '~/lib/types';
 import { STRIPE_WIDTH, IDLE_WAVE } from './config';
 
 const createStripe = (index: number): Stripe => ({

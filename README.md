@@ -1,55 +1,41 @@
-# Astro Starter Kit: Basics
+# SolidStart
 
-```sh
-pnpm create astro@latest -- --template basics
+Everything you need to build a Solid project, powered by [`solid-start`](https://start.solidjs.com);
+
+## Creating a project
+
+```bash
+# create a new project in the current directory
+npm init solid@latest
+
+# create a new project in my-app
+npm init solid@latest my-app
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Developing
 
-## 🚀 Project Structure
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
-Inside of your Astro project, you'll see the following folders and files:
+```bash
+npm run dev
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Building
 
-## 🧞 Commands
+Solid apps are built with _presets_, which optimise your project for deployment to different environments.
 
-All commands are run from the root of the project, from a terminal:
+By default, `npm run build` will generate a Node app that you can run with `npm start`. To use a different preset, add it to the `devDependencies` in `package.json` and specify in your `app.config.js`.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+## This project was created with the [Solid CLI](https://github.com/solidjs-community/solid-cli)
 
 ## License
 
 This repository contains materials covered by two licenses:
 
 * All software source code is licensed under the **GNU General Public License, version 3 or any later version [GPL-3.0-or-later](LICENSE-GPL-3.0)**.
-* All non-code content, including documentation, written materials, and design work, is licensed under the **Creative Commons Attribution 4.0 International License [CC BY 4.0](LICENSE-CC-BY)**.
+* All non-code content, including documentation, written materials, and design work, is licensed under the **Creative Commons Attribution 4.0 International License [CC BY-NC 4.0](LICENSE-CC-BY-NC-4.0)**.
 
 *Unless otherwise stated, these licenses apply to all content within this repository.*

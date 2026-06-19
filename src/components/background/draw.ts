@@ -1,4 +1,4 @@
-import type { Colors, Stripe, Size, IntroAnimation } from './types';
+import type { Colors, Stripe, Size, IntroAnimation } from '~/lib/types';
 import { GRADIENT, INTRO } from './config';
 import { clamp, lerp } from './easing';
 import { snapToDevicePixel } from './canvas';

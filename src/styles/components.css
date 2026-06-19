@@ -233,3 +233,136 @@
   background: rgba(8, 10, 15, 0.84);
   padding: 1rem;
 }
+
+.card-link {
+  text-decoration: none;
+  align-items: flex-start;
+}
+
+.link-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.copy-animation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 18px;
+  width: 18px;
+}
+
+.copy-animation svg {
+  width: 18px;
+  height: 18px;
+  will-change: transform;
+}
+
+.icon-copy,
+.icon-check {
+  display: flex;
+  position: absolute;
+  transition: transform 0.25s, opacity 0.25s;
+}
+
+.icon-copy {
+  transform: none;
+  opacity: 1;
+}
+
+.icon-check {
+  transform: scale(0.4);
+  opacity: 0;
+}
+
+.check .icon-copy {
+  transform: scale(0.4);
+  opacity: 0;
+}
+
+.check .icon-check {
+  transform: none;
+  opacity: 1;
+}
+
+.skeleton {
+  height: 100%;
+  width: 100%;
+  background: var(--ui-elevated-10);
+  border-radius: 12px;
+  background-image: linear-gradient(90deg, transparent, var(--ui-elevated-10), transparent);
+  background-repeat: no-repeat;
+  animation: skeleton 1.2s ease-in-out infinite;
+  background-size: var(--ui-shimmer-size) var(--ui-shimmer-size);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background-image: none;
+  }
+}
+
+@keyframes skeleton {
+  0% {
+    background-position: -350px 0;
+  }
+  100% {
+    background-position: calc(350px + 100%) 0;
+  }
+}
+
+.spinner {
+  display: flex;
+}
+
+.spinner svg {
+  width: var(--size);
+  height: var(--size);
+  color: inherit;
+  animation: spinner 1s infinite linear;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner svg {
+    animation: none;
+  }
+}
+
+@keyframes spinner {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.text {
+  margin: 0;
+}
+
+.center {
+  text-align: center;
+}
+
+.tone-primary {
+  color: var(--blueprint-text);
+}
+
+.tone-secondary {
+  color: var(--blueprint-muted);
+}
+
+.tone-tertiary {
+  color: var(--blueprint-subtle);
+}
+
+.tone-white {
+  color: #ffffff;
+}

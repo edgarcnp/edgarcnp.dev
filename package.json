@@ -1,34 +1,34 @@
 {
-  "name": "edgarcnp-dev",
-  "type": "module",
-  "version": "0.0.1",
-  "license": "GPL-3.0-or-later",
-  "engines": {
-    "node": ">=22.12.0"
-  },
-  "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro",
-    "generate-types": "wrangler types"
-  },
-  "dependencies": {
-    "@astrojs/cloudflare": "^13.7.0",
-    "@astrojs/solid-js": "^6.0.1",
-    "@tailwindcss/vite": "^4.3.1",
-    "astro": "^6.4.8",
-    "hono": "^4.12.25",
-    "solid-js": "^1.9.13",
-    "tailwindcss": "^4.3.1",
-    "wrangler": "^4.102.0",
-    "zod": "^4.4.3"
-  },
-  "overrides": {
-    "vite": "^7"
-  },
-  "devDependencies": {
-    "@astrojs/check": "^0.9.9",
-    "typescript": "^6.0.3"
-  }
+    "name": "edgarcnp-dev",
+    "license": "GPL-3.0-or-later",
+    "type": "module",
+    "scripts": {
+        "dev": "vite dev",
+        "build": "vite build",
+        "start": "vite start",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@solidjs/router": "^0.16.1",
+        "@solidjs/start": "2.0.0-alpha.3",
+        "@solidjs/vite-plugin-nitro-2": "^0.1.0",
+        "gray-matter": "^4.0.3",
+        "hono": "^4.12.26",
+        "isomorphic-dompurify": "^3.17.0",
+        "marked": "^18.0.5",
+        "solid-js": "^1.9.13",
+        "vite": "^8.0.16",
+        "zod": "^4.4.3"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.3.1",
+        "@types/node": "^25.9.3",
+        "h3": "2.0.1-rc.22",
+        "nitropack": "^2.13.4",
+        "tailwindcss": "^4.3.1",
+        "typescript": "^6.0.3"
+    },
+    "engines": {
+        "node": ">=22"
+    }
 }

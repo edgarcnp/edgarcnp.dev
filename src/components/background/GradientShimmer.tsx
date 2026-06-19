@@ -1,5 +1,6 @@
-import { onMount, onCleanup } from 'solid-js';
-import type { Colors, Stripe, Size, IntroAnimation, GradientShimmerControls } from './types';
+import { onMount, onCleanup, createEffect } from 'solid-js';
+import { useLocation } from '@solidjs/router';
+import type { Colors, Stripe, Size, IntroAnimation, GradientShimmerControls } from '~/lib/types';
 import { IDLE_WAVE } from './config';
 import { syncStripeCount } from './stripe';
 import { getRandomWavePhase, isIntroComplete } from './intro';
@@ -219,16 +220,11 @@ export default function GradientShimmer(props: Props) {
         const themeObserver = new MutationObserver(scheduleColorRead);
         themeObserver.observe(document.documentElement, { attributes: true });
 
-        const onRouteChange = () => {
-            controller.emphasize();
-        };
-
         const onClick = () => {
             controller.emphasize();
         };
 
         document.addEventListener('click', onClick);
-        document.addEventListener('astro:after-swap', onRouteChange);
 
         const updateMotionPreference = () => {
             if (reducedMotionQuery.matches) {
@@ -256,10 +252,20 @@ export default function GradientShimmer(props: Props) {
             resizeObserver.disconnect();
             themeObserver.disconnect();
             document.removeEventListener('click', onClick);
-            document.removeEventListener('astro:after-swap', onRouteChange);
             colorSchemeQuery.removeEventListener('change', scheduleColorRead);
             reducedMotionQuery.removeEventListener('change', updateMotionPreference);
         });
+    });
+
+    const location = useLocation();
+    let prevPath = location.pathname;
+
+    createEffect(() => {
+        const currentPath = location.pathname;
+        if (currentPath !== prevPath) {
+            prevPath = currentPath;
+            shimmerController?.emphasize();
+        }
     });
 
     const classes = () => {

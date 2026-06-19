@@ -1,4 +1,4 @@
-import type { Stripe, IntroAnimation } from './types';
+import type { Stripe, IntroAnimation } from '~/lib/types';
 import { INTRO, IDLE_WAVE } from './config';
 import { clamp, easeOutCubic } from './easing';
 
