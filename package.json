@@ -6,7 +6,9 @@
         "dev": "vite dev",
         "build": "vite build",
         "start": "vite start",
-        "preview": "vite preview"
+        "preview": "pnpm run build && wrangler dev",
+        "deploy": "pnpm run build && wrangler deploy",
+        "cf-typegen": "wrangler types"
     },
     "dependencies": {
         "@solidjs/router": "^0.16.1",
@@ -26,7 +28,8 @@
         "h3": "2.0.1-rc.22",
         "nitropack": "^2.13.4",
         "tailwindcss": "^4.3.1",
-        "typescript": "^6.0.3"
+        "typescript": "^6.0.3",
+        "wrangler": "^4.103.0"
     },
     "engines": {
         "node": ">=24"

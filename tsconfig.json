@@ -22,8 +22,6 @@
         }
     },
     "exclude": [
-        "edgarcnp.dev-astro",
         "node_modules",
-        "server"
     ]
 }

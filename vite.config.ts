@@ -7,6 +7,8 @@ export default defineConfig({
     plugins: [
         solidStart(),
         tailwindcss(),
-        nitro()
+        nitro({
+            preset: "cloudflare-module"
+        })
     ]
 });
