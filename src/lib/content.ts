@@ -4,7 +4,7 @@ import matter from 'gray-matter';
 import { Marked } from 'marked';
 import DOMPurify from 'isomorphic-dompurify';
 import { z } from 'zod';
-import { safeHref } from './types';
+import { safeHref } from './schemas';
 
 const marked = new Marked({ gfm: true, breaks: false });
 

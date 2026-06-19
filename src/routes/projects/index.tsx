@@ -8,15 +8,19 @@ const fetchProjects = query(async () => await getProjects(), "projects");
 
 export default function Projects() {
   const projects = createAsync(() => fetchProjects());
-  const total = () => projects()?.length ?? 0;
-  const inProgress = () => projects()?.filter((p) => p.status === "In Progress").length ?? 0;
-  const planned = () => projects()?.filter((p) => p.status === "Planned").length ?? 0;
-
-  const stats = () => [
-    { label: "Total", value: total() },
-    { label: "In Progress", value: inProgress() },
-    { label: "Planned", value: planned() },
-  ];
+  const stats = () => {
+    const p = projects() ?? [];
+    let inProgress = 0, planned = 0;
+    for (const proj of p) {
+      if (proj.status === "In Progress") inProgress++;
+      else if (proj.status === "Planned") planned++;
+    }
+    return [
+      { label: "Total", value: p.length },
+      { label: "In Progress", value: inProgress },
+      { label: "Planned", value: planned },
+    ];
+  };
 
   return (
     <div class="space-y-8">

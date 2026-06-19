@@ -1,22 +1,3 @@
-import { z } from 'zod';
-
-// --- Shared Schemas ---
-
-const ALLOWED_HREF_SCHEMES = ['https:', 'http:', 'mailto:', '#'];
-
-export const safeHref = z.string().refine(
-  (val) => {
-    if (val === '#') return true;
-    try {
-      const url = new URL(val);
-      return ALLOWED_HREF_SCHEMES.includes(url.protocol);
-    } catch {
-      return false;
-    }
-  },
-  { message: 'href must use https:, http:, mailto:, or be "#"' },
-);
-
 // --- UI Icon Types ---
 
 export interface IconProps {
@@ -82,18 +63,7 @@ export type Colors = {
 
 // --- Data Types ---
 
-export const ProjectStatus = z.enum(['Planned', 'In Progress', 'Archived']);
-export type ProjectStatus = z.infer<typeof ProjectStatus>;
-
-export const ProjectLink = z.object({
-  label: z.string(),
-  href: safeHref,
-  external: z.boolean(),
-});
-export type ProjectLink = z.infer<typeof ProjectLink>;
-
-export const ContactKind = z.enum(['email', 'code', 'profile']);
-export type ContactKind = z.infer<typeof ContactKind>;
+export type ProjectStatus = 'Planned' | 'In Progress' | 'Archived';
 
 export type NavLink = {
   href: string;
@@ -110,7 +80,7 @@ export const ACTION_CLASSES: Record<ActionVariant, string> = {
   'warm-secondary': 'inline-flex min-h-11 items-center justify-center rounded-sm border border-[var(--blueprint-line-muted)] px-5 text-sm font-semibold text-[var(--blueprint-text)] outline-none transition hover:border-[var(--blueprint-accent-2)] hover:text-[var(--blueprint-accent-2)] focus-visible:ring-2 focus-visible:ring-[var(--blueprint-accent)]',
 };
 
-export const STATUS_CLASSES: Record<ProjectStatus, string> = {
+export const STATUS_CLASSES: Record<string, string> = {
   'In Progress': 'blueprint-status blueprint-status-progress',
   Planned: 'blueprint-status blueprint-status-planned',
   Archived: 'blueprint-status blueprint-status-archived',

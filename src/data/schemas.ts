@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { safeHref } from '~/lib/types';
+import { safeHref } from '~/lib/schemas';
 
 export const ProfileSchema = z.object({
     name: z.string(),

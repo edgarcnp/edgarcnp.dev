@@ -10,5 +10,22 @@ export default defineConfig({
         nitro({
             preset: "cloudflare-module"
         })
-    ]
+    ],
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes("node_modules/solid-js") || id.includes("node_modules/solid-js/web") || id.includes("node_modules/solid-js/store")) {
+                        return "solid-vendor";
+                    }
+                    if (id.includes("node_modules/@solidjs/router")) {
+                        return "router";
+                    }
+                }
+            }
+        }
+    },
+    esbuild: {
+        drop: process.env.NODE_ENV === "production" ? ["console"] : [],
+    }
 });

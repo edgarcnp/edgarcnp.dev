@@ -20,6 +20,7 @@ export default function GradientShimmer(props: Props) {
     let shimmerController: GradientShimmerControls | null = null;
 
     onMount(() => {
+        const init = () => {
         const context = canvas.getContext('2d', {
             alpha: true,
             colorSpace: 'display-p3',
@@ -254,6 +255,14 @@ export default function GradientShimmer(props: Props) {
             colorSchemeQuery.removeEventListener('change', scheduleColorRead);
             reducedMotionQuery.removeEventListener('change', updateMotionPreference);
         });
+
+        };
+
+        if (typeof requestIdleCallback !== 'undefined') {
+            requestIdleCallback(init);
+        } else {
+            setTimeout(init, 0);
+        }
     });
 
     const location = useLocation();

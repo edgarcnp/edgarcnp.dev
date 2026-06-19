@@ -1,10 +1,9 @@
 import { For, Suspense } from "solid-js";
 import { createAsync, query } from "@solidjs/router";
-import { validate, ProfileSchema, ContactSchema, CapabilitiesSchema } from "~/data/schemas";
-import profileRaw from "~/data/profile.json";
-import contactRaw from "~/data/contact.json";
-import capabilitiesRaw from "~/data/capabilities.json";
-import { getProjects, getWriting } from "~/lib/server-content";
+import { getProjects, getWriting, getProfile, getContact, getCapabilities } from "~/lib/server-content";
+import type { Project } from "~/lib/content";
+import type { WritingPost } from "~/lib/content";
+import type { Profile, ContactLink, Capability } from "~/data/schemas";
 import BlueprintFrame from "~/components/shared/BlueprintFrame";
 import SectionHeading from "~/components/shared/SectionHeading";
 import ProjectCard from "~/components/shared/ProjectCard";
@@ -15,17 +14,16 @@ const fetchFeaturedProjects = query(async () => (await getProjects()).filter((p)
 const fetchLatestWriting = query(async () => (await getWriting()).slice(0, 3), "latestWriting");
 
 export default function Home() {
-  const profile = validate(ProfileSchema, profileRaw, "profile.json");
-  const contact = validate(ContactSchema, contactRaw, "contact.json");
-  const capabilities = validate(CapabilitiesSchema, capabilitiesRaw, "capabilities.json");
-  const codeberg = contact.links.find((l) => l.label === "Codeberg");
+  const profile = createAsync(() => getProfile());
+  const contact = createAsync(() => getContact());
+  const capabilities = createAsync(() => getCapabilities());
   const featuredProjects = createAsync(() => fetchFeaturedProjects());
-  const latestWriting = createAsync(() => fetchLatestWriting());
+  const codeberg = () => contact()?.links.find((l: ContactLink) => l.label === "Codeberg");
 
-  const stats = [
+  const stats = () => [
     { label: "Runtime", value: "Cloudflare Workers" },
-    { label: "Interface", value: profile.role },
-    { label: "Availability", value: profile.availability },
+    { label: "Interface", value: profile()?.role },
+    { label: "Availability", value: profile()?.availability },
   ];
 
   const breakpoints = [
@@ -42,14 +40,14 @@ export default function Home() {
           <div class="space-y-5">
             <p class="blueprint-label">Secure web systems / Responsive UI</p>
             <div class="space-y-4">
-              <h1 class="max-w-3xl text-4xl font-semibold tracking-normal text-(--blueprint-text) sm:text-5xl lg:text-6xl">{profile.name}</h1>
-              <p class="max-w-2xl text-lg leading-8 text-(--blueprint-muted) sm:text-xl">{profile.summary}</p>
+              <h1 class="max-w-3xl text-4xl font-semibold tracking-normal text-(--blueprint-text) sm:text-5xl lg:text-6xl">{profile()?.name}</h1>
+              <p class="max-w-2xl text-lg leading-8 text-(--blueprint-muted) sm:text-xl">{profile()?.summary}</p>
             </div>
           </div>
 
           <BlueprintFrame class="p-5">
             <dl class="grid gap-4 sm:grid-cols-3">
-              <For each={stats}>
+              <For each={stats()}>
                 {({ label, value }) => (
                   <div>
                     <dt class="blueprint-label text-[0.68rem]">{label}</dt>
@@ -95,7 +93,7 @@ export default function Home() {
         <Suspense fallback={<div class="blueprint-label">Loading projects...</div>}>
           <div class="grid gap-4 md:grid-cols-2">
             <For each={featuredProjects() ?? []}>
-              {(p) => (
+              {(p: Project) => (
                 <ProjectCard
                   title={p.title}
                   href={`/projects/${p.slug}`}
@@ -111,7 +109,9 @@ export default function Home() {
         </Suspense>
       </section>
 
-      <Grid4 items={capabilities.capabilities} />
+      <Suspense>
+        <Grid4 items={capabilities()?.capabilities ?? []} />
+      </Suspense>
 
       {/* Writing + Contact */}
       <section class="section-motion motion-delay-2 grid gap-4 lg:grid-cols-[1fr_1fr]">
@@ -119,7 +119,7 @@ export default function Home() {
           <SectionHeading
             label="Writing"
             title="Notes from the build."
-            description="Short technical writing about Astro, security boundaries, responsive UI, and Cloudflare deployment."
+            description="Short technical writing about security, responsive UI, and Cloudflare deployment."
           />
         </BlueprintFrame>
 
@@ -127,13 +127,13 @@ export default function Home() {
           <div class="space-y-3">
             <p class="blueprint-label">Contact Endpoint</p>
             <h2 class="text-2xl font-semibold text-(--blueprint-text)">Static links, no message collection.</h2>
-            <p class="text-sm leading-6 text-(--blueprint-muted)">{profile.summary}</p>
+            <p class="text-sm leading-6 text-(--blueprint-muted)">{profile()?.summary}</p>
           </div>
           <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <LinkAction href="/contact" variant="secondary">Open contact</LinkAction>
-            <LinkAction href={`mailto:${profile.email}`} variant="accent">{profile.email}</LinkAction>
-            {codeberg && (
-              <LinkAction href={codeberg.href} external={codeberg.external} variant="warm-secondary">{codeberg.label}</LinkAction>
+            <LinkAction href={`mailto:${profile()?.email}`} variant="accent">{profile()?.email}</LinkAction>
+            {codeberg() && (
+              <LinkAction href={codeberg()!.href} external={codeberg()!.external} variant="warm-secondary">{codeberg()!.label}</LinkAction>
             )}
           </div>
         </BlueprintFrame>
