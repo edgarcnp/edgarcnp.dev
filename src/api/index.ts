@@ -8,9 +8,11 @@ import rss from "./routes/rss";
 
 const app = new Hono().basePath("/api");
 
-if (import.meta.env.PROD) app.use("*", corsMiddleware);
-app.use("*", rateLimit);
-if (import.meta.env.PROD) app.use("*", csrfGuard);
+if (import.meta.env.PROD) {
+  app.use("*", corsMiddleware);
+  app.use("*", csrfGuard);
+  app.use("*", rateLimit);
+}
 
 app.route("/health", health);
 app.route("/news", news);
