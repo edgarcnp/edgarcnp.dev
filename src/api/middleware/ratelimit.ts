@@ -12,7 +12,7 @@ setInterval(() => {
 }, WINDOW_MS);
 
 export const rateLimit: MiddlewareHandler = async (c, next) => {
-  const ip = c.req.header("x-forwarded-for") ?? "unknown";
+  const ip = c.req.header("cf-connecting-ip") ?? c.req.header("x-forwarded-for") ?? "unknown";
   const now = Date.now();
   const entry = rateMap.get(ip);
 

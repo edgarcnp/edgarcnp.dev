@@ -32,9 +32,11 @@ export default function Writing() {
                 <h2 class="mt-3 text-xl font-semibold text-(--blueprint-text)">{post.title}</h2>
                 <p class="mt-3 text-sm leading-6 text-(--blueprint-muted)">{post.summary}</p>
                 <ul class="mt-3 flex flex-wrap gap-2">
-                  {post.tags.map((tag: string) => (
-                    <li><TechTag label={tag} /></li>
-                  ))}
+                  <For each={post.tags}>
+                    {(tag) => (
+                      <li><TechTag label={tag} /></li>
+                    )}
+                  </For>
                 </ul>
                 <span class="mt-5 inline-flex font-mono text-xs font-semibold uppercase tracking-wide text-(--blueprint-accent)">Read note</span>
               </A>

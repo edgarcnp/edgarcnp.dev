@@ -1,4 +1,4 @@
-import { type JSX } from "solid-js";
+import { For, type JSX } from "solid-js";
 
 interface DropdownOption {
     value: string;
@@ -47,11 +47,13 @@ export function Dropdown(props: DropdownProps) {
                         {props.placeholder}
                     </option>
                 )}
-                {props.options?.map((option) => (
-                    <option value={option.value} disabled={option.disabled}>
-                        {option.label}
-                    </option>
-                ))}
+                <For each={props.options ?? []}>
+                    {(option) => (
+                        <option value={option.value} disabled={option.disabled}>
+                            {option.label}
+                        </option>
+                    )}
+                </For>
                 {props.children}
             </select>
             <span class="dropdown-icon" aria-hidden="true">

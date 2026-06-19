@@ -1,4 +1,4 @@
-import { Show, Suspense } from "solid-js";
+import { For, Show, Suspense } from "solid-js";
 import { useParams, createAsync, cache } from "@solidjs/router";
 import { getWritingPost } from "~/lib/server-content";
 import type { WritingPost } from "~/lib/content";
@@ -35,9 +35,11 @@ export default function WritingPost() {
                 <p class="text-base leading-7 text-(--blueprint-muted)">{p().summary}</p>
               </div>
               <ul class="flex flex-wrap gap-2">
-                {p().tags.map((tag: string) => (
-                  <li><TechTag label={tag} /></li>
-                ))}
+                <For each={p().tags}>
+                  {(tag) => (
+                    <li><TechTag label={tag} /></li>
+                  )}
+                </For>
               </ul>
             </header>
             <div class="markdown-body" innerHTML={p().body} />

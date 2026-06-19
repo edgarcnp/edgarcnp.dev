@@ -1,4 +1,4 @@
-import { Show, Suspense } from "solid-js";
+import { For, Show, Suspense } from "solid-js";
 import { useParams, createAsync, cache } from "@solidjs/router";
 import { getProject } from "~/lib/server-content";
 import type { Project } from "~/lib/content";
@@ -39,15 +39,19 @@ export default function ProjectPost() {
                 <p class="text-base leading-7 text-(--blueprint-muted)">{p().summary}</p>
               </div>
               <ul class="flex flex-wrap gap-2">
-                {p().technologies.map((tech: string) => (
-                  <li><TechTag label={tech} /></li>
-                ))}
+                <For each={p().technologies}>
+                  {(tech) => (
+                    <li><TechTag label={tech} /></li>
+                  )}
+                </For>
               </ul>
               <Show when={p().links.length > 0}>
                 <div class="flex flex-wrap gap-3">
-                  {p().links.map((link: { label: string; href: string; external: boolean }) => (
-                    <LinkAction href={link.href} external={link.external} variant="secondary">{link.label}</LinkAction>
-                  ))}
+                  <For each={p().links}>
+                    {(link) => (
+                      <LinkAction href={link.href} external={link.external} variant="secondary">{link.label}</LinkAction>
+                    )}
+                  </For>
                 </div>
               </Show>
             </header>

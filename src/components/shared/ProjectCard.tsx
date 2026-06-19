@@ -1,4 +1,5 @@
 import type { ProjectStatus } from '~/lib/types';
+import { For } from 'solid-js';
 import { A } from '@solidjs/router';
 import StatusBadge from './StatusBadge';
 import TechTag from './TechTag';
@@ -37,9 +38,11 @@ export default function ProjectCard(props: Props) {
         </div>
         <p class="text-sm leading-6 text-(--blueprint-muted)">{props.summary}</p>
         <ul class="flex flex-wrap gap-2">
-          {props.technologies.map((tech) => (
-            <li><TechTag label={tech} /></li>
-          ))}
+          <For each={props.technologies}>
+            {(tech) => (
+              <li><TechTag label={tech} /></li>
+            )}
+          </For>
         </ul>
       </div>
       <div class="mt-8 flex items-center justify-between gap-4">
