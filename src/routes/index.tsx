@@ -1,5 +1,5 @@
 import { For, Suspense } from "solid-js";
-import { createAsync, cache } from "@solidjs/router";
+import { createAsync, query } from "@solidjs/router";
 import { validate, ProfileSchema, ContactSchema, CapabilitiesSchema } from "~/data/schemas";
 import profileRaw from "~/data/profile.json";
 import contactRaw from "~/data/contact.json";
@@ -11,8 +11,8 @@ import ProjectCard from "~/components/shared/ProjectCard";
 import Grid4 from "~/components/shared/Grid4";
 import { LinkAction } from "~/components/ui/static/LinkAction";
 
-const fetchFeaturedProjects = cache(async () => (await getProjects()).filter((p) => p.featured), "featuredProjects");
-const fetchLatestWriting = cache(async () => (await getWriting()).slice(0, 3), "latestWriting");
+const fetchFeaturedProjects = query(async () => (await getProjects()).filter((p) => p.featured), "featuredProjects");
+const fetchLatestWriting = query(async () => (await getWriting()).slice(0, 3), "latestWriting");
 
 export default function Home() {
   const profile = validate(ProfileSchema, profileRaw, "profile.json");

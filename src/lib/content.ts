@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import matter from 'gray-matter';
 import { Marked } from 'marked';
@@ -28,7 +28,7 @@ function sanitizeMarkdown(content: string): string {
   });
 }
 
-// --- Schemas (ported from Astro content.config.ts) ---
+// --- Schemas ---
 
 const projectSchema = z.object({
   title: z.string(),
@@ -64,19 +64,24 @@ export type WritingPost = z.infer<typeof writingSchema> & { body: string };
 
 const CONTENT_DIR = path.join(process.cwd(), 'src', 'content');
 
-function readMarkdownFiles(subdir: string): string[] {
+async function readMarkdownFiles(subdir: string): Promise<string[]> {
   const dir = path.join(CONTENT_DIR, subdir);
-  if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir)
+  try {
+    await fs.access(dir);
+  } catch {
+    return [];
+  }
+  const entries = await fs.readdir(dir);
+  return entries
     .filter((f) => f.endsWith('.md'))
     .map((f) => path.join(dir, f));
 }
 
-function parseMarkdown<T extends z.ZodTypeAny>(
+async function parseMarkdown<T extends z.ZodTypeAny>(
   filePath: string,
   schema: T,
-): z.infer<T> & { body: string } {
-  const raw = fs.readFileSync(filePath, 'utf-8');
+): Promise<z.infer<T> & { body: string }> {
+  const raw = await fs.readFile(filePath, 'utf-8');
   const { data, content } = matter(raw);
   const parsed = schema.parse(data);
   const body = sanitizeMarkdown(content);
@@ -85,36 +90,31 @@ function parseMarkdown<T extends z.ZodTypeAny>(
 
 // --- Content loaders ---
 
-export function getProjects(): Project[] {
-  return readMarkdownFiles('projects')
-    .map((f) => parseMarkdown(f, projectSchema))
-    .sort((a, b) => b.year - a.year);
+let projectsCache: Project[] | null = null;
+let writingCache: WritingPost[] | null = null;
+
+export async function getProjects(): Promise<Project[]> {
+  if (projectsCache) return projectsCache;
+  const files = await readMarkdownFiles('projects');
+  const projects = await Promise.all(files.map((f) => parseMarkdown(f, projectSchema)));
+  projectsCache = projects.sort((a, b) => b.year - a.year);
+  return projectsCache;
 }
 
-export function getProject(slug: string): Project | undefined {
-  const files = readMarkdownFiles('projects');
-  const file = files.find((f) => {
-    const raw = fs.readFileSync(f, 'utf-8');
-    const { data } = matter(raw);
-    return data.slug === slug;
-  });
-  if (!file) return undefined;
-  return parseMarkdown(file, projectSchema);
+export async function getProject(slug: string): Promise<Project | undefined> {
+  const projects = await getProjects();
+  return projects.find((p) => p.slug === slug);
 }
 
-export function getWriting(): WritingPost[] {
-  return readMarkdownFiles('writing')
-    .map((f) => parseMarkdown(f, writingSchema))
-    .sort((a, b) => new Date(b.published).getTime() - new Date(a.published).getTime());
+export async function getWriting(): Promise<WritingPost[]> {
+  if (writingCache) return writingCache;
+  const files = await readMarkdownFiles('writing');
+  const posts = await Promise.all(files.map((f) => parseMarkdown(f, writingSchema)));
+  writingCache = posts.sort((a, b) => new Date(b.published).getTime() - new Date(a.published).getTime());
+  return writingCache;
 }
 
-export function getWritingPost(slug: string): WritingPost | undefined {
-  const files = readMarkdownFiles('writing');
-  const file = files.find((f) => {
-    const raw = fs.readFileSync(f, 'utf-8');
-    const { data } = matter(raw);
-    return data.slug === slug;
-  });
-  if (!file) return undefined;
-  return parseMarkdown(file, writingSchema);
+export async function getWritingPost(slug: string): Promise<WritingPost | undefined> {
+  const posts = await getWriting();
+  return posts.find((p) => p.slug === slug);
 }

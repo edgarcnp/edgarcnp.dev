@@ -1,11 +1,10 @@
 import { For, Show, Suspense } from "solid-js";
-import { useParams, createAsync, cache } from "@solidjs/router";
+import { useParams, createAsync, query } from "@solidjs/router";
 import { getWritingPost } from "~/lib/server-content";
-import type { WritingPost } from "~/lib/content";
 import TechTag from "~/components/shared/TechTag";
 import { LinkAction } from "~/components/ui/static/LinkAction";
 
-const fetchWritingPost = cache(async (slug: string) => getWritingPost(slug) as WritingPost | undefined, "writingPost");
+const fetchWritingPost = query(async (slug: string) => getWritingPost(slug), "writingPost");
 
 export default function WritingPost() {
   const params = useParams<{ slug: string }>();

@@ -1,12 +1,11 @@
 import { For, Show, Suspense } from "solid-js";
-import { useParams, createAsync, cache } from "@solidjs/router";
+import { useParams, createAsync, query } from "@solidjs/router";
 import { getProject } from "~/lib/server-content";
-import type { Project } from "~/lib/content";
 import TechTag from "~/components/shared/TechTag";
 import StatusBadge from "~/components/shared/StatusBadge";
 import { LinkAction } from "~/components/ui/static/LinkAction";
 
-const fetchProject = cache(async (slug: string) => getProject(slug) as Project | undefined, "project");
+const fetchProject = query(async (slug: string) => getProject(slug), "project");
 
 export default function ProjectPost() {
   const params = useParams<{ slug: string }>();

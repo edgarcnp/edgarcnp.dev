@@ -1,10 +1,10 @@
 import { For, Suspense } from "solid-js";
-import { A, createAsync, cache } from "@solidjs/router";
+import { A, createAsync, query } from "@solidjs/router";
 import { getWriting } from "~/lib/server-content";
 import SectionHeading from "~/components/shared/SectionHeading";
 import TechTag from "~/components/shared/TechTag";
 
-const fetchWriting = cache(async () => getWriting(), "writing");
+const fetchWriting = query(async () => await getWriting(), "writing");
 
 export default function Writing() {
   const posts = createAsync(() => fetchWriting());
