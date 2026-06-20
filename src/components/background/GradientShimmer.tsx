@@ -303,6 +303,17 @@ export function GradientShimmer(props: Props) {
         colorSchemeQuery.addEventListener('change', scheduleColorRead);
         reducedMotionQuery.addEventListener('change', updateMotionPreference);
 
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                cancelAnimation();
+            } else {
+                lastFrameTime = null;
+                requestAnimation();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
         updateMotionPreference();
 
         onCleanup(() => {
@@ -314,6 +325,7 @@ export function GradientShimmer(props: Props) {
             resizeObserver.disconnect();
             themeObserver.disconnect();
             document.removeEventListener('click', onClick);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
             colorSchemeQuery.removeEventListener('change', scheduleColorRead);
             reducedMotionQuery.removeEventListener('change', updateMotionPreference);
         });
