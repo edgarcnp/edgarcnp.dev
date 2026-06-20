@@ -1,10 +1,11 @@
+import { createAsync, query, useParams } from "@solidjs/router";
 import { For, Show, Suspense } from "solid-js";
-import { useParams, createAsync, query } from "@solidjs/router";
+
+import { LinkAction } from "~/components/ui/static/LinkAction";
+import { StatusBadge } from "~/components/shared/StatusBadge";
+import { TechTag } from "~/components/shared/TechTag";
 import { getProject } from "~/lib/server-content";
 import { sanitize } from "~/lib/trusted-types";
-import { TechTag } from "~/components/shared/TechTag";
-import { StatusBadge } from "~/components/shared/StatusBadge";
-import { LinkAction } from "~/components/ui/static/LinkAction";
 
 /** Cached query: single project by slug. */
 const fetchProject = query(async (slug: string) => getProject(slug), "project");

@@ -1,12 +1,14 @@
-import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
 import { useLocation } from '@solidjs/router';
-import type { Colors, Stripe, Size, IntroAnimation, GradientShimmerControls } from '~/lib/types';
+import { onMount, onCleanup, createEffect, createSignal } from 'solid-js';
+
+import { readCssNumber, readCssString, resizeCanvas } from './canvas';
 import { IDLE_WAVE } from './config';
-import { syncStripeCount } from './stripe';
-import { getRandomWavePhase, isIntroComplete } from './intro';
-import { triggerSpeedUpAnimation, updateSpeedUpAnimation } from './speedup';
-import { resizeCanvas, readCssNumber, readCssString } from './canvas';
 import { createGrainPattern, drawGrain, drawStripe } from './draw';
+import { getRandomWavePhase, isIntroComplete } from './intro';
+import { syncStripeCount } from './stripe';
+import { triggerSpeedUpAnimation, updateSpeedUpAnimation } from './speedup';
+
+import type { Colors, Stripe, Size, IntroAnimation, GradientShimmerControls } from '~/lib/types';
 
 type Props = {
     /** Whether to play the intro animation (default: true). Set to false to skip intro. */

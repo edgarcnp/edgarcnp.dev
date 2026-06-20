@@ -1,9 +1,10 @@
+import { createAsync, query, useParams } from "@solidjs/router";
 import { For, Show, Suspense } from "solid-js";
-import { useParams, createAsync, query } from "@solidjs/router";
+
+import { LinkAction } from "~/components/ui/static/LinkAction";
+import { TechTag } from "~/components/shared/TechTag";
 import { getWritingPost } from "~/lib/server-content";
 import { sanitize } from "~/lib/trusted-types";
-import { TechTag } from "~/components/shared/TechTag";
-import { LinkAction } from "~/components/ui/static/LinkAction";
 
 /** Cached query: single writing post by slug. */
 const fetchWritingPost = query(async (slug: string) => getWritingPost(slug), "writingPost");

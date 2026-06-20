@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { safeHref } from '~/lib/schemas';
+
 import { ValidationError } from '~/lib/errors';
+import { safeHref } from '~/lib/schemas';
 
 /**
  * Schema for profile.json — personal info displayed on the home page.

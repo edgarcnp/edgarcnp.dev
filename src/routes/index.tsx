@@ -1,14 +1,16 @@
-import { For, Suspense } from "solid-js";
 import { createAsync, query } from "@solidjs/router";
-import { getProjects, getWriting, getProfile, getContact, getCapabilities } from "~/lib/server-content";
-import type { Project } from "~/lib/content";
-import type { WritingPost } from "~/lib/content";
-import type { Profile, ContactLink, Capability } from "~/data/schemas";
+import { For, Suspense } from "solid-js";
+
 import { BlueprintFrame } from "~/components/shared/BlueprintFrame";
-import { SectionHeading } from "~/components/shared/SectionHeading";
-import { ProjectCard } from "~/components/shared/ProjectCard";
 import { Grid4 } from "~/components/shared/Grid4";
 import { LinkAction } from "~/components/ui/static/LinkAction";
+import { ProjectCard } from "~/components/shared/ProjectCard";
+import { SectionHeading } from "~/components/shared/SectionHeading";
+import { getProjects, getWriting, getProfile, getContact, getCapabilities } from "~/lib/server-content";
+
+import type { Profile, ContactLink, Capability } from "~/data/schemas";
+import type { Project } from "~/lib/content";
+import type { WritingPost } from "~/lib/content";
 
 /** Cached query: featured projects only (used by hero section). */
 const fetchFeaturedProjects = query(async () => (await getProjects()).filter((p) => p.featured), "featuredProjects");

@@ -1,7 +1,8 @@
-import { For, Suspense } from "solid-js";
 import { createAsync } from "@solidjs/router";
-import { getContact } from "~/lib/server-content";
+import { For, Suspense } from "solid-js";
+
 import { SectionHeading } from "~/components/shared/SectionHeading";
+import { getContact } from "~/lib/server-content";
 
 /**
  * Contact page — displays static contact links from contact.json.

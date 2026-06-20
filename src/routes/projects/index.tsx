@@ -1,8 +1,9 @@
-import { For, Suspense } from "solid-js";
 import { createAsync, query } from "@solidjs/router";
-import { getProjects } from "~/lib/server-content";
-import { SectionHeading } from "~/components/shared/SectionHeading";
+import { For, Suspense } from "solid-js";
+
 import { ProjectCard } from "~/components/shared/ProjectCard";
+import { SectionHeading } from "~/components/shared/SectionHeading";
+import { getProjects } from "~/lib/server-content";
 
 /** Cached query: all projects sorted by year. */
 const fetchProjects = query(async () => await getProjects(), "projects");

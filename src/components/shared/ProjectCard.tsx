@@ -1,8 +1,10 @@
-import type { ProjectStatus } from '~/lib/types';
-import { For } from 'solid-js';
 import { A } from '@solidjs/router';
+import { For } from 'solid-js';
+
 import { StatusBadge } from './StatusBadge';
 import { TechTag } from './TechTag';
+
+import type { ProjectStatus } from '~/lib/types';
 
 /**
  * Props for the ProjectCard component.

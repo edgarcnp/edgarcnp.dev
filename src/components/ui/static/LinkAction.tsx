@@ -1,7 +1,9 @@
-import type { JSX } from 'solid-js';
 import { A } from '@solidjs/router';
-import type { ActionVariant } from '~/lib/types';
+
 import { ACTION_CLASSES } from '~/lib/types';
+
+import type { JSX } from 'solid-js';
+import type { ActionVariant } from '~/lib/types';
 
 /**
  * Props for the LinkAction component.

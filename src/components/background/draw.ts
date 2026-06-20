@@ -1,12 +1,9 @@
-import type { Colors, Stripe, Size, IntroAnimation } from '~/lib/types';
+import { snapToDevicePixel } from './canvas';
 import { GRADIENT, INTRO } from './config';
 import { clamp, lerp } from './easing';
-import { snapToDevicePixel } from './canvas';
-import {
-    getIntroRevealProgress,
-    getIntroIdleProgress,
-    getIdleCenter,
-} from './intro';
+import { getIntroRevealProgress, getIntroIdleProgress, getIdleCenter } from './intro';
+
+import type { Colors, Stripe, Size, IntroAnimation } from '~/lib/types';
 
 /**
  * Create a repeating 64×64 grain noise texture pattern.

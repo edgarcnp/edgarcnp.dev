@@ -1,8 +1,9 @@
-import { For, Suspense } from "solid-js";
 import { A, createAsync, query } from "@solidjs/router";
-import { getWriting } from "~/lib/server-content";
+import { For, Suspense } from "solid-js";
+
 import { SectionHeading } from "~/components/shared/SectionHeading";
 import { TechTag } from "~/components/shared/TechTag";
+import { getWriting } from "~/lib/server-content";
 
 /** Cached query: all writing posts sorted by date. */
 const fetchWriting = query(async () => await getWriting(), "writing");

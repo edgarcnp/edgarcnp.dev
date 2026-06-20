@@ -1,9 +1,11 @@
-import { Router, A, useLocation } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { Show, Suspense, ErrorBoundary } from "solid-js";
+import { Router, A, useLocation } from "@solidjs/router";
+import { ErrorBoundary, Show, Suspense } from "solid-js";
+
 import { GradientShimmer } from "~/components/background/GradientShimmer";
 import { LinkAction } from "~/components/ui/static/LinkAction";
 import { AppError, ValidationError, NotFoundError, IoError, ParseError, CssError, DateError } from "~/lib/errors";
+
 import "./app.css";
 
 /** Nav links with path matchers for active state highlighting. */

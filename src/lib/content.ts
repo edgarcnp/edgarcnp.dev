@@ -1,73 +1,18 @@
+import createDOMPurify from 'dompurify';
+import matter from 'gray-matter';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import matter from 'gray-matter';
-import { Marked } from 'marked';
+
 import { parseHTML } from 'linkedom/worker';
-import createDOMPurify from 'dompurify';
+import { Marked } from 'marked';
 import { z } from 'zod';
-import { safeHref } from './schemas';
+
 import { ValidationError, IoError, ParseError, DateError } from './errors';
+import { safeHref } from './schemas';
 
+const CONTENT_DIR = path.join(process.cwd(), 'src', 'content');
+const DOMPurify = createDOMPurify(parseHTML('<html><body></body></html>').window as any);
 const marked = new Marked({ gfm: true, breaks: false });
-
-const { window } = parseHTML('<html><body></body></html>');
-const DOMPurify = createDOMPurify(window as any);
-
-/**
- * Parse markdown to HTML and sanitize with DOMPurify.
- *
- * @param content - Raw markdown string from the file body.
- * @param source  - File path for error context.
- * @returns Sanitized HTML string.
- *
- * @throws {ParseError} If marked.parse() throws or DOMPurify returns empty output.
- *
- * @remarks
- * Pipeline: markdown → marked.parse() (GFM enabled, breaks disabled) → DOMPurify sanitize.
- * DOMPurify config: allows standard HTML tags, strips data attributes, restricts to safe attributes.
- * Empty sanitized output is treated as an error (defensive).
- */
-function sanitizeMarkdown(content: string, source: string): string {
-  let html: string;
-  try {
-    html = marked.parse(content) as string;
-  } catch (e) {
-    throw new ParseError(source, `Markdown parse failed: ${e instanceof Error ? e.message : String(e)}`, e instanceof Error ? e : undefined);
-  }
-
-  const sanitized = DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: [
-      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-      'p', 'br', 'hr',
-      'ul', 'ol', 'li',
-      'blockquote', 'pre', 'code',
-      'a', 'img',
-      'strong', 'em', 'del', 'mark',
-      'table', 'thead', 'tbody', 'tr', 'th', 'td',
-      'dl', 'dt', 'dd',
-      'figure', 'figcaption',
-      'sup', 'sub',
-    ],
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'width', 'height'],
-    ALLOW_DATA_ATTR: false,
-  });
-
-  if (!sanitized || sanitized.trim().length === 0) {
-    throw new ParseError(source, "Sanitized output is empty — input may be malformed");
-  }
-
-  return sanitized;
-}
-
-/**
- * Zod schema for project markdown frontmatter.
- *
- * @remarks
- * Required fields: title, slug, summary, year, published, updated, status, technologies.
- * Optional fields with defaults: featured (false), pinned (false), links ([]).
- * Status is constrained to: "Planned" | "In Progress" | "Archived".
- * Link hrefs are validated by `safeHref`.
- */
 const projectSchema = z.object({
   title: z.string(),
   slug: z.string(),
@@ -85,14 +30,7 @@ const projectSchema = z.object({
     external: z.boolean(),
   })).default([]),
 });
-
-/**
- * Zod schema for writing markdown frontmatter.
- *
- * @remarks
- * Required fields: title, slug, summary, published, updated.
- * Optional fields with defaults: tags ([]).
- */
+let projectsCache: Project[] | null = null;
 const writingSchema = z.object({
   title: z.string(),
   slug: z.string(),
@@ -101,6 +39,7 @@ const writingSchema = z.object({
   updated: z.string(),
   tags: z.array(z.string()).default([]),
 });
+let writingCache: WritingPost[] | null = null;
 
 /**
  * Parsed project with rendered HTML body.
@@ -116,37 +55,103 @@ export type Project = z.infer<typeof projectSchema> & { body: string };
  */
 export type WritingPost = z.infer<typeof writingSchema> & { body: string };
 
-const CONTENT_DIR = path.join(process.cwd(), 'src', 'content');
+/**
+ * Find a single project by slug.
+ *
+ * @param slug - URL-friendly identifier from the project's frontmatter.
+ * @returns The matching project, or undefined if not found.
+ *
+ * @throws {IoError}       If loading all projects fails.
+ * @throws {ValidationError} If project frontmatter is invalid.
+ * @throws {ParseError}     If markdown parsing fails.
+ *
+ * @remarks Delegates to `getProjects()` which caches results.
+ */
+export async function getProject(slug: string): Promise<Project | undefined> {
+  const projects = await getProjects();
+  return projects.find((p) => p.slug === slug);
+}
 
 /**
- * Read all .md file paths from a content subdirectory.
+ * Load all projects from src/content/projects/.
  *
- * @param subdir - Subdirectory name under src/content/ (e.g. "projects", "writing").
- * @returns Array of absolute file paths to .md files.
+ * @returns Array of parsed projects, sorted by year descending.
  *
- * @throws {IoError} If readdir fails after the directory is confirmed to exist.
+ * @throws {IoError}       If directory reading or file reading fails.
+ * @throws {ValidationError} If any project's frontmatter fails validation.
+ * @throws {ParseError}     If any markdown body fails parsing/sanitization.
  *
  * @remarks
- * Returns empty array if the directory doesn't exist (no error).
- * Filters to .md files only.
- * TOCTOU race possible: directory could be deleted between access check and readdir.
+ * Cached after first call — subsequent calls return the cached array.
+ * A single bad .md file will throw and break the entire load (no partial results).
+ * Sorting is by `year` field descending (newest first).
  */
-async function readMarkdownFiles(subdir: string): Promise<string[]> {
-  const dir = path.join(CONTENT_DIR, subdir);
-  try {
-    await fs.access(dir);
-  } catch {
-    return [];
+export async function getProjects(): Promise<Project[]> {
+  if (projectsCache) return projectsCache;
+
+  const files = await readMarkdownFiles('projects');
+  const projects: Project[] = [];
+
+  for (const f of files) {
+    const project = await parseMarkdown(f, projectSchema);
+    projects.push(project);
   }
 
-  let entries: string[];
-  try {
-    entries = await fs.readdir(dir);
-  } catch (e) {
-    throw new IoError("read directory", dir, e instanceof Error ? e : undefined);
+  projectsCache = projects.sort((a, b) => b.year - a.year);
+  return projectsCache;
+}
+
+/**
+ * Find a single writing post by slug.
+ *
+ * @param slug - URL-friendly identifier from the post's frontmatter.
+ * @returns The matching post, or undefined if not found.
+ *
+ * @throws {IoError}       If loading all posts fails.
+ * @throws {ValidationError} If post frontmatter is invalid.
+ * @throws {ParseError}     If markdown parsing fails.
+ * @throws {DateError}      If any published date is unparseable.
+ *
+ * @remarks Delegates to `getWriting()` which caches results.
+ */
+export async function getWritingPost(slug: string): Promise<WritingPost | undefined> {
+  const posts = await getWriting();
+  return posts.find((p) => p.slug === slug);
+}
+
+/**
+ * Load all writing posts from src/content/writing/.
+ *
+ * @returns Array of parsed posts, sorted by published date descending (newest first).
+ *
+ * @throws {IoError}       If directory reading or file reading fails.
+ * @throws {ValidationError} If any post's frontmatter fails validation.
+ * @throws {ParseError}     If any markdown body fails parsing/sanitization.
+ * @throws {DateError}      If any published date is unparseable.
+ *
+ * @remarks
+ * Cached after first call — subsequent calls return the cached array.
+ * A single bad .md file will throw and break the entire load.
+ * Sorting uses `new Date(published).getTime()` — invalid dates throw DateError.
+ */
+export async function getWriting(): Promise<WritingPost[]> {
+  if (writingCache) return writingCache;
+
+  const files = await readMarkdownFiles('writing');
+  const posts: WritingPost[] = [];
+
+  for (const f of files) {
+    const post = await parseMarkdown(f, writingSchema);
+    posts.push(post);
   }
 
-  return entries.filter((f) => f.endsWith('.md')).map((f) => path.join(dir, f));
+  writingCache = posts.sort((a, b) => {
+    const aTime = parseDate(a.published, `writing/${a.slug}.published`).getTime();
+    const bTime = parseDate(b.published, `writing/${b.slug}.published`).getTime();
+    return bTime - aTime;
+  });
+
+  return writingCache;
 }
 
 /**
@@ -214,104 +219,79 @@ async function parseMarkdown<T extends z.ZodTypeAny>(
   return { ...(parsed.data as Record<string, unknown>), body } as z.infer<T> & { body: string };
 }
 
-let projectsCache: Project[] | null = null;
-let writingCache: WritingPost[] | null = null;
-
 /**
- * Load all projects from src/content/projects/.
+ * Read all .md file paths from a content subdirectory.
  *
- * @returns Array of parsed projects, sorted by year descending.
+ * @param subdir - Subdirectory name under src/content/ (e.g. "projects", "writing").
+ * @returns Array of absolute file paths to .md files.
  *
- * @throws {IoError}       If directory reading or file reading fails.
- * @throws {ValidationError} If any project's frontmatter fails validation.
- * @throws {ParseError}     If any markdown body fails parsing/sanitization.
+ * @throws {IoError} If readdir fails after the directory is confirmed to exist.
  *
  * @remarks
- * Cached after first call — subsequent calls return the cached array.
- * A single bad .md file will throw and break the entire load (no partial results).
- * Sorting is by `year` field descending (newest first).
+ * Returns empty array if the directory doesn't exist (no error).
+ * Filters to .md files only.
+ * TOCTOU race possible: directory could be deleted between access check and readdir.
  */
-export async function getProjects(): Promise<Project[]> {
-  if (projectsCache) return projectsCache;
-
-  const files = await readMarkdownFiles('projects');
-  const projects: Project[] = [];
-
-  for (const f of files) {
-    const project = await parseMarkdown(f, projectSchema);
-    projects.push(project);
+async function readMarkdownFiles(subdir: string): Promise<string[]> {
+  const dir = path.join(CONTENT_DIR, subdir);
+  try {
+    await fs.access(dir);
+  } catch {
+    return [];
   }
 
-  projectsCache = projects.sort((a, b) => b.year - a.year);
-  return projectsCache;
+  let entries: string[];
+  try {
+    entries = await fs.readdir(dir);
+  } catch (e) {
+    throw new IoError("read directory", dir, e instanceof Error ? e : undefined);
+  }
+
+  return entries.filter((f) => f.endsWith('.md')).map((f) => path.join(dir, f));
 }
 
 /**
- * Find a single project by slug.
+ * Parse markdown to HTML and sanitize with DOMPurify.
  *
- * @param slug - URL-friendly identifier from the project's frontmatter.
- * @returns The matching project, or undefined if not found.
+ * @param content - Raw markdown string from the file body.
+ * @param source  - File path for error context.
+ * @returns Sanitized HTML string.
  *
- * @throws {IoError}       If loading all projects fails.
- * @throws {ValidationError} If project frontmatter is invalid.
- * @throws {ParseError}     If markdown parsing fails.
- *
- * @remarks Delegates to `getProjects()` which caches results.
- */
-export async function getProject(slug: string): Promise<Project | undefined> {
-  const projects = await getProjects();
-  return projects.find((p) => p.slug === slug);
-}
-
-/**
- * Load all writing posts from src/content/writing/.
- *
- * @returns Array of parsed posts, sorted by published date descending (newest first).
- *
- * @throws {IoError}       If directory reading or file reading fails.
- * @throws {ValidationError} If any post's frontmatter fails validation.
- * @throws {ParseError}     If any markdown body fails parsing/sanitization.
- * @throws {DateError}      If any published date is unparseable.
+ * @throws {ParseError} If marked.parse() throws or DOMPurify returns empty output.
  *
  * @remarks
- * Cached after first call — subsequent calls return the cached array.
- * A single bad .md file will throw and break the entire load.
- * Sorting uses `new Date(published).getTime()` — invalid dates throw DateError.
+ * Pipeline: markdown → marked.parse() (GFM enabled, breaks disabled) → DOMPurify sanitize.
+ * DOMPurify config: allows standard HTML tags, strips data attributes, restricts to safe attributes.
+ * Empty sanitized output is treated as an error (defensive).
  */
-export async function getWriting(): Promise<WritingPost[]> {
-  if (writingCache) return writingCache;
-
-  const files = await readMarkdownFiles('writing');
-  const posts: WritingPost[] = [];
-
-  for (const f of files) {
-    const post = await parseMarkdown(f, writingSchema);
-    posts.push(post);
+function sanitizeMarkdown(content: string, source: string): string {
+  let html: string;
+  try {
+    html = marked.parse(content) as string;
+  } catch (e) {
+    throw new ParseError(source, `Markdown parse failed: ${e instanceof Error ? e.message : String(e)}`, e instanceof Error ? e : undefined);
   }
 
-  writingCache = posts.sort((a, b) => {
-    const aTime = parseDate(a.published, `writing/${a.slug}.published`).getTime();
-    const bTime = parseDate(b.published, `writing/${b.slug}.published`).getTime();
-    return bTime - aTime;
+  const sanitized = DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'p', 'br', 'hr',
+      'ul', 'ol', 'li',
+      'blockquote', 'pre', 'code',
+      'a', 'img',
+      'strong', 'em', 'del', 'mark',
+      'table', 'thead', 'tbody', 'tr', 'th', 'td',
+      'dl', 'dt', 'dd',
+      'figure', 'figcaption',
+      'sup', 'sub',
+    ],
+    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'width', 'height'],
+    ALLOW_DATA_ATTR: false,
   });
 
-  return writingCache;
-}
+  if (!sanitized || sanitized.trim().length === 0) {
+    throw new ParseError(source, "Sanitized output is empty — input may be malformed");
+  }
 
-/**
- * Find a single writing post by slug.
- *
- * @param slug - URL-friendly identifier from the post's frontmatter.
- * @returns The matching post, or undefined if not found.
- *
- * @throws {IoError}       If loading all posts fails.
- * @throws {ValidationError} If post frontmatter is invalid.
- * @throws {ParseError}     If markdown parsing fails.
- * @throws {DateError}      If any published date is unparseable.
- *
- * @remarks Delegates to `getWriting()` which caches results.
- */
-export async function getWritingPost(slug: string): Promise<WritingPost | undefined> {
-  const posts = await getWriting();
-  return posts.find((p) => p.slug === slug);
+  return sanitized;
 }

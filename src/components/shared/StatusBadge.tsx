@@ -1,5 +1,6 @@
-import type { ProjectStatus } from '~/lib/types';
 import { STATUS_CLASSES } from '~/lib/types';
+
+import type { ProjectStatus } from '~/lib/types';
 
 /**
  * Props for the StatusBadge component.
