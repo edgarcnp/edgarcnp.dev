@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://edgarcnp.dev/</loc><priority>1.0</priority></url>
+  <url><loc>https://edgarcnp.dev/projects</loc><priority>0.8</priority></url>
+  <url><loc>https://edgarcnp.dev/writings</loc><priority>0.8</priority></url>
+  <url><loc>https://edgarcnp.dev/contact</loc><priority>0.6</priority></url>
+  <url><loc>https://edgarcnp.dev/projects/progressive-loading-system</loc><priority>0.7</priority></url>
+  <url><loc>https://edgarcnp.dev/projects/secure-portfolio-platform</loc><priority>0.7</priority></url>
+  <url><loc>https://edgarcnp.dev/projects/structured-portfolio-content</loc><priority>0.7</priority></url>
+  <url><loc>https://edgarcnp.dev/projects/worker-security-header-layer</loc><priority>0.7</priority></url>
+  <url><loc>https://edgarcnp.dev/writings/secure-portfolio-foundation</loc><priority>0.7</priority></url>
+</urlset>
