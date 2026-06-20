@@ -16,6 +16,14 @@ const PEAK_SPEED_UP: WaveSpeedUpValues = {
     shineProgress: 1,
 };
 
+/**
+ * Interpolate between two speed-up value states.
+ *
+ * @param from     - Start values (multiplier, shineProgress).
+ * @param to       - End values.
+ * @param progress - Interpolation factor (0 = from, 1 = to).
+ * @returns Interpolated speed-up values.
+ */
 const lerpSpeedUpValues = (
     from: WaveSpeedUpValues,
     to: WaveSpeedUpValues,
@@ -25,9 +33,26 @@ const lerpSpeedUpValues = (
     shineProgress: lerp(from.shineProgress, to.shineProgress, progress),
 });
 
+/**
+ * Calculate normalized progress through an animation phase.
+ *
+ * @param time      - Current timestamp.
+ * @param startedAt - Phase start timestamp.
+ * @param duration  - Phase duration.
+ * @returns Progress from 0 to 1, clamped.
+ */
 const getProgress = (time: number, startedAt: number, duration: number): number =>
     clamp((time - startedAt) / duration);
 
+/**
+ * Calculate the ramp-up duration based on how far the current state is from peak.
+ *
+ * @param from - Current speed-up values.
+ * @returns Duration in milliseconds (minimum 1ms).
+ *
+ * @remarks If already at peak, returns 0. Otherwise scales the base ramp-up duration
+ *          by the remaining distance to cover.
+ */
 const getSpeedUpRampUpDuration = (from: WaveSpeedUpValues): number => {
     const multiplierRemaining = clamp(
         (WAVE_SPEED_UP.multiplier - from.multiplier)
@@ -42,9 +67,27 @@ const getSpeedUpRampUpDuration = (from: WaveSpeedUpValues): number => {
     );
 };
 
+/**
+ * Check if the current values are at or beyond peak speed-up.
+ *
+ * @param values - Current speed-up values.
+ * @returns True if multiplier and shineProgress are both at maximum.
+ */
 const isSpeedUpAtPeak = ({ multiplier, shineProgress }: WaveSpeedUpValues): boolean =>
     multiplier >= WAVE_SPEED_UP.multiplier && shineProgress >= 1;
 
+/**
+ * Start a new speed-up animation from the current state.
+ *
+ * @param time              - Current animation timestamp.
+ * @param speedUpAnimation  - Previous animation state, or null if idle.
+ * @returns New WaveSpeedUpAnimation in ramp-up or hold phase.
+ *
+ * @remarks
+ * If already at peak, transitions directly to hold.
+ * Otherwise calculates the ramp-up duration based on remaining distance.
+ * Chains: ramp-up → hold → ramp-down → idle.
+ */
 export const triggerSpeedUpAnimation = (
     time: number,
     speedUpAnimation: WaveSpeedUpAnimation | null,
@@ -70,6 +113,18 @@ export const triggerSpeedUpAnimation = (
     };
 };
 
+/**
+ * Advance the speed-up animation by one frame.
+ *
+ * @param time              - Current animation timestamp.
+ * @param speedUpAnimation  - Current animation state, or null if idle.
+ * @returns Current speed-up values and updated animation state.
+ *
+ * @remarks
+ * State machine: null → ramp-up → hold → ramp-down → null.
+ * Each phase returns interpolated values for the current frame.
+ * The animation property in the return value is null when idle (animation complete).
+ */
 export const updateSpeedUpAnimation = (
     time: number,
     speedUpAnimation: WaveSpeedUpAnimation | null,

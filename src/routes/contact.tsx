@@ -1,8 +1,18 @@
 import { For, Suspense } from "solid-js";
 import { createAsync } from "@solidjs/router";
 import { getContact } from "~/lib/server-content";
-import SectionHeading from "~/components/shared/SectionHeading";
+import { SectionHeading } from "~/components/shared/SectionHeading";
 
+/**
+ * Contact page — displays static contact links from contact.json.
+ *
+ * @remarks
+ * - Fetches validated contact links via `"use server"` RPC.
+ * - Each link rendered as a card with kind label, name, and detail.
+ * - External links open in a new tab with `rel="noopener noreferrer"`.
+ * - Grid layout: 1 column on mobile, 2 columns on `sm` breakpoint.
+ * - No message collection form — static links only.
+ */
 export default function Contact() {
   const contact = createAsync(() => getContact());
 

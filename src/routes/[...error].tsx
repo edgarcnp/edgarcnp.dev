@@ -1,9 +1,14 @@
 import { useLocation, useSearchParams } from "@solidjs/router";
 import { LinkAction } from "~/components/ui/static/LinkAction";
 
-// RFC 9110
+/** Maximum path length to display — prevents XSS via long URLs. */
 const MAX_PATH_LENGTH = 120;
 
+/**
+ * RFC 9110 status code → human-readable title mapping.
+ *
+ * @remarks Covers 4xx client errors (400-451) and 5xx server errors (500-511).
+ */
 const titles: Record<number, string> = {
     400: "Bad request",
     401: "Unauthorized",
@@ -47,6 +52,15 @@ const titles: Record<number, string> = {
     511: "Network authentication required",
 };
 
+/**
+ * Catch-all error page for unmatched routes.
+ *
+ * @remarks
+ * - Reads `status` from search params (defaults to 404).
+ * - Reads `path` from search params or falls back to `location.pathname`.
+ * - Path is capped at 120 characters to prevent XSS via long URLs.
+ * - Displays RFC 9110 status title and navigation links.
+ */
 export default function NotFound() {
     const location = useLocation();
     const [searchParams] = useSearchParams();

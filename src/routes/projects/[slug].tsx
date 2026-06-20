@@ -1,12 +1,25 @@
 import { For, Show, Suspense } from "solid-js";
 import { useParams, createAsync, query } from "@solidjs/router";
 import { getProject } from "~/lib/server-content";
-import TechTag from "~/components/shared/TechTag";
-import StatusBadge from "~/components/shared/StatusBadge";
+import { sanitize } from "~/lib/trusted-types";
+import { TechTag } from "~/components/shared/TechTag";
+import { StatusBadge } from "~/components/shared/StatusBadge";
 import { LinkAction } from "~/components/ui/static/LinkAction";
 
+/** Cached query: single project by slug. */
 const fetchProject = query(async (slug: string) => getProject(slug), "project");
 
+/**
+ * Single project detail page — header, metadata, tech tags, links, and rendered markdown body.
+ *
+ * @remarks
+ * - Uses `useParams()` to get the slug from the URL.
+ * - Fetches project data via `"use server"` RPC.
+ * - Displays "Project not found" fallback if slug doesn't match any project.
+ * - Shows published/updated dates, status badge, technology tags, and external links.
+ * - Renders the markdown body as sanitized HTML via `innerHTML`.
+ * - Uses `<For>` for efficient list rendering of tags and links.
+ */
 export default function ProjectPost() {
   const params = useParams<{ slug: string }>();
   const project = createAsync(() => fetchProject(params.slug));
@@ -54,7 +67,7 @@ export default function ProjectPost() {
                 </div>
               </Show>
             </header>
-            <div class="markdown-body" innerHTML={p().body} />
+            <div class="markdown-body" innerHTML={sanitize(p().body)} />
           </article>
         )}
       </Show>

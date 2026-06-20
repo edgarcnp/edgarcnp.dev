@@ -1,11 +1,21 @@
 import { For, Suspense } from "solid-js";
 import { createAsync, query } from "@solidjs/router";
 import { getProjects } from "~/lib/server-content";
-import SectionHeading from "~/components/shared/SectionHeading";
-import ProjectCard from "~/components/shared/ProjectCard";
+import { SectionHeading } from "~/components/shared/SectionHeading";
+import { ProjectCard } from "~/components/shared/ProjectCard";
 
+/** Cached query: all projects sorted by year. */
 const fetchProjects = query(async () => await getProjects(), "projects");
 
+/**
+ * Project listing page — displays stats cards and a full project grid.
+ *
+ * @remarks
+ * - Fetches all projects via `"use server"` RPC.
+ * - Computes stats in a single pass (total, in-progress, planned).
+ * - Each project rendered as a `ProjectCard` linking to the detail page.
+ * - Projects displayed in a 2-column grid on medium screens.
+ */
 export default function Projects() {
   const projects = createAsync(() => fetchProjects());
   const stats = () => {

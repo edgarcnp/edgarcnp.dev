@@ -300,6 +300,12 @@
   background-size: var(--ui-shimmer-size) var(--ui-shimmer-size);
 }
 
+.skeleton-w-full { width: 100%; }
+.skeleton-w-half { width: 50%; }
+.skeleton-h-sm { height: 8px; }
+.skeleton-h-md { height: 16px; }
+.skeleton-h-lg { height: 32px; }
+
 @media (prefers-reduced-motion: reduce) {
   .skeleton {
     animation: none;
@@ -321,12 +327,17 @@
 }
 
 .spinner svg {
-  width: var(--size);
-  height: var(--size);
   color: inherit;
   animation: spinner 1s infinite linear;
   will-change: transform;
 }
+
+.spinner-size-16 svg { width: 16px; height: 16px; }
+.spinner-size-20 svg { width: 20px; height: 20px; }
+.spinner-size-24 svg { width: 24px; height: 24px; }
+.spinner-size-32 svg { width: 32px; height: 32px; }
+.spinner-size-40 svg { width: 40px; height: 40px; }
+.spinner-size-48 svg { width: 48px; height: 48px; }
 
 @media (prefers-reduced-motion: reduce) {
   .spinner svg {

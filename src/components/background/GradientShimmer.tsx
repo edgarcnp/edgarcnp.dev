@@ -9,12 +9,27 @@ import { resizeCanvas, readCssNumber, readCssString } from './canvas';
 import { createGrainPattern, drawGrain, drawStripe } from './draw';
 
 type Props = {
+    /** Whether to play the intro animation (default: true). Set to false to skip intro. */
     intro?: boolean;
+    /** Whether to apply the `background` CSS class for layering. */
     background?: boolean;
+    /** Additional CSS classes to apply to the canvas element. */
     class?: string;
 };
 
-export default function GradientShimmer(props: Props) {
+/**
+ * Animated gradient shimmer background canvas.
+ *
+ * @remarks
+ * - Plays intro animation once per full page load (module-level `introPlayed` signal).
+ * - Responds to clicks with wave speed-up effect.
+ * - Re-triggers emphasis on SPA route changes via `useLocation()`.
+ * - Defers initialization to `requestIdleCallback` to avoid blocking first paint.
+ * - Degrades gracefully if CSS custom properties are missing (canvas becomes invisible).
+ * - Respects `prefers-reduced-motion: reduce` — renders static frame, no animation.
+ * - Resizes via `ResizeObserver` and re-reads CSS colors on theme changes via `MutationObserver`.
+ */
+export function GradientShimmer(props: Props) {
   const [introPlayed, setIntroPlayed] = createSignal(false);
   let canvas!: HTMLCanvasElement;
     let shimmerController: GradientShimmerControls | null = null;
@@ -91,6 +106,13 @@ export default function GradientShimmer(props: Props) {
             emphasize: startWaveSpeedUp,
         };
 
+        /**
+         * Read CSS custom properties from the canvas element's computed styles.
+         *
+         * @returns True if all CSS variables were read successfully, false otherwise.
+         *
+         * @remarks On failure, returns false — the caller should skip drawing.
+         */
         const readColors = (): boolean => {
             try {
                 const styles = getComputedStyle(canvas);
@@ -113,12 +135,20 @@ export default function GradientShimmer(props: Props) {
             }
         };
 
+        /**
+         * Apply resize: update canvas buffer, sync stripe count, re-read CSS colors.
+         *
+         * @returns True if resize succeeded, false if CSS read failed.
+         */
         const applyResize = (): boolean => {
             size = resizeCanvas(canvas, context);
             stripeWidth = syncStripeCount(stripes, size.width);
             return readColors();
         };
 
+        /**
+         * Schedule a resize on the next animation frame (debounced by ResizeObserver).
+         */
         const scheduleResize = () => {
             cancelResizeFrame();
             resizeFrame = requestAnimationFrame((time) => {
@@ -128,6 +158,15 @@ export default function GradientShimmer(props: Props) {
             });
         };
 
+        /**
+         * Draw a single animation frame — clears canvas, draws all stripes + grain.
+         *
+         * @param time - Current animation timestamp from requestAnimationFrame.
+         *
+         * @remarks
+         * In reduced-motion mode: draws a static frame with no wave progression.
+         * Otherwise: advances wave phases, applies speed-up multiplier, renders intro.
+         */
         const drawFrame = (time: number) => {
             const reducedMotion = reducedMotionQuery.matches;
             const deltaSeconds = reducedMotion || lastFrameTime === null
@@ -178,6 +217,11 @@ export default function GradientShimmer(props: Props) {
             }
         };
 
+        /**
+         * Animation loop callback — draws one frame and schedules the next.
+         *
+         * @param time - Current animation timestamp.
+         */
         const draw = (time: number) => {
             animationFrame = null;
             drawFrame(time);
@@ -186,6 +230,9 @@ export default function GradientShimmer(props: Props) {
             }
         };
 
+        /**
+         * Start the animation loop if not already running and motion is allowed.
+         */
         const requestAnimation = () => {
             if (animationFrame !== null || reducedMotionQuery.matches) return;
             animationFrame = requestAnimationFrame(draw);

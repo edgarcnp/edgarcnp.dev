@@ -1,21 +1,42 @@
 import type { ProjectStatus } from '~/lib/types';
 import { For } from 'solid-js';
 import { A } from '@solidjs/router';
-import StatusBadge from './StatusBadge';
-import TechTag from './TechTag';
+import { StatusBadge } from './StatusBadge';
+import { TechTag } from './TechTag';
 
+/**
+ * Props for the ProjectCard component.
+ */
 interface Props {
+  /** Project title displayed as the card heading. */
   title: string;
+  /** URL path to the project detail page (e.g. "/projects/my-project"). */
   href: string;
+  /** Short summary paragraph displayed below the title. */
   summary: string;
+  /** Year the project was created or last updated, displayed as a chip. */
   year: number;
+  /** Current project status — determines the badge color. */
   status: ProjectStatus;
+  /** Array of technology names rendered as tag chips. */
   technologies: string[];
+  /** Whether to show the "Pinned" indicator (gold pin icon). */
   pinned?: boolean;
+  /** Override the default "Inspect" action label (e.g. "View Code"). */
   actionLabel?: string;
 }
 
-export default function ProjectCard(props: Props) {
+/**
+ * Interactive project card with title, summary, status badge, and tech tags.
+ *
+ * @remarks
+ * - Renders as a SolidStart `<A>` link for SPA navigation.
+ * - Uses `<For>` for efficient list rendering of technology tags.
+ * - Displays pinned indicator with gold accent styling when `pinned` is true.
+ * - Hover state shows underline on the action label via `group-hover:underline`.
+ * - Keyboard accessible: focus-visible ring for outline navigation.
+ */
+export function ProjectCard(props: Props) {
   return (
     <A
       href={props.href}

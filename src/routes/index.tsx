@@ -4,15 +4,28 @@ import { getProjects, getWriting, getProfile, getContact, getCapabilities } from
 import type { Project } from "~/lib/content";
 import type { WritingPost } from "~/lib/content";
 import type { Profile, ContactLink, Capability } from "~/data/schemas";
-import BlueprintFrame from "~/components/shared/BlueprintFrame";
-import SectionHeading from "~/components/shared/SectionHeading";
-import ProjectCard from "~/components/shared/ProjectCard";
-import Grid4 from "~/components/shared/Grid4";
+import { BlueprintFrame } from "~/components/shared/BlueprintFrame";
+import { SectionHeading } from "~/components/shared/SectionHeading";
+import { ProjectCard } from "~/components/shared/ProjectCard";
+import { Grid4 } from "~/components/shared/Grid4";
 import { LinkAction } from "~/components/ui/static/LinkAction";
 
+/** Cached query: featured projects only (used by hero section). */
 const fetchFeaturedProjects = query(async () => (await getProjects()).filter((p) => p.featured), "featuredProjects");
+/** Cached query: latest 3 writing posts (used by home page). */
 const fetchLatestWriting = query(async () => (await getWriting()).slice(0, 3), "latestWriting");
 
+/**
+ * Home page — hero section, featured projects, capabilities grid, writing preview, and contact CTA.
+ *
+ * @remarks
+ * - Fetches profile, contact, capabilities, and featured projects in parallel via `createAsync`.
+ * - Hero section displays name, role, availability, and a blueprint diagram placeholder.
+ * - Featured projects filtered by `pinned` property, displayed in a 2-column grid.
+ * - Capabilities rendered via the `Grid4` component.
+ * - Writing and Contact sections displayed side-by-side on desktop.
+ * - All data fetched via `"use server"` RPC functions.
+ */
 export default function Home() {
   const profile = createAsync(() => getProfile());
   const contact = createAsync(() => getContact());

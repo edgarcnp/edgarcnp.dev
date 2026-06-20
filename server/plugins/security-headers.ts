@@ -21,6 +21,7 @@ function getCsp(nonce: string): string {
     `style-src 'self' 'nonce-${nonce}'`,
     "worker-src 'none'",
     "upgrade-insecure-requests",
+    "trusted-types app",
     "require-trusted-types-for 'script'",
   ].join('; ');
 }

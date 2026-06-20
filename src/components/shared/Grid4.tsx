@@ -1,16 +1,35 @@
 import { For } from "solid-js";
 
+/**
+ * A single capability card item.
+ */
 interface Item {
+  /** Short category label displayed above the title. */
   label: string;
+  /** Card heading text. */
   title: string;
+  /** Descriptive paragraph below the title. */
   description: string;
 }
 
+/**
+ * Props for the Grid4 component.
+ */
 interface Props {
+  /** Array of capability items to render in a 4-column grid. */
   items: Item[];
 }
 
-export default function Grid4(props: Props) {
+/**
+ * 4-column responsive grid of capability cards.
+ *
+ * @remarks
+ * - Renders on the home page to showcase key capabilities.
+ * - Uses `<For>` for efficient list rendering.
+ * - Responsive: 1 column on mobile, 4 columns on `lg` breakpoint.
+ * - Each card uses `blueprint-module` styling with `section-motion` animation.
+ */
+export function Grid4(props: Props) {
   return (
     <section class="section-motion motion-delay-2 grid gap-4 lg:grid-cols-4">
       <For each={props.items}>

@@ -1,11 +1,21 @@
 import { For, Suspense } from "solid-js";
 import { A, createAsync, query } from "@solidjs/router";
 import { getWriting } from "~/lib/server-content";
-import SectionHeading from "~/components/shared/SectionHeading";
-import TechTag from "~/components/shared/TechTag";
+import { SectionHeading } from "~/components/shared/SectionHeading";
+import { TechTag } from "~/components/shared/TechTag";
 
+/** Cached query: all writing posts sorted by date. */
 const fetchWriting = query(async () => await getWriting(), "writing");
 
+/**
+ * Writing listing page — chronological list of posts with tags.
+ *
+ * @remarks
+ * - Fetches all writing posts via `"use server"` RPC.
+ * - Each post rendered as a SolidStart `<A>` link for SPA navigation.
+ * - Shows published/updated dates, title, summary, and tag chips.
+ * - Posts sorted by date descending (most recent first).
+ */
 export default function Writing() {
   const posts = createAsync(() => fetchWriting());
 

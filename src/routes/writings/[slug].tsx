@@ -1,11 +1,24 @@
 import { For, Show, Suspense } from "solid-js";
 import { useParams, createAsync, query } from "@solidjs/router";
 import { getWritingPost } from "~/lib/server-content";
-import TechTag from "~/components/shared/TechTag";
+import { sanitize } from "~/lib/trusted-types";
+import { TechTag } from "~/components/shared/TechTag";
 import { LinkAction } from "~/components/ui/static/LinkAction";
 
+/** Cached query: single writing post by slug. */
 const fetchWritingPost = query(async (slug: string) => getWritingPost(slug), "writingPost");
 
+/**
+ * Single writing post detail page — header, tags, and rendered markdown body.
+ *
+ * @remarks
+ * - Uses `useParams()` to get the slug from the URL.
+ * - Fetches post data via `"use server"` RPC.
+ * - Displays "Post not found" fallback if slug doesn't match any post.
+ * - Shows published/updated dates, title, summary, and tag chips.
+ * - Renders the markdown body as sanitized HTML via `innerHTML`.
+ * - Uses `<For>` for efficient tag list rendering.
+ */
 export default function WritingPost() {
   const params = useParams<{ slug: string }>();
   const post = createAsync(() => fetchWritingPost(params.slug));
@@ -41,7 +54,7 @@ export default function WritingPost() {
                 </For>
               </ul>
             </header>
-            <div class="markdown-body" innerHTML={p().body} />
+            <div class="markdown-body" innerHTML={sanitize(p().body)} />
           </article>
         )}
       </Show>

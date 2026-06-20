@@ -1,17 +1,19 @@
 import { Router, A, useLocation } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { Show, Suspense, ErrorBoundary } from "solid-js";
-import GradientShimmer from "~/components/background/GradientShimmer";
+import { GradientShimmer } from "~/components/background/GradientShimmer";
 import { LinkAction } from "~/components/ui/static/LinkAction";
 import { AppError, ValidationError, NotFoundError, IoError, ParseError, CssError, DateError } from "~/lib/errors";
 import "./app.css";
 
+/** Nav links with path matchers for active state highlighting. */
 const links = [
   { href: "/projects", label: "Projects", match: (p: string) => p.startsWith("/projects") },
   { href: "/writings", label: "Writings", match: (p: string) => p.startsWith("/writings") },
   { href: "/contact", label: "Contact", match: (p: string) => p === "/contact" },
 ] as const;
 
+/** Extract a user-safe error message from any thrown value. */
 function getErrorMessage(err: unknown): string {
   if (err instanceof ValidationError) return err.displayMessage;
   if (err instanceof NotFoundError) return err.displayMessage;
@@ -24,6 +26,7 @@ function getErrorMessage(err: unknown): string {
   return "Something went wrong";
 }
 
+/** Log error with full context to console (server/client debug). */
 function logError(err: unknown): void {
   if (err instanceof AppError) {
     console.error(`[${err.name}]`, err.message, err.cause ?? "");

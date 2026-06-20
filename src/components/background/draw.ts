@@ -8,6 +8,18 @@ import {
     getIdleCenter,
 } from './intro';
 
+/**
+ * Create a repeating 64×64 grain noise texture pattern.
+ *
+ * @param context - The canvas 2D rendering context.
+ * @param colors  - Grain configuration (luminance, contrast, saturation).
+ * @returns A repeating CanvasPattern, or null if the 2D context can't be obtained.
+ *
+ * @remarks
+ * Generates random per-pixel luminance and color channel shifts.
+ * The pattern is tiled across the canvas via `createPattern('repeat')`.
+ * Returns null gracefully — the caller should skip grain drawing if null.
+ */
 export const createGrainPattern = (
     context: CanvasRenderingContext2D,
     colors: Colors,
@@ -40,6 +52,18 @@ export const createGrainPattern = (
     return context.createPattern(grainCanvas, 'repeat');
 };
 
+/**
+ * Overlay the grain noise pattern across the entire canvas.
+ *
+ * @param context - The canvas 2D rendering context.
+ * @param pattern - The repeating grain pattern from `createGrainPattern()`.
+ * @param size    - Canvas dimensions.
+ * @param colors  - Grain alpha and compositing configuration.
+ *
+ * @remarks
+ * Uses `globalCompositeOperation: 'overlay'` to blend grain with the gradient.
+ * Saves and restores context state to avoid leaking globalAlpha.
+ */
 export const drawGrain = (
     context: CanvasRenderingContext2D,
     pattern: CanvasPattern,
@@ -54,6 +78,30 @@ export const drawGrain = (
     context.restore();
 };
 
+/**
+ * Draw a single gradient stripe with wave distortion and intro animation.
+ *
+ * @param context          - The canvas 2D rendering context.
+ * @param stripe           - Stripe phase data for idle wave computation.
+ * @param index            - Stripe index (0-based) in the array.
+ * @param stripeWidth      - Width of each stripe in CSS pixels.
+ * @param size             - Canvas dimensions.
+ * @param colors           - CSS custom property values (alpha, start, highlight, etc.).
+ * @param time             - Current animation timestamp in milliseconds.
+ * @param introAnimation   - Intro animation state, or null if intro has completed.
+ * @param stripeCount      - Total number of stripes in the canvas.
+ * @param wavePhase        - Current primary wave phase (radians).
+ * @param secondaryWavePhase - Current secondary wave phase (radians).
+ * @param shineProgress    - Shine overlay opacity (0 = none, 1 = full) during speed-up.
+ * @param heightTop        - Top Y coordinate for the gradient (usually 0).
+ * @param heightBottom     - Bottom Y coordinate for the gradient (usually size.height).
+ *
+ * @remarks
+ * The gradient is a linear fill from the top-left to bottom-right of the stripe.
+ * Each stripe has 5 color stops: highlight → start → highlight → start → start.
+ * The highlight band center oscillates via idle wave + intro blend.
+ * Alpha transitions from introAlpha to idle alpha over the intro blend duration.
+ */
 export const drawStripe = (
     context: CanvasRenderingContext2D,
     stripe: Stripe,

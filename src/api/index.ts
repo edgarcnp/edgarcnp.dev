@@ -2,11 +2,19 @@ import { Hono } from "hono";
 import { corsMiddleware } from "./middleware/cors";
 import { rateLimit } from "./middleware/ratelimit";
 import { csrfGuard } from "./middleware/csrf";
-import health from "./routes/health";
-import news from "./routes/news";
-import rss from "./routes/rss";
+import { health } from "./routes/health";
+import { news } from "./routes/news";
+import { rss } from "./routes/rss";
 import { AppError, ValidationError, NotFoundError } from "~/lib/errors";
 
+/**
+ * Hono API application — mounted at `/api` via Nitro catch-all route.
+ *
+ * @remarks
+ * - Security middleware (CORS, CSRF, rate limiting) applied only in production.
+ * - Error handler maps typed error classes to appropriate HTTP status codes.
+ * - Routes: `/api/health`, `/api/news`, `/api/rss`.
+ */
 const app = new Hono().basePath("/api");
 
 if (import.meta.env.PROD) {
@@ -15,6 +23,16 @@ if (import.meta.env.PROD) {
   app.use("*", rateLimit);
 }
 
+/**
+ * Global error handler — maps typed error classes to HTTP responses.
+ *
+ * @remarks
+ * - `ValidationError` → 400 with source and message details.
+ * - `NotFoundError` → 404 with resource and id details.
+ * - `AppError` → 500 with generic message.
+ * - Unknown errors → 500 with generic message.
+ * - All errors are logged to console for debugging.
+ */
 app.onError((err, c) => {
   if (err instanceof ValidationError) {
     console.error(`[API] Validation: ${err.message}`);
@@ -35,4 +53,4 @@ app.route("/health", health);
 app.route("/news", news);
 app.route("/rss", rss);
 
-export default app;
+export { app };
