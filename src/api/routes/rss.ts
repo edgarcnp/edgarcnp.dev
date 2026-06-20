@@ -10,7 +10,10 @@ import { Hono } from "hono";
 const rss = new Hono();
 
 rss.get("/", (c) => {
-  return c.text("", 200, { "Content-Type": "application/rss+xml" });
+  return c.text("", 200, {
+    "Content-Type": "application/rss+xml",
+    "Cache-Control": "public, max-age=900",
+  });
 });
 
 export { rss };
