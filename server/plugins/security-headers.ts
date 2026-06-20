@@ -60,7 +60,7 @@ export default defineNitroPlugin((nitroApp: any) => {
         if (path.startsWith("/_build/assets/")) {
             res.headers.set("Cache-Control", "public, max-age=31536000, immutable");
         } else if (!path.startsWith("/api")) {
-            res.headers.set("Cache-Control", "no-cache, must-revalidate");
+            res.headers.set("Cache-Control", "public, s-maxage=3600, max-age=0, must-revalidate");
         }
         for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
             res.headers.set(key, value);
