@@ -1,19 +1,83 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "schedule": ["every day"],
-  "packageRules": [
-    {
-      "matchPackagePatterns": ["^@solidjs/", "^solid-js$"],
-      "groupName": "SolidJS"
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended"
+    ],
+    "abandonmentThreshold": "1 year",
+    "addLabels": [
+        "renovate",
+        "dependencies"
+    ],
+    "assignAutomerge": true,
+    "assignees": [
+        "edgarcnp"
+    ],
+    "automerge": false,
+    "keepUpdatedLabel": "renovate-keep-updated",
+    "lockFileMaintenance": {
+        "enabled": true,
+        "recreateWhen": "always",
+        "branchTopic": "lock-file-maintenance",
+        "commitMessageAction": "Lock file maintenance",
+        "schedule": [
+            "0 0 * * 5"
+        ],
+        "prBodyDefinitions": {
+            "Change": "All locks refreshed"
+        }
     },
-    {
-      "matchPackagePatterns": ["^vite$", "^@tailwindcss/vite$"],
-      "groupName": "Vite"
+    "osvVulnerabilityAlerts": true,
+    "postUpdateOptions": [
+        "pnpmDedupe"
+    ],
+    "pruneBranchAfterAutomerge": true,
+    "reviewers": [
+        "edgarcnp"
+    ],
+    "rollbackPrs": true,
+    "schedule": [
+        "* * * * *"
+    ],
+    "vulnerabilityAlerts": {
+        "groupName": null,
+        "schedule": [],
+        "dependencyDashboardApproval": false,
+        "minimumReleaseAge": null,
+        "rangeStrategy": "update-lockfile",
+        "commitMessageSuffix": "[SECURITY]",
+        "branchTopic": "{{{datasource}}}-{{{depNameSanitized}}}-vulnerability",
+        "prCreation": "immediate",
+        "vulnerabilityFixStrategy": "lowest"
     },
-    {
-      "matchPackagePatterns": ["^tailwindcss$"],
-      "groupName": "Tailwind"
-    }
-  ]
+    "packageRules": [
+        {
+            "matchPackageNames": [
+                "/^@solidjs\\//",
+                "/^solid-js$/"
+            ],
+            "groupName": "SolidJS"
+        },
+        {
+            "matchPackageNames": [
+                "/^vite$/",
+                "/^@tailwindcss\\/vite$/"
+            ],
+            "groupName": "Vite"
+        },
+        {
+            "matchPackageNames": [
+                "/^tailwindcss$/"
+            ],
+            "groupName": "Tailwind"
+        },
+        {
+            "matchPackageNames": [
+                "nitropack",
+                "h3",
+                "srvx",
+                "vinxi"
+            ],
+            "groupName": "Nitro/h3 core"
+        }
+    ]
 }
