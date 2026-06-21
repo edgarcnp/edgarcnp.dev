@@ -1,4 +1,4 @@
-import { For, type JSX } from "solid-js";
+import { createEffect, For, type JSX } from "solid-js";
 
 interface DropdownOption {
     value: string;
@@ -20,6 +20,17 @@ interface DropdownProps {
 }
 
 export function Dropdown(props: DropdownProps) {
+    let labelEl!: HTMLLabelElement;
+
+    createEffect(() => {
+        if (!labelEl) return;
+        if (props.width) {
+            labelEl.style.setProperty("--input-width", props.width);
+        } else {
+            labelEl.style.removeProperty("--input-width");
+        }
+    });
+
     const handleChange = (e: Event) => {
         const select = e.target as HTMLSelectElement;
         props.onChange?.(select.value);
@@ -27,12 +38,12 @@ export function Dropdown(props: DropdownProps) {
 
     return (
         <label
+            ref={labelEl}
             classList={{
                 dropdown: true,
                 disabled: props.disabled,
                 [props.class ?? ""]: !!props.class,
             }}
-            style={{ width: props.width }}
         >
             <select
                 id={props.id}

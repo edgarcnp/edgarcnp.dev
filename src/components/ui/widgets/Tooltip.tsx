@@ -10,22 +10,22 @@ export function Tooltip(props: TooltipProps) {
     let anchorElement!: HTMLDivElement;
     let popover!: HTMLDivElement;
 
-    const [tooltipX, setTooltipX] = createSignal(0);
-    const [tooltipY, setTooltipY] = createSignal(0);
     const [visible, setVisible] = createSignal(false);
 
     const offsetY = 12;
     const offsetX = 16;
 
     const updatePosition = (e: PointerEvent) => {
-        setTooltipX(e.clientX - offsetX);
-        setTooltipY(e.clientY - offsetY);
+        if (!popover) return;
+        popover.style.setProperty("--tooltip-x", `${e.clientX - offsetX}px`);
+        popover.style.setProperty("--tooltip-y", `${e.clientY - offsetY}px`);
     };
 
     const updatePositionFromAnchor = () => {
+        if (!popover || !anchorElement) return;
         const rect = anchorElement.getBoundingClientRect();
-        setTooltipX(rect.left);
-        setTooltipY(rect.top - offsetY);
+        popover.style.setProperty("--tooltip-x", `${rect.left}px`);
+        popover.style.setProperty("--tooltip-y", `${rect.top - offsetY}px`);
     };
 
     createEffect(() => {
@@ -61,7 +61,6 @@ export function Tooltip(props: TooltipProps) {
                 class="tooltip-container"
                 role="tooltip"
                 id={props.id}
-                style={{ left: `${tooltipX()}px`, top: `${tooltipY()}px` }}
             >
                 <div class="tooltip-content">{props.content}</div>
             </div>

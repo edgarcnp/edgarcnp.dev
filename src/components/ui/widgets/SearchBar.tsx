@@ -1,3 +1,5 @@
+import { createEffect } from "solid-js";
+
 import { Input } from "./Input";
 
 interface SearchBarProps {
@@ -12,8 +14,19 @@ interface SearchBarProps {
 }
 
 export function SearchBar(props: SearchBarProps) {
+    let containerEl!: HTMLDivElement;
+
+    createEffect(() => {
+        if (!containerEl) return;
+        if (props.width) {
+            containerEl.style.setProperty("--input-width", props.width);
+        } else {
+            containerEl.style.removeProperty("--input-width");
+        }
+    });
+
     return (
-        <div class="search-bar" style={{ width: props.width }} role="search">
+        <div ref={containerEl} class="search-bar" role="search">
             <Input
                 id={props.id}
                 small={props.small}

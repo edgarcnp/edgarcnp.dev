@@ -1,4 +1,4 @@
-import { type JSX } from "solid-js";
+import { createEffect, type JSX } from "solid-js";
 
 interface InputProps {
     id: string;
@@ -17,6 +17,17 @@ interface InputProps {
 }
 
 export function Input(props: InputProps) {
+    let labelEl!: HTMLLabelElement;
+
+    createEffect(() => {
+        if (!labelEl) return;
+        if (props.width) {
+            labelEl.style.setProperty("--input-width", props.width);
+        } else {
+            labelEl.style.removeProperty("--input-width");
+        }
+    });
+
     const handleInput = (e: Event) => {
         const input = e.target as HTMLInputElement;
         props.onInput?.(input.value);
@@ -24,13 +35,13 @@ export function Input(props: InputProps) {
 
     return (
         <label
+            ref={labelEl}
             classList={{
                 "input-field": true,
                 small: props.small,
                 disabled: props.disabled,
                 [props.class ?? ""]: !!props.class,
             }}
-            style={{ width: props.width }}
         >
             {props.leading && (
                 <span class="input-accessory" aria-hidden="true">

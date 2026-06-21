@@ -36,7 +36,7 @@ async function main() {
 ${urls.map((u) => `  <url><loc>${escapeXml(SITE_URL + u.loc)}</loc><priority>${u.priority}</priority></url>`).join("\n")}
 </urlset>`;
 
-  const outDir = path.join(process.cwd(), "public");
+  const outDir = path.join(process.cwd(), ".output", "public");
   await fs.mkdir(outDir, { recursive: true });
   await fs.writeFile(path.join(outDir, "sitemap.xml"), xml, "utf-8");
   console.log(`[sitemap] Generated sitemap.xml with ${urls.length} URLs`);

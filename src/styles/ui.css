@@ -147,6 +147,7 @@ a.button {
   transition: 0.2s background-color, 0.1s outline-color, 0.1s box-shadow;
   background-color: var(--ui-elevated-7);
   display: inline-flex;
+  width: var(--input-width, auto);
 }
 
 .input-field:focus-within,
@@ -165,7 +166,7 @@ a.button {
 
 .input-field {
   gap: 9px;
-  width: 100%;
+  width: var(--input-width, 100%);
   cursor: text;
 }
 
@@ -337,6 +338,8 @@ a.button {
   transform: scale(0.8);
   transform-origin: left;
   transition: transform 0.15s, opacity 0.15s;
+  left: var(--tooltip-x, 0px);
+  top: var(--tooltip-y, 0px);
 }
 
 .tooltip-container:popover-open {
@@ -378,7 +381,7 @@ a.button {
 }
 
 .search-bar {
-  width: 100%;
+  width: var(--input-width, 100%);
 }
 
 .search-bar input[type="search"]::-webkit-search-decoration,

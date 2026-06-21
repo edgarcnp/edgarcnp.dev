@@ -3,7 +3,7 @@ import { redirect } from "h3";
 import { randomBytes } from "node:crypto";
 
 function generateNonce(): string {
-  return randomBytes(64).toString("base64");
+  return randomBytes(16).toString("base64");
 }
 
 function getCsp(nonce: string): string {
