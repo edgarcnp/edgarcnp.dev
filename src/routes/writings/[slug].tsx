@@ -5,6 +5,7 @@ import { LinkAction } from "~/components/ui/static/LinkAction";
 import { TechTag } from "~/components/shared/TechTag";
 import { getWritingPost } from "~/lib/server-content";
 import { sanitize } from "~/lib/trusted-types";
+import { useMeta } from "~/lib/meta";
 
 /** Cached query: single writing post by slug. */
 const fetchWritingPost = query(async (slug: string) => getWritingPost(slug), "writingPost");
@@ -23,9 +24,16 @@ const fetchWritingPost = query(async (slug: string) => getWritingPost(slug), "wr
 export default function WritingPost() {
   const params = useParams<{ slug: string }>();
   const post = createAsync(() => fetchWritingPost(params.slug));
+  const meta = useMeta(() => ({
+    title: post()?.title ?? "Writing",
+    description: post()?.summary,
+    path: `/writings/${params.slug}`,
+  }));
 
   return (
     <Suspense fallback={<div class="blueprint-label">Loading post...</div>}>
+      <meta.Title />
+      <meta.Meta />
       <Show
         when={post()}
         fallback={

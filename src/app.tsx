@@ -1,12 +1,17 @@
 import { FileRoutes } from "@solidjs/start/router";
 import { Router, A, useLocation } from "@solidjs/router";
+import { MetaProvider } from "@solidjs/meta";
 import { ErrorBoundary, Show, Suspense } from "solid-js";
 
 import { GradientShimmer } from "~/components/background/GradientShimmer";
 import { LinkAction } from "~/components/ui/static/LinkAction";
 import { AppError, ValidationError, NotFoundError, IoError, ParseError, CssError, DateError } from "~/lib/errors";
 
+import profileData from "~/data/profile.json";
+
 import "./app.css";
+
+const email: string = profileData.email;
 
 /** Nav links with path matchers for active state highlighting. */
 const links = [
@@ -41,6 +46,7 @@ function logError(err: unknown): void {
 
 export default function App() {
   return (
+    <MetaProvider>
     <Router
       root={(props) => (
         <div class="blueprint-page">
@@ -56,7 +62,7 @@ export default function App() {
                   <span class="text-xs font-semibold">EC</span>
                 </span>
                 <span class="flex flex-col leading-none">
-                  <span class="text-sm font-semibold text-(--blueprint-text) transition group-hover:text-(--blueprint-accent)">edgarcnp.dev</span>
+                  <span class="text-sm font-semibold text-(--blueprint-text) transition group-hover:text-(--blueprint-accent)">{typeof window !== "undefined" ? window.location.hostname : ""}</span>
                   <span class="mt-1 text-[0.65rem] uppercase tracking-[0.18em] text-(--blueprint-muted)">Portfolio</span>
                 </span>
               </A>
@@ -100,10 +106,10 @@ export default function App() {
             <div class="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p>&copy; 2026 Edgar Christian. SolidStart / SolidJS / Cloudflare-ready.</p>
               <a
-                href="mailto:hello@edgarcnp.dev"
+                href={`mailto:${email}`}
                 class="w-fit rounded-sm text-(--blueprint-muted) underline-offset-4 outline-none transition hover:text-(--blueprint-accent) hover:underline focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
               >
-                hello@edgarcnp.dev
+                {email}
               </a>
             </div>
           </footer>
@@ -112,5 +118,6 @@ export default function App() {
     >
       <FileRoutes />
     </Router>
+    </MetaProvider>
   );
 }

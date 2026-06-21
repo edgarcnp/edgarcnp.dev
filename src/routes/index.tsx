@@ -7,6 +7,7 @@ import { LinkAction } from "~/components/ui/static/LinkAction";
 import { ProjectCard } from "~/components/shared/ProjectCard";
 import { SectionHeading } from "~/components/shared/SectionHeading";
 import { getProjects, getWriting, getProfile, getContact, getCapabilities } from "~/lib/server-content";
+import { useMeta } from "~/lib/meta";
 
 import type { Profile, ContactLink, Capability } from "~/data/schemas";
 import type { Project } from "~/lib/content";
@@ -29,6 +30,7 @@ const fetchLatestWriting = query(async () => (await getWriting()).slice(0, 3), "
  * - All data fetched via `"use server"` RPC functions.
  */
 export default function Home() {
+  const meta = useMeta(() => ({ path: "/" }));
   const profile = createAsync(() => getProfile());
   const contact = createAsync(() => getContact());
   const capabilities = createAsync(() => getCapabilities());
@@ -49,6 +51,8 @@ export default function Home() {
 
   return (
     <div class="space-y-16">
+      <meta.Title />
+      <meta.Meta />
       {/* Hero */}
       <section class="section-motion grid gap-8 lg:grid-cols-[1.04fr_0.96fr] lg:items-center">
         <div class="space-y-8">

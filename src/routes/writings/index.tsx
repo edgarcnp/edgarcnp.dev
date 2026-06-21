@@ -4,6 +4,7 @@ import { For, Suspense } from "solid-js";
 import { SectionHeading } from "~/components/shared/SectionHeading";
 import { TechTag } from "~/components/shared/TechTag";
 import { getWriting } from "~/lib/server-content";
+import { useMeta } from "~/lib/meta";
 
 /** Cached query: all writing posts sorted by date. */
 const fetchWriting = query(async () => await getWriting(), "writing");
@@ -18,10 +19,13 @@ const fetchWriting = query(async () => await getWriting(), "writing");
  * - Posts sorted by date descending (most recent first).
  */
 export default function Writing() {
+  const meta = useMeta(() => ({ title: "Writings", description: "Short technical writing about security, responsive UI, and deployment.", path: "/writings" }));
   const posts = createAsync(() => fetchWriting());
 
   return (
     <div class="space-y-8">
+      <meta.Title />
+      <meta.Meta />
       <SectionHeading
         label="Writing"
         title="Notes from the build."

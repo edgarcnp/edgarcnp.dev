@@ -6,6 +6,7 @@ import { StatusBadge } from "~/components/shared/StatusBadge";
 import { TechTag } from "~/components/shared/TechTag";
 import { getProject } from "~/lib/server-content";
 import { sanitize } from "~/lib/trusted-types";
+import { useMeta } from "~/lib/meta";
 
 /** Cached query: single project by slug. */
 const fetchProject = query(async (slug: string) => getProject(slug), "project");
@@ -24,9 +25,16 @@ const fetchProject = query(async (slug: string) => getProject(slug), "project");
 export default function ProjectPost() {
   const params = useParams<{ slug: string }>();
   const project = createAsync(() => fetchProject(params.slug));
+  const meta = useMeta(() => ({
+    title: project()?.title ?? "Project",
+    description: project()?.summary,
+    path: `/projects/${params.slug}`,
+  }));
 
   return (
     <Suspense fallback={<div class="blueprint-label">Loading project...</div>}>
+      <meta.Title />
+      <meta.Meta />
       <Show
         when={project()}
         fallback={

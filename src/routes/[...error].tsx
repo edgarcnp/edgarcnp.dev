@@ -1,5 +1,6 @@
 import { useLocation, useSearchParams } from "@solidjs/router";
 import { LinkAction } from "~/components/ui/static/LinkAction";
+import { useMeta } from "~/lib/meta";
 
 /** Maximum path length to display — prevents XSS via long URLs. */
 const MAX_PATH_LENGTH = 120;
@@ -64,6 +65,7 @@ const titles: Record<number, string> = {
 export default function NotFound() {
     const location = useLocation();
     const [searchParams] = useSearchParams();
+    const meta = useMeta(() => ({ title: "Error", path: location.pathname }));
     const path = () => {
         const raw = searchParams.path || location.pathname;
         return raw.length > MAX_PATH_LENGTH ? raw.slice(0, MAX_PATH_LENGTH) + "…" : raw;
@@ -73,6 +75,8 @@ export default function NotFound() {
 
     return (
         <section class="blueprint-frame max-w-2xl space-y-5 p-5 sm:p-6">
+            <meta.Title />
+            <meta.Meta />
             <p class="blueprint-label">Error / {status()}</p>
             <h1 class="text-3xl font-semibold text-(--blueprint-text) sm:text-4xl">{title()}</h1>
             <p class="leading-7 text-(--blueprint-muted)">

@@ -4,6 +4,7 @@ import { For, Suspense } from "solid-js";
 import { ProjectCard } from "~/components/shared/ProjectCard";
 import { SectionHeading } from "~/components/shared/SectionHeading";
 import { getProjects } from "~/lib/server-content";
+import { useMeta } from "~/lib/meta";
 
 /** Cached query: all projects sorted by year. */
 const fetchProjects = query(async () => await getProjects(), "projects");
@@ -18,6 +19,7 @@ const fetchProjects = query(async () => await getProjects(), "projects");
  * - Projects displayed in a 2-column grid on medium screens.
  */
 export default function Projects() {
+  const meta = useMeta(() => ({ title: "Projects", description: "A complete list of projects, sorted by year.", path: "/projects" }));
   const projects = createAsync(() => fetchProjects());
   const stats = () => {
     const p = projects() ?? [];
@@ -35,6 +37,8 @@ export default function Projects() {
 
   return (
     <div class="space-y-8">
+      <meta.Title />
+      <meta.Meta />
       <SectionHeading
         label="Projects"
         title="All projects"

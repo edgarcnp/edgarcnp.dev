@@ -3,6 +3,7 @@ import { For, Suspense } from "solid-js";
 
 import { SectionHeading } from "~/components/shared/SectionHeading";
 import { getContact } from "~/lib/server-content";
+import { useMeta } from "~/lib/meta";
 
 /**
  * Contact page — displays static contact links from contact.json.
@@ -15,10 +16,13 @@ import { getContact } from "~/lib/server-content";
  * - No message collection form — static links only.
  */
 export default function Contact() {
+  const meta = useMeta(() => ({ title: "Contact", description: "Static links, no message collection. Email or verified profile links.", path: "/contact" }));
   const contact = createAsync(() => getContact());
 
   return (
     <section class="max-w-3xl space-y-8">
+      <meta.Title />
+      <meta.Meta />
       <SectionHeading
         label="Contact Endpoint"
         title="Static links, no message collection."
