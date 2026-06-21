@@ -10,8 +10,7 @@ import { getProjects, getWriting, getProfile, getContact, getCapabilities } from
 import { useMeta } from "~/lib/meta";
 
 import type { Profile, ContactLink, Capability } from "~/data/schemas";
-import type { Project } from "~/lib/content";
-import type { WritingPost } from "~/lib/content";
+import type { ProjectMeta, WritingMeta } from "~/lib/content";
 
 /** Cached query: featured projects only (used by hero section). */
 const fetchFeaturedProjects = query(async () => (await getProjects()).filter((p) => p.featured), "featuredProjects");
@@ -112,7 +111,7 @@ export default function Home() {
         <Suspense fallback={<div class="blueprint-label">Loading projects...</div>}>
           <div class="grid gap-4 md:grid-cols-2">
             <For each={featuredProjects() ?? []}>
-              {(p: Project) => (
+              {(p: ProjectMeta) => (
                 <ProjectCard
                   title={p.title}
                   href={`/projects/${p.slug}`}

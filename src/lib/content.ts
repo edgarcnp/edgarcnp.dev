@@ -30,7 +30,7 @@ const projectSchema = z.object({
     external: z.boolean(),
   })).default([]),
 });
-let projectsCache: Project[] | null = null;
+let projectsCache: ProjectMeta[] | null = null;
 const writingSchema = z.object({
   title: z.string(),
   slug: z.string(),
@@ -39,62 +39,54 @@ const writingSchema = z.object({
   updated: z.string(),
   tags: z.array(z.string()).default([]),
 });
-let writingCache: WritingPost[] | null = null;
+let writingCache: WritingMeta[] | null = null;
+
+/** Frontmatter-only project shape used by list views. */
+export type ProjectMeta = z.infer<typeof projectSchema>;
+
+/** Full project with rendered HTML body, used by detail pages. */
+export type Project = ProjectMeta & { body: string };
+
+/** Frontmatter-only writing post shape used by list views. */
+export type WritingMeta = z.infer<typeof writingSchema>;
+
+/** Full writing post with rendered HTML body, used by detail pages. */
+export type WritingPost = WritingMeta & { body: string };
 
 /**
- * Parsed project with rendered HTML body.
- *
- * @remarks Extends the Zod-inferred frontmatter type with a `body` field containing sanitized HTML.
- */
-export type Project = z.infer<typeof projectSchema> & { body: string };
-
-/**
- * Parsed writing post with rendered HTML body.
- *
- * @remarks Extends the Zod-inferred frontmatter type with a `body` field containing sanitized HTML.
- */
-export type WritingPost = z.infer<typeof writingSchema> & { body: string };
-
-/**
- * Find a single project by slug.
+ * Find a single project by slug, parsing body on demand.
  *
  * @param slug - URL-friendly identifier from the project's frontmatter.
- * @returns The matching project, or undefined if not found.
+ * @returns The matching project with body, or undefined if not found.
  *
- * @throws {IoError}       If loading all projects fails.
- * @throws {ValidationError} If project frontmatter is invalid.
- * @throws {ParseError}     If markdown parsing fails.
- *
- * @remarks Delegates to `getProjects()` which caches results.
+ * @remarks Reads frontmatter from cache, then parses the file body on demand.
  */
 export async function getProject(slug: string): Promise<Project | undefined> {
   const projects = await getProjects();
-  return projects.find((p) => p.slug === slug);
+  const meta = projects.find((p) => p.slug === slug);
+  if (!meta) return undefined;
+  const body = await readBody('projects', slug);
+  return { ...meta, body };
 }
 
 /**
- * Load all projects from src/content/projects/.
+ * Load all projects (frontmatter only, no body parsing).
  *
- * @returns Array of parsed projects, sorted by year descending.
- *
- * @throws {IoError}       If directory reading or file reading fails.
- * @throws {ValidationError} If any project's frontmatter fails validation.
- * @throws {ParseError}     If any markdown body fails parsing/sanitization.
+ * @returns Array of project frontmatter, sorted by year descending.
  *
  * @remarks
- * Cached after first call — subsequent calls return the cached array.
- * A single bad .md file will throw and break the entire load (no partial results).
+ * Cached after first call. Body is NOT parsed — use getProject(slug) for that.
  * Sorting is by `year` field descending (newest first).
  */
-export async function getProjects(): Promise<Project[]> {
+export async function getProjects(): Promise<ProjectMeta[]> {
   if (projectsCache) return projectsCache;
 
   const files = await readMarkdownFiles('projects');
-  const projects: Project[] = [];
+  const projects: ProjectMeta[] = [];
 
   for (const f of files) {
-    const project = await parseMarkdown(f, projectSchema);
-    projects.push(project);
+    const meta = await parseFrontmatter(f, projectSchema);
+    projects.push(meta);
   }
 
   projectsCache = projects.sort((a, b) => b.year - a.year);
@@ -102,47 +94,39 @@ export async function getProjects(): Promise<Project[]> {
 }
 
 /**
- * Find a single writing post by slug.
+ * Find a single writing post by slug, parsing body on demand.
  *
  * @param slug - URL-friendly identifier from the post's frontmatter.
- * @returns The matching post, or undefined if not found.
+ * @returns The matching post with body, or undefined if not found.
  *
- * @throws {IoError}       If loading all posts fails.
- * @throws {ValidationError} If post frontmatter is invalid.
- * @throws {ParseError}     If markdown parsing fails.
- * @throws {DateError}      If any published date is unparseable.
- *
- * @remarks Delegates to `getWriting()` which caches results.
+ * @remarks Reads frontmatter from cache, then parses the file body on demand.
  */
 export async function getWritingPost(slug: string): Promise<WritingPost | undefined> {
   const posts = await getWriting();
-  return posts.find((p) => p.slug === slug);
+  const meta = posts.find((p) => p.slug === slug);
+  if (!meta) return undefined;
+  const body = await readBody('writing', slug);
+  return { ...meta, body };
 }
 
 /**
- * Load all writing posts from src/content/writing/.
+ * Load all writing posts (frontmatter only, no body parsing).
  *
- * @returns Array of parsed posts, sorted by published date descending (newest first).
- *
- * @throws {IoError}       If directory reading or file reading fails.
- * @throws {ValidationError} If any post's frontmatter fails validation.
- * @throws {ParseError}     If any markdown body fails parsing/sanitization.
- * @throws {DateError}      If any published date is unparseable.
+ * @returns Array of post frontmatter, sorted by published date descending.
  *
  * @remarks
- * Cached after first call — subsequent calls return the cached array.
- * A single bad .md file will throw and break the entire load.
+ * Cached after first call. Body is NOT parsed — use getWritingPost(slug) for that.
  * Sorting uses `new Date(published).getTime()` — invalid dates throw DateError.
  */
-export async function getWriting(): Promise<WritingPost[]> {
+export async function getWriting(): Promise<WritingMeta[]> {
   if (writingCache) return writingCache;
 
   const files = await readMarkdownFiles('writing');
-  const posts: WritingPost[] = [];
+  const posts: WritingMeta[] = [];
 
   for (const f of files) {
-    const post = await parseMarkdown(f, writingSchema);
-    posts.push(post);
+    const meta = await parseFrontmatter(f, writingSchema);
+    posts.push(meta);
   }
 
   writingCache = posts.sort((a, b) => {
@@ -162,8 +146,6 @@ export async function getWriting(): Promise<WritingPost[]> {
  * @returns Parsed Date object.
  *
  * @throws {DateError} If `new Date(value).getTime()` returns NaN.
- *
- * @remarks Detects invalid dates that Zod's `z.string()` doesn't catch.
  */
 function parseDate(value: string, source: string): Date {
   const timestamp = new Date(value).getTime();
@@ -174,24 +156,19 @@ function parseDate(value: string, source: string): Date {
 }
 
 /**
- * Read a markdown file, validate frontmatter, sanitize body.
+ * Read and validate frontmatter from a markdown file (no body parsing).
  *
  * @param filePath - Absolute path to the .md file.
  * @param schema   - Zod schema to validate frontmatter against.
- * @returns Parsed data with rendered HTML body.
+ * @returns Validated frontmatter data.
  *
  * @throws {IoError}       If fs.readFile fails.
  * @throws {ValidationError} If frontmatter fails schema validation.
- * @throws {ParseError}     If markdown parsing or sanitization fails.
- *
- * @remarks
- * Pipeline: read file → gray-matter parse → Zod validate frontmatter → marked + DOMPurify body.
- * Each step has explicit error handling — no raw throws leak out.
  */
-async function parseMarkdown<T extends z.ZodTypeAny>(
+async function parseFrontmatter<T extends z.ZodTypeAny>(
   filePath: string,
   schema: T,
-): Promise<z.infer<T> & { body: string }> {
+): Promise<z.infer<T>> {
   let raw: string;
   try {
     raw = await fs.readFile(filePath, 'utf-8');
@@ -199,7 +176,7 @@ async function parseMarkdown<T extends z.ZodTypeAny>(
     throw new IoError("read file", filePath, e instanceof Error ? e : undefined);
   }
 
-  const { data, content } = matter(raw);
+  const { data } = matter(raw);
 
   const parsed = schema.safeParse(data);
   if (!parsed.success) {
@@ -214,9 +191,30 @@ async function parseMarkdown<T extends z.ZodTypeAny>(
     );
   }
 
-  const body = sanitizeMarkdown(content, filePath);
+  return parsed.data as z.infer<T>;
+}
 
-  return { ...(parsed.data as Record<string, unknown>), body } as z.infer<T> & { body: string };
+/**
+ * Read a single markdown file's body, parse and sanitize it.
+ *
+ * @param subdir - Content subdirectory (e.g. "projects", "writing").
+ * @param slug   - URL-friendly slug to find the file.
+ * @returns Sanitized HTML body.
+ *
+ * @throws {IoError}       If file reading fails.
+ * @throws {ParseError}    If markdown parsing or sanitization fails.
+ */
+async function readBody(subdir: string, slug: string): Promise<string> {
+  const filePath = path.join(CONTENT_DIR, subdir, `${slug}.md`);
+  let raw: string;
+  try {
+    raw = await fs.readFile(filePath, 'utf-8');
+  } catch (e) {
+    throw new IoError("read file", filePath, e instanceof Error ? e : undefined);
+  }
+
+  const { content } = matter(raw);
+  return sanitizeMarkdown(content, filePath);
 }
 
 /**
@@ -227,10 +225,7 @@ async function parseMarkdown<T extends z.ZodTypeAny>(
  *
  * @throws {IoError} If readdir fails after the directory is confirmed to exist.
  *
- * @remarks
- * Returns empty array if the directory doesn't exist (no error).
- * Filters to .md files only.
- * TOCTOU race possible: directory could be deleted between access check and readdir.
+ * @remarks Returns empty array if the directory doesn't exist (no error).
  */
 async function readMarkdownFiles(subdir: string): Promise<string[]> {
   const dir = path.join(CONTENT_DIR, subdir);
@@ -258,11 +253,6 @@ async function readMarkdownFiles(subdir: string): Promise<string[]> {
  * @returns Sanitized HTML string.
  *
  * @throws {ParseError} If marked.parse() throws or DOMPurify returns empty output.
- *
- * @remarks
- * Pipeline: markdown → marked.parse() (GFM enabled, breaks disabled) → DOMPurify sanitize.
- * DOMPurify config: allows standard HTML tags, strips data attributes, restricts to safe attributes.
- * Empty sanitized output is treated as an error (defensive).
  */
 function sanitizeMarkdown(content: string, source: string): string {
   let html: string;

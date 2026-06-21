@@ -45,23 +45,23 @@ export async function getContact(): Promise<{ links: ContactLink[] }> {
 }
 
 /**
- * Find a project by slug.
+ * Find a project by slug, parsing body on demand.
  *
  * @param slug - URL-friendly project identifier.
- * @returns Promise resolving to the matching Project, or undefined.
+ * @returns Promise resolving to the matching Project with body, or undefined.
  *
  * @throws {IoError|ValidationError|ParseError} Propagated from content.ts.
  */
 export async function getProject(slug: string) { return _getProject(slug); }
 
 /**
- * Load all projects.
+ * Load all projects (frontmatter only, no body parsing).
  *
- * @returns Promise resolving to an array of Project objects sorted by year descending.
+ * @returns Promise resolving to an array of ProjectMeta sorted by year descending.
  *
- * @throws {IoError|ValidationError|ParseError} Propagated from content.ts.
+ * @throws {IoError|ValidationError} Propagated from content.ts.
  *
- * @remarks Thin wrapper — delegates to content.ts which handles file I/O and caching.
+ * @remarks Body is NOT parsed — use getProject(slug) for that.
  */
 export async function getProjects() { return _getProjects(); }
 
@@ -81,19 +81,21 @@ export async function getProfile(): Promise<Profile> {
 }
 
 /**
- * Load all writing posts.
+ * Load all writing posts (frontmatter only, no body parsing).
  *
- * @returns Promise resolving to an array of WritingPost objects sorted by date descending.
+ * @returns Promise resolving to an array of WritingMeta sorted by date descending.
  *
- * @throws {IoError|ValidationError|ParseError|DateError} Propagated from content.ts.
+ * @throws {IoError|ValidationError|DateError} Propagated from content.ts.
+ *
+ * @remarks Body is NOT parsed — use getWritingPost(slug) for that.
  */
 export async function getWriting() { return _getWriting(); }
 
 /**
- * Find a writing post by slug.
+ * Find a writing post by slug, parsing body on demand.
  *
  * @param slug - URL-friendly post identifier.
- * @returns Promise resolving to the matching WritingPost, or undefined.
+ * @returns Promise resolving to the matching WritingPost with body, or undefined.
  *
  * @throws {IoError|ValidationError|ParseError|DateError} Propagated from content.ts.
  */

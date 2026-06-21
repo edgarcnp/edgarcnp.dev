@@ -16,15 +16,6 @@ function getOrigin(): string {
   return window.location.origin;
 }
 
-function getSiteName(): string {
-  const origin = getOrigin();
-  try {
-    return new URL(origin).hostname;
-  } catch {
-    return "";
-  }
-}
-
 interface MetaOptions {
   title?: string;
   description?: string;
@@ -32,11 +23,15 @@ interface MetaOptions {
 }
 
 export function useMeta(options: () => MetaOptions) {
-  const url = () => {
-    const o = options();
-    return `${getOrigin()}${o.path ?? ""}`;
+  const origin = () => getOrigin();
+  const url = () => `${origin()}${options().path ?? ""}`;
+  const siteName = () => {
+    try {
+      return new URL(origin()).hostname;
+    } catch {
+      return "";
+    }
   };
-  const siteName = () => getSiteName();
   const title = () => {
     const o = options();
     const name = siteName();

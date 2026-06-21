@@ -1,4 +1,4 @@
-import type { MiddlewareHandler } from "hono";
+import type { Context, MiddlewareHandler } from "hono";
 
 /**
  * Extract the origin from the request, checking Origin header first, then Referer.
@@ -8,7 +8,7 @@ import type { MiddlewareHandler } from "hono";
  *
  * @remarks Parses the Referer URL if Origin is missing — handles partial referer strings.
  */
-function getOrigin(c: any): string | null {
+function getOrigin(c: Context): string | null {
   const origin = c.req.header("origin");
   if (origin) return origin;
 
