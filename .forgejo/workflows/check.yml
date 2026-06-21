@@ -9,7 +9,7 @@ on:
 
 jobs:
     check:
-        runs-on: ubuntu-latest
+        runs-on: codeberg-medium-lazy
         steps:
             - name: Checkout
               uses: actions/checkout@v4
