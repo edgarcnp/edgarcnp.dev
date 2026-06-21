@@ -1,24 +1,34 @@
 // @refresh reload
+import { getRequestURL } from "@solidjs/start/http";
 import { createHandler, StartServer } from "@solidjs/start/server";
 
 export default createHandler(
   () => (
     <StartServer
-      document={({ assets, children, scripts }) => (
-        <html lang="en">
-          <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <meta name="description" content="Software engineer building secure, pragmatic web systems." />
-            <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-            {assets}
-          </head>
-          <body class="blueprint-page">
-            <div id="app">{children}</div>
-            {scripts}
-          </body>
-        </html>
-      )}
+      document={({ assets, children, scripts }) => {
+        let origin = "";
+        try {
+          const url = getRequestURL();
+          if (url) origin = `${url.protocol}//${url.host}`;
+        } catch {}
+
+        return (
+          <html lang="en">
+            <head>
+              <meta charset="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <meta name="description" content="Software engineer building secure, pragmatic web systems." />
+              {origin && <meta name="site-origin" content={origin} />}
+              <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+              {assets}
+            </head>
+            <body class="blueprint-page">
+              <div id="app">{children}</div>
+              {scripts}
+            </body>
+          </html>
+        );
+      }}
     />
   ),
   (context) => ({

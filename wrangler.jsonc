@@ -22,5 +22,11 @@
                 "period": 60
             }
         }
+    ],
+    "routes": [
+        {
+            "pattern": "edgarcnp.dev",
+            "custom_domain": true
+        }
     ]
 }
