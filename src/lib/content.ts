@@ -21,8 +21,9 @@ const marked = new Marked({ gfm: true, breaks: false })
  * @throws {IoError} If the path escapes the content directory.
  */
 function assertWithinContentDir(resolvedPath: string): void {
-    if (!resolvedPath.startsWith(CONTENT_DIR + path.sep) && resolvedPath !== CONTENT_DIR) {
-        throw new IoError("path traversal blocked", resolvedPath)
+    const relative = path.relative(CONTENT_DIR, resolvedPath)
+    if (relative.startsWith("..") || path.isAbsolute(relative)) {
+        throw new IoError("resolve content path", resolvedPath)
     }
 }
 
