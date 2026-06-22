@@ -1,0 +1,41 @@
+{
+    "name": "edgarcnp-dev",
+    "license": "GPL-3.0-or-later",
+    "type": "module",
+    "scripts": {
+        "dev": "vite dev",
+        "build": "vite build",
+        "postbuild": "tsx scripts/generate-sitemap.ts",
+        "start": "vite start",
+        "preview": "pnpm run build && wrangler dev",
+        "deploy": "pnpm run build && wrangler deploy",
+        "cf-typegen": "wrangler types"
+    },
+    "dependencies": {
+        "@solidjs/meta": "^0.29.4",
+        "@solidjs/router": "^0.16.1",
+        "@solidjs/start": "2.0.0-alpha.3",
+        "@solidjs/vite-plugin-nitro-2": "^0.1.0",
+        "dompurify": "^3.4.11",
+        "gray-matter": "^4.0.3",
+        "hono": "^4.12.26",
+        "linkedom": "^0.18.12",
+        "marked": "^18.0.5",
+        "solid-js": "^1.9.13",
+        "vite": "^8.0.16",
+        "zod": "^4.4.3"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.3.1",
+        "@types/node": "^25.9.3",
+        "h3": "2.0.1-rc.22",
+        "nitropack": "^2.13.4",
+        "tailwindcss": "^4.3.1",
+        "tsx": "^4.22.4",
+        "typescript": "^6.0.3",
+        "wrangler": "^4.103.0"
+    },
+    "engines": {
+        "node": ">=24"
+    }
+}

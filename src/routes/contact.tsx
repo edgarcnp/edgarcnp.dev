@@ -1,0 +1,51 @@
+import { createAsync } from "@solidjs/router";
+import { For, Suspense } from "solid-js";
+
+import { SectionHeading } from "~/components/shared/SectionHeading";
+import { getContact } from "~/lib/server-content";
+import { useMeta } from "~/lib/meta";
+
+/**
+ * Contact page — displays static contact links from contact.json.
+ *
+ * @remarks
+ * - Fetches validated contact links via `"use server"` RPC.
+ * - Each link rendered as a card with kind label, name, and detail.
+ * - External links open in a new tab with `rel="noopener noreferrer"`.
+ * - Grid layout: 1 column on mobile, 2 columns on `sm` breakpoint.
+ * - No message collection form — static links only.
+ */
+export default function Contact() {
+  const meta = useMeta(() => ({ title: "Contact", description: "Static links, no message collection. Email or verified profile links.", path: "/contact" }));
+  const contact = createAsync(() => getContact());
+
+  return (
+    <section class="max-w-3xl space-y-8">
+      <meta.Title />
+      <meta.Meta />
+      <SectionHeading
+        label="Contact Endpoint"
+        title="Static links, no message collection."
+        description="Use email or a verified profile link. This portfolio does not collect, store, or relay visitor messages."
+      />
+      <Suspense fallback={<div class="blueprint-label">Loading contacts...</div>}>
+        <div class="section-motion motion-delay-1 grid gap-4 sm:grid-cols-2">
+          <For each={contact()?.links ?? []}>
+            {(link) => (
+              <a
+                href={link.href}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noopener noreferrer" : undefined}
+                class="blueprint-module blueprint-module-link group p-5 outline-none focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
+              >
+                <span class="blueprint-label block">{link.kind}</span>
+                <span class="mt-4 block text-lg font-semibold text-(--blueprint-text) group-hover:text-(--blueprint-accent)">{link.label}</span>
+                <span class="mt-2 block text-sm leading-6 text-(--blueprint-muted)">{link.detail}</span>
+              </a>
+            )}
+          </For>
+        </div>
+      </Suspense>
+    </section>
+  );
+}
