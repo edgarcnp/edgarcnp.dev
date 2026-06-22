@@ -1,6 +1,6 @@
 import type { Stripe, IntroAnimation } from "~/lib/types"
 import { INTRO, IDLE_WAVE } from "./config"
-import { clamp, easeOutCubic } from "./easing"
+import { clamp, easeOutCubic } from "~/lib/math"
 
 const FULL_CIRCLE = Math.PI * 2
 

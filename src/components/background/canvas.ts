@@ -1,20 +1,5 @@
 import type { Size } from "~/lib/types"
-import { assertFiniteNumber, assertNonEmpty } from "~/lib/errors"
-
-/**
- * Round a value to the nearest device pixel boundary.
- *
- * @param value - The value to round (in CSS pixels).
- * @param dpr   - Device pixel ratio (1, 2, 3, etc.).
- * @returns The rounded value.
- *
- * @remarks
- * On non-Retina (dpr=1): standard `Math.round()`.
- * On Retina (dpr>1): round to physical pixel, convert back to CSS pixels.
- * Prevents sub-pixel rendering artifacts that cause blurry lines.
- */
-export const snapToDevicePixel = (value: number, dpr: number): number =>
-    dpr === 1 ? Math.round(value) : Math.round(value * dpr) / dpr
+import { assertFiniteNumber, assertNonEmpty } from "~/lib/guards"
 
 /**
  * Resize the canvas buffer to match its display size × DPR.
