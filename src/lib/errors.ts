@@ -212,5 +212,3 @@ export class DateError extends AppError {
         return "Invalid date value"
     }
 }
-
-export { assertDefined, assertFiniteNumber, assertNonEmpty, assertElement } from "./guards"
