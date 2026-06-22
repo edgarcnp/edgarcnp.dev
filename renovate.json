@@ -20,7 +20,7 @@
         "branchTopic": "lock-file-maintenance",
         "commitMessageAction": "Lock file maintenance",
         "schedule": [
-            "0 0 * * 5"
+            "* 0 * * 5"
         ],
         "prBodyDefinitions": {
             "Change": "All locks refreshed"
