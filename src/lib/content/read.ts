@@ -22,6 +22,10 @@ function resolveContentPath(subdir: string, slug: string): string {
     return assertWithinContentDir(path.join(CONTENT_DIR, subdir, `${slug}.md`))
 }
 
+function relativeSource(filePath: string): string {
+    return path.relative(CONTENT_DIR, filePath).split(path.sep).join("/")
+}
+
 /**
  * Read and validate frontmatter from a markdown file (no body parsing).
  *
@@ -53,7 +57,7 @@ export async function parseFrontmatter<T extends z.ZodType>(
             message: i.message,
         }))
         throw new ValidationError(
-            filePath,
+            relativeSource(safePath),
             issues.map((i) => `${i.path}: ${i.message}`).join("; "),
             issues,
         )
@@ -82,7 +86,7 @@ export async function readBody(subdir: string, slug: string): Promise<string> {
     }
 
     const { content } = matter(raw)
-    return sanitizeMarkdown(content, filePath)
+    return sanitizeMarkdown(content, relativeSource(filePath))
 }
 
 /**

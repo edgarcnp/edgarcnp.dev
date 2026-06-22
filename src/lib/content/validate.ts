@@ -8,15 +8,17 @@ export const CONTENT_DIR = path.join(process.cwd(), "src", "content")
 /**
  * Validate that a path stays within the content directory.
  *
- * Normalizes via `path.resolve` then checks the result starts with CONTENT_DIR.
+ * Normalizes via `path.resolve` and verifies containment using `path.relative`.
  *
  * @param filePath - Absolute or relative path to validate.
  * @returns The normalized absolute path.
  * @throws {IoError} If the path escapes the content directory.
  */
 export function assertWithinContentDir(filePath: string): string {
-    const normalized = path.resolve(CONTENT_DIR, filePath)
-    if (!normalized.startsWith(CONTENT_DIR + path.sep) && normalized !== CONTENT_DIR) {
+    const root = path.resolve(CONTENT_DIR)
+    const normalized = path.resolve(root, filePath)
+    const relative = path.relative(root, normalized)
+    if (relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
         throw new IoError("resolve content path", filePath)
     }
     return normalized

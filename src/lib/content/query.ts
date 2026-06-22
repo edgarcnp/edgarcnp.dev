@@ -6,7 +6,7 @@ import { readBody, readMarkdownFiles, parseFrontmatter } from "./read"
 
 const projectSchema = z.object({
     title: z.string(),
-    slug: z.string(),
+    slug: z.string().regex(/^[a-zA-Z0-9_-]+$/),
     summary: z.string(),
     year: z.number(),
     published: z.string(),
@@ -25,7 +25,7 @@ let projectsCache: ProjectMeta[] | null = null
 
 const writingSchema = z.object({
     title: z.string(),
-    slug: z.string(),
+    slug: z.string().regex(/^[a-zA-Z0-9_-]+$/),
     summary: z.string(),
     published: z.string(),
     updated: z.string(),
@@ -72,7 +72,7 @@ export async function getProject(slug: string): Promise<Project | undefined> {
     const projects = await getProjects()
     const meta = projects.find((p) => p.slug === slug)
     if (!meta) return undefined
-    const body = await readBody("projects", slug)
+    const body = await readBody("projects", meta.slug)
     return { ...meta, body }
 }
 
@@ -108,7 +108,7 @@ export async function getWritingPost(slug: string): Promise<WritingPost | undefi
     const posts = await getWriting()
     const meta = posts.find((p) => p.slug === slug)
     if (!meta) return undefined
-    const body = await readBody("writing", slug)
+    const body = await readBody("writing", meta.slug)
     return { ...meta, body }
 }
 
