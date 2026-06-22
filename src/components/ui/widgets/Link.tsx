@@ -1,29 +1,29 @@
-import { createMemo, type JSX } from "solid-js";
+import { createMemo, type JSX } from "solid-js"
 
 interface LinkProps {
-    href: string;
-    class?: string;
-    target?: string;
-    rel?: string;
-    children?: JSX.Element;
+    href: string
+    class?: string
+    target?: string
+    rel?: string
+    children?: JSX.Element
 }
 
 export function Link(props: LinkProps) {
     const isExternal = createMemo(() => {
         try {
-            return new URL(props.href, location.href).origin !== location.origin;
+            return new URL(props.href, location.href).origin !== location.origin
         } catch {
-            return true;
+            return true
         }
-    });
+    })
 
     const target = createMemo(() =>
-        isExternal() ? (props.target ?? "_blank") : props.target
-    );
+        isExternal() ? (props.target ?? "_blank") : props.target,
+    )
 
     const rel = createMemo(() =>
-        isExternal() ? (props.rel ?? "noopener noreferrer") : props.rel
-    );
+        isExternal() ? (props.rel ?? "noopener noreferrer") : props.rel,
+    )
 
     return (
         <a
@@ -34,5 +34,5 @@ export function Link(props: LinkProps) {
         >
             {props.children}
         </a>
-    );
+    )
 }

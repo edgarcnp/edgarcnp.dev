@@ -1,23 +1,23 @@
-import { type JSX } from "solid-js";
+import { type JSX } from "solid-js"
 
 interface ToggleProps {
-    class?: string;
-    checked?: boolean;
-    disabled?: boolean;
-    type?: "button" | "submit" | "reset";
-    name?: string;
-    desc?: string;
-    children?: JSX.Element;
-    onchange?: (checked: boolean) => void;
+    class?: string
+    checked?: boolean
+    disabled?: boolean
+    type?: "button" | "submit" | "reset"
+    name?: string
+    desc?: string
+    children?: JSX.Element
+    onchange?: (checked: boolean) => void
 }
 
 export function Toggle(props: ToggleProps) {
-    const checked = () => props.checked ?? false;
+    const checked = () => props.checked ?? false
 
     const toggle = () => {
-        if (props.disabled) return;
-        props.onchange?.(!checked());
-    };
+        if (props.disabled) return
+        props.onchange?.(!checked())
+    }
 
     return (
         <button
@@ -40,5 +40,5 @@ export function Toggle(props: ToggleProps) {
                 <div class="runner" />
             </div>
         </button>
-    );
+    )
 }

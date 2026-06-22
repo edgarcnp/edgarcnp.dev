@@ -2,8 +2,8 @@
  * Props for the TechTag component.
  */
 interface Props {
-  /** Technology name to display (e.g. "TypeScript", "Cloudflare Workers"). */
-  label: string;
+    /** Technology name to display (e.g. "TypeScript", "Cloudflare Workers"). */
+    label: string
 }
 
 /**
@@ -14,7 +14,7 @@ interface Props {
  * - Used inside ProjectCard and project detail pages for technology lists.
  */
 export function TechTag(props: Props) {
-  return (
-    <span class="blueprint-chip">{props.label}</span>
-  );
+    return (
+        <span class="blueprint-chip">{props.label}</span>
+    )
 }

@@ -1,5 +1,5 @@
-import type { Size } from '~/lib/types';
-import { assertFiniteNumber, assertNonEmpty } from '~/lib/errors';
+import type { Size } from "~/lib/types"
+import { assertFiniteNumber, assertNonEmpty } from "~/lib/errors"
 
 /**
  * Round a value to the nearest device pixel boundary.
@@ -14,7 +14,7 @@ import { assertFiniteNumber, assertNonEmpty } from '~/lib/errors';
  * Prevents sub-pixel rendering artifacts that cause blurry lines.
  */
 export const snapToDevicePixel = (value: number, dpr: number): number =>
-    dpr === 1 ? Math.round(value) : Math.round(value * dpr) / dpr;
+    dpr === 1 ? Math.round(value) : Math.round(value * dpr) / dpr
 
 /**
  * Resize the canvas buffer to match its display size × DPR.
@@ -32,18 +32,18 @@ export const resizeCanvas = (
     visibleCanvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D,
 ): Size => {
-    const { width, height } = visibleCanvas.getBoundingClientRect();
-    const dpr = globalThis.devicePixelRatio || 1;
-    const cssWidth = Math.max(1, width);
-    const cssHeight = Math.max(1, height);
+    const { width, height } = visibleCanvas.getBoundingClientRect()
+    const dpr = globalThis.devicePixelRatio || 1
+    const cssWidth = Math.max(1, width)
+    const cssHeight = Math.max(1, height)
 
-    visibleCanvas.width = Math.ceil(cssWidth * dpr);
-    visibleCanvas.height = Math.ceil(cssHeight * dpr);
+    visibleCanvas.width = Math.ceil(cssWidth * dpr)
+    visibleCanvas.height = Math.ceil(cssHeight * dpr)
 
-    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    context.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-    return { width: cssWidth, height: cssHeight, dpr };
-};
+    return { width: cssWidth, height: cssHeight, dpr }
+}
 
 /**
  * Read a CSS custom property as a finite number.
@@ -60,8 +60,8 @@ export const readCssNumber = (
     styles: CSSStyleDeclaration,
     name: string,
 ): number => {
-    return assertFiniteNumber(styles.getPropertyValue(name).trim(), name);
-};
+    return assertFiniteNumber(styles.getPropertyValue(name).trim(), name)
+}
 
 /**
  * Read a CSS custom property as a non-empty string.
@@ -78,5 +78,5 @@ export const readCssString = (
     styles: CSSStyleDeclaration,
     name: string,
 ): string => {
-    return assertNonEmpty(styles.getPropertyValue(name).trim(), name);
-};
+    return assertNonEmpty(styles.getPropertyValue(name).trim(), name)
+}

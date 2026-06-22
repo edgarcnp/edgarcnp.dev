@@ -1,30 +1,30 @@
-import type { JSX } from "solid-js";
+import type { JSX } from "solid-js"
 
 /**
  * Props for the Button component.
  */
-type ButtonProps = {
+interface ButtonProps {
     /** Additional CSS classes to merge with variant classes. */
-    class?: string;
+    class?: string
     /** HTML button type attribute (default: "button"). */
-    type?: "button" | "submit" | "reset";
+    type?: "button" | "submit" | "reset"
     /** Apply primary styling (blue accent). */
-    primary?: boolean;
+    primary?: boolean
     /** Apply card styling (bordered container). */
-    card?: boolean;
+    card?: boolean
     /** Apply selected styling (active state). */
-    selected?: boolean;
+    selected?: boolean
     /** Apply circle styling (square → rounded). */
-    circle?: boolean;
+    circle?: boolean
     /** Apply transparent styling (no background/border). */
-    transparent?: boolean;
+    transparent?: boolean
     /** Disable the button and prevent interaction. */
-    disabled?: boolean;
+    disabled?: boolean
     /** Button content. */
-    children?: JSX.Element;
+    children?: JSX.Element
     /** Click event handler. */
-    onClick?: (e: MouseEvent) => void;
-};
+    onClick?: (e: MouseEvent) => void
+}
 
 /**
  * Versatile button with multiple style variants.
@@ -43,16 +43,16 @@ export function Button(props: ButtonProps) {
         props.circle && "circle",
         props.transparent && "transparent",
         props.class,
-    ].filter(Boolean).join(" ");
+    ].filter(Boolean).join(" ")
 
     return (
         <button
             class={classes()}
             type={props.type ?? "button"}
             disabled={props.disabled}
-            onClick={props.onClick}
+            onClick={() => props.onClick?.()}
         >
             {props.children}
         </button>
-    );
+    )
 }

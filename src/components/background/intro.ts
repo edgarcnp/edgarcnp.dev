@@ -1,8 +1,8 @@
-import type { Stripe, IntroAnimation } from '~/lib/types';
-import { INTRO, IDLE_WAVE } from './config';
-import { clamp, easeOutCubic } from './easing';
+import type { Stripe, IntroAnimation } from "~/lib/types"
+import { INTRO, IDLE_WAVE } from "./config"
+import { clamp, easeOutCubic } from "./easing"
 
-const FULL_CIRCLE = Math.PI * 2;
+const FULL_CIRCLE = Math.PI * 2
 
 /**
  * Generate a random starting phase for idle wave motion.
@@ -11,7 +11,7 @@ const FULL_CIRCLE = Math.PI * 2;
  *
  * @remarks Called once per GradientShimmer mount to randomize the initial wave pattern.
  */
-export const getRandomWavePhase = (): number => Math.random() * FULL_CIRCLE;
+export const getRandomWavePhase = (): number => Math.random() * FULL_CIRCLE
 
 /**
  * Calculate the stagger delay for a specific stripe during intro animation.
@@ -28,12 +28,12 @@ const getRevealDelay = (
     stripeCount: number,
     stagger: number = INTRO.stagger,
 ): number => {
-    const centerIndex = (stripeCount - 1) / 2;
-    const centerDistance = stripeCount % 2 === 0 ? 0.5 : 0;
-    const distanceFromCenter = Math.abs(index - centerIndex) - centerDistance;
+    const centerIndex = (stripeCount - 1) / 2
+    const centerDistance = stripeCount % 2 === 0 ? 0.5 : 0
+    const distanceFromCenter = Math.abs(index - centerIndex) - centerDistance
 
-    return Math.max(0, distanceFromCenter) * stagger;
-};
+    return Math.max(0, distanceFromCenter) * stagger
+}
 
 /**
  * Calculate the maximum reveal delay across all stripes.
@@ -46,14 +46,14 @@ const getRevealDelay = (
  */
 const getMaxRevealDelay = (stripeCount: number, stagger: number = INTRO.stagger): number => {
     if (stripeCount <= 0) {
-        return 0;
+        return 0
     }
 
     return Math.max(
         getRevealDelay(0, stripeCount, stagger),
         getRevealDelay(stripeCount - 1, stripeCount, stagger),
-    );
-};
+    )
+}
 
 /**
  * Compute staggered progress for a single stripe.
@@ -78,11 +78,10 @@ const getStaggeredProgress = (
     stagger: number,
     delay = 0,
 ): number => {
-    const elapsed = time - startedAt - delay
-        - getRevealDelay(index, stripeCount, stagger);
+    const elapsed = time - startedAt - delay - getRevealDelay(index, stripeCount, stagger)
 
-    return easeOutCubic(clamp(elapsed / duration));
-};
+    return easeOutCubic(clamp(elapsed / duration))
+}
 
 /**
  * Get the reveal progress (0→1) for a stripe during the intro animation.
@@ -102,7 +101,7 @@ export const getIntroRevealProgress = (
     stripeCount: number,
 ): number => {
     if (!introAnimation) {
-        return 1;
+        return 1
     }
 
     return getStaggeredProgress(
@@ -113,8 +112,8 @@ export const getIntroRevealProgress = (
         INTRO.revealDuration,
         INTRO.stagger,
         INTRO.delay,
-    );
-};
+    )
+}
 
 /**
  * Get the idle blend progress (0→1) — transition from intro to idle wave.
@@ -134,17 +133,13 @@ export const getIntroIdleProgress = (
     stripeCount: number,
 ): number => {
     if (!introAnimation) {
-        return 1;
+        return 1
     }
 
-    const elapsed = time
-        - introAnimation.startedAt
-        - INTRO.delay
-        - getRevealDelay(index, stripeCount)
-        - INTRO.revealDuration;
+    const elapsed = time - introAnimation.startedAt - INTRO.delay - getRevealDelay(index, stripeCount) - INTRO.revealDuration
 
-    return easeOutCubic(clamp(elapsed / INTRO.idleBlendDuration));
-};
+    return easeOutCubic(clamp(elapsed / INTRO.idleBlendDuration))
+}
 
 /**
  * Check if the full intro animation (all stripes) has finished.
@@ -162,17 +157,13 @@ export const isIntroComplete = (
     stripeCount: number,
 ): boolean => {
     if (!introAnimation) {
-        return true;
+        return true
     }
 
-    const completeAt = introAnimation.startedAt
-        + INTRO.delay
-        + getMaxRevealDelay(stripeCount)
-        + INTRO.revealDuration
-        + INTRO.idleBlendDuration;
+    const completeAt = introAnimation.startedAt + INTRO.delay + getMaxRevealDelay(stripeCount) + INTRO.revealDuration + INTRO.idleBlendDuration
 
-    return time >= completeAt;
-};
+    return time >= completeAt
+}
 
 /**
  * Compute the vertical center (0→1) of a stripe from dual sine waves.
@@ -193,10 +184,8 @@ export const getIdleCenter = (
     wavePhase: number,
     secondaryWavePhase: number,
 ): number => {
-    const primaryWave = Math.sin(wavePhase - stripe.phase);
-    const secondaryWave = Math.sin(secondaryWavePhase + stripe.secondaryPhase);
+    const primaryWave = Math.sin(wavePhase - stripe.phase)
+    const secondaryWave = Math.sin(secondaryWavePhase + stripe.secondaryPhase)
 
-    return 0.5
-        + primaryWave * IDLE_WAVE.primaryAmplitude
-        + secondaryWave * IDLE_WAVE.secondaryAmplitude;
-};
+    return 0.5 + (primaryWave * IDLE_WAVE.primaryAmplitude) + (secondaryWave * IDLE_WAVE.secondaryAmplitude)
+}

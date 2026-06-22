@@ -4,7 +4,7 @@
  * @remarks Stripe count = `Math.floor(canvasWidth / STRIPE_WIDTH)`.
  *          Wider canvases get more stripes; narrower canvases get fewer.
  */
-export const STRIPE_WIDTH = 110;
+export const STRIPE_WIDTH = 110
 
 /**
  * Gradient band positioning constants for each stripe.
@@ -18,7 +18,7 @@ export const GRADIENT = {
     bandWidth: 0.48,
     minStop: 0.14,
     maxStop: 0.96,
-} as const;
+} as const
 
 /**
  * Intro animation timing constants.
@@ -38,7 +38,7 @@ export const INTRO = {
     stagger: 45,
     startCenter: 0.96,
     idleCenter: 0.5,
-} as const;
+} as const
 
 /**
  * Click-triggered speed-up animation constants.
@@ -54,7 +54,7 @@ export const WAVE_SPEED_UP = {
     rampUpDuration: 140,
     waveDuration: 320,
     rampDownDuration: 480,
-} as const;
+} as const
 
 /**
  * Idle wave motion constants — continuous subtle oscillation.
@@ -74,4 +74,4 @@ export const IDLE_WAVE = {
     secondaryStripePhase: 1.28,
     primaryAmplitude: 0.19,
     secondaryAmplitude: 0.055,
-} as const;
+} as const

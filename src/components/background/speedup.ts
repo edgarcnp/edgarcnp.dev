@@ -2,19 +2,19 @@ import type {
     WaveSpeedUpAnimation,
     WaveSpeedUpAnimationState,
     WaveSpeedUpValues,
-} from '~/lib/types';
-import { WAVE_SPEED_UP } from './config';
-import { clamp, lerp, easeOutCubic, easeInOutCubic } from './easing';
+} from "~/lib/types"
+import { WAVE_SPEED_UP } from "./config"
+import { clamp, lerp, easeOutCubic, easeInOutCubic } from "./easing"
 
 const IDLE_SPEED_UP: WaveSpeedUpValues = {
     multiplier: 1,
     shineProgress: 0,
-};
+}
 
 const PEAK_SPEED_UP: WaveSpeedUpValues = {
     multiplier: WAVE_SPEED_UP.multiplier,
     shineProgress: 1,
-};
+}
 
 /**
  * Interpolate between two speed-up value states.
@@ -31,7 +31,7 @@ const lerpSpeedUpValues = (
 ): WaveSpeedUpValues => ({
     multiplier: lerp(from.multiplier, to.multiplier, progress),
     shineProgress: lerp(from.shineProgress, to.shineProgress, progress),
-});
+})
 
 /**
  * Calculate normalized progress through an animation phase.
@@ -42,7 +42,7 @@ const lerpSpeedUpValues = (
  * @returns Progress from 0 to 1, clamped.
  */
 const getProgress = (time: number, startedAt: number, duration: number): number =>
-    clamp((time - startedAt) / duration);
+    clamp((time - startedAt) / duration)
 
 /**
  * Calculate the ramp-up duration based on how far the current state is from peak.
@@ -57,15 +57,15 @@ const getSpeedUpRampUpDuration = (from: WaveSpeedUpValues): number => {
     const multiplierRemaining = clamp(
         (WAVE_SPEED_UP.multiplier - from.multiplier)
             / (WAVE_SPEED_UP.multiplier - 1),
-    );
-    const shineRemaining = 1 - from.shineProgress;
+    )
+    const shineRemaining = 1 - from.shineProgress
 
     return Math.max(
         1,
         WAVE_SPEED_UP.rampUpDuration
             * Math.max(multiplierRemaining, shineRemaining),
-    );
-};
+    )
+}
 
 /**
  * Check if the current values are at or beyond peak speed-up.
@@ -74,7 +74,7 @@ const getSpeedUpRampUpDuration = (from: WaveSpeedUpValues): number => {
  * @returns True if multiplier and shineProgress are both at maximum.
  */
 const isSpeedUpAtPeak = ({ multiplier, shineProgress }: WaveSpeedUpValues): boolean =>
-    multiplier >= WAVE_SPEED_UP.multiplier && shineProgress >= 1;
+    multiplier >= WAVE_SPEED_UP.multiplier && shineProgress >= 1
 
 /**
  * Start a new speed-up animation from the current state.
@@ -95,14 +95,14 @@ export const triggerSpeedUpAnimation = (
     const { multiplier, shineProgress } = updateSpeedUpAnimation(
         time,
         speedUpAnimation,
-    );
-    const from = { multiplier, shineProgress };
+    )
+    const from = { multiplier, shineProgress }
 
     if (isSpeedUpAtPeak(from)) {
         return {
             phase: "hold",
             startedAt: time,
-        };
+        }
     }
 
     return {
@@ -110,8 +110,8 @@ export const triggerSpeedUpAnimation = (
         startedAt: time,
         duration: getSpeedUpRampUpDuration(from),
         from,
-    };
-};
+    }
+}
 
 /**
  * Advance the speed-up animation by one frame.
@@ -133,7 +133,7 @@ export const updateSpeedUpAnimation = (
         return {
             animation: null,
             ...IDLE_SPEED_UP,
-        };
+        }
     }
 
     if (speedUpAnimation.phase === "ramp-up") {
@@ -141,12 +141,12 @@ export const updateSpeedUpAnimation = (
             time,
             speedUpAnimation.startedAt,
             speedUpAnimation.duration,
-        );
+        )
         const values = lerpSpeedUpValues(
             speedUpAnimation.from,
             PEAK_SPEED_UP,
             easeOutCubic(progress),
-        );
+        )
 
         if (progress >= 1) {
             return {
@@ -155,13 +155,13 @@ export const updateSpeedUpAnimation = (
                     startedAt: time,
                 },
                 ...values,
-            };
+            }
         }
 
         return {
             animation: speedUpAnimation,
             ...values,
-        };
+        }
     }
 
     if (speedUpAnimation.phase === "hold") {
@@ -169,7 +169,7 @@ export const updateSpeedUpAnimation = (
             time,
             speedUpAnimation.startedAt,
             WAVE_SPEED_UP.waveDuration,
-        );
+        )
 
         if (progress >= 1) {
             return {
@@ -179,28 +179,28 @@ export const updateSpeedUpAnimation = (
                     from: PEAK_SPEED_UP,
                 },
                 ...PEAK_SPEED_UP,
-            };
+            }
         }
 
         return {
             animation: speedUpAnimation,
             ...PEAK_SPEED_UP,
-        };
+        }
     }
 
     const progress = getProgress(
         time,
         speedUpAnimation.startedAt,
         WAVE_SPEED_UP.rampDownDuration,
-    );
+    )
     const values = lerpSpeedUpValues(
         speedUpAnimation.from,
         IDLE_SPEED_UP,
         easeInOutCubic(progress),
-    );
+    )
 
     return {
         animation: progress >= 1 ? null : speedUpAnimation,
         ...values,
-    };
-};
+    }
+}

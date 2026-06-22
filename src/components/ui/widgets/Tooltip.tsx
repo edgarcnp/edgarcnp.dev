@@ -1,53 +1,57 @@
-import { createSignal, createEffect, type JSX } from "solid-js";
+import { createSignal, createEffect, type JSX } from "solid-js"
 
 interface TooltipProps {
-    id?: string;
-    anchor: JSX.Element;
-    content: JSX.Element;
+    id?: string
+    anchor: JSX.Element
+    content: JSX.Element
 }
 
 export function Tooltip(props: TooltipProps) {
-    let anchorElement!: HTMLDivElement;
-    let popover!: HTMLDivElement;
+    const [anchorElement, setAnchorElement] = createSignal<HTMLDivElement>()
+    const [popover, setPopover] = createSignal<HTMLDivElement>()
 
-    const [visible, setVisible] = createSignal(false);
+    const [visible, setVisible] = createSignal(false)
 
-    const offsetY = 12;
-    const offsetX = 16;
+    const offsetY = 12
+    const offsetX = 16
 
     const updatePosition = (e: PointerEvent) => {
-        if (!popover) return;
-        popover.style.setProperty("--tooltip-x", `${e.clientX - offsetX}px`);
-        popover.style.setProperty("--tooltip-y", `${e.clientY - offsetY}px`);
-    };
+        const el = popover()
+        if (!el) return
+        el.style.setProperty("--tooltip-x", `${e.clientX - offsetX}px`)
+        el.style.setProperty("--tooltip-y", `${e.clientY - offsetY}px`)
+    }
 
     const updatePositionFromAnchor = () => {
-        if (!popover || !anchorElement) return;
-        const rect = anchorElement.getBoundingClientRect();
-        popover.style.setProperty("--tooltip-x", `${rect.left}px`);
-        popover.style.setProperty("--tooltip-y", `${rect.top - offsetY}px`);
-    };
+        const el = popover()
+        const anchor = anchorElement()
+        if (!el || !anchor) return
+        const rect = anchor.getBoundingClientRect()
+        el.style.setProperty("--tooltip-x", `${rect.left}px`)
+        el.style.setProperty("--tooltip-y", `${rect.top - offsetY}px`)
+    }
 
     createEffect(() => {
-        if (!popover) return;
+        const el = popover()
+        if (!el) return
         if (visible()) {
-            popover.showPopover();
+            el.showPopover()
         } else {
-            popover.hidePopover();
+            el.hidePopover()
         }
-    });
+    })
 
     return (
         <>
             <div
-                ref={anchorElement}
+                ref={setAnchorElement}
                 class="tooltip-anchor"
                 onPointerMove={updatePosition}
                 onPointerEnter={() => setVisible(true)}
                 onPointerLeave={() => setVisible(false)}
                 onFocusIn={() => {
-                    updatePositionFromAnchor();
-                    setVisible(true);
+                    updatePositionFromAnchor()
+                    setVisible(true)
                 }}
                 onFocusOut={() => setVisible(false)}
                 role="group"
@@ -56,7 +60,7 @@ export function Tooltip(props: TooltipProps) {
                 {props.anchor}
             </div>
             <div
-                ref={popover}
+                ref={setPopover}
                 popover="manual"
                 class="tooltip-container"
                 role="tooltip"
@@ -65,5 +69,5 @@ export function Tooltip(props: TooltipProps) {
                 <div class="tooltip-content">{props.content}</div>
             </div>
         </>
-    );
+    )
 }

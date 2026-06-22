@@ -1,4 +1,4 @@
-"use server";
+"use server"
 
 /**
  * Server-side data access layer.
@@ -13,14 +13,14 @@
  * - Errors thrown here propagate to the client-side ErrorBoundary.
  */
 
-import capabilitiesRaw from "~/data/capabilities.json";
-import contactRaw from "~/data/contact.json";
-import profileRaw from "~/data/profile.json";
-import { validate, ProfileSchema, ContactSchema, CapabilitiesSchema } from "~/data/schemas";
+import capabilitiesRaw from "~/data/capabilities.json"
+import contactRaw from "~/data/contact.json"
+import profileRaw from "~/data/profile.json"
+import { validate, ProfileSchema, ContactSchema, CapabilitiesSchema } from "~/data/schemas"
 
-import { getProjects as _getProjects, getProject as _getProject, getWriting as _getWriting, getWritingPost as _getWritingPost } from "~/lib/content";
+import { getProjects as _getProjects, getProject as _getProject, getWriting as _getWriting, getWritingPost as _getWritingPost } from "~/lib/content"
 
-import type { Profile, ContactLink, Capability } from "~/data/schemas";
+import type { Profile, ContactLink, Capability } from "~/data/schemas"
 
 /**
  * Validate and return capability cards from src/data/capabilities.json.
@@ -29,8 +29,9 @@ import type { Profile, ContactLink, Capability } from "~/data/schemas";
  *
  * @throws {ValidationError} If capabilities.json fails CapabilitiesSchema validation.
  */
+// eslint-disable-next-line @typescript-eslint/require-await -- "use server" RPC contract requires async
 export async function getCapabilities(): Promise<{ capabilities: Capability[] }> {
-  return validate(CapabilitiesSchema, capabilitiesRaw, "capabilities.json");
+    return validate(CapabilitiesSchema, capabilitiesRaw, "capabilities.json")
 }
 
 /**
@@ -40,8 +41,9 @@ export async function getCapabilities(): Promise<{ capabilities: Capability[] }>
  *
  * @throws {ValidationError} If contact.json fails ContactSchema validation.
  */
+// eslint-disable-next-line @typescript-eslint/require-await -- "use server" RPC contract requires async
 export async function getContact(): Promise<{ links: ContactLink[] }> {
-  return validate(ContactSchema, contactRaw, "contact.json");
+    return validate(ContactSchema, contactRaw, "contact.json")
 }
 
 /**
@@ -52,7 +54,7 @@ export async function getContact(): Promise<{ links: ContactLink[] }> {
  *
  * @throws {IoError|ValidationError|ParseError} Propagated from content.ts.
  */
-export async function getProject(slug: string) { return _getProject(slug); }
+export async function getProject(slug: string) { return _getProject(slug) }
 
 /**
  * Load all projects (frontmatter only, no body parsing).
@@ -63,7 +65,7 @@ export async function getProject(slug: string) { return _getProject(slug); }
  *
  * @remarks Body is NOT parsed — use getProject(slug) for that.
  */
-export async function getProjects() { return _getProjects(); }
+export async function getProjects() { return _getProjects() }
 
 /**
  * Validate and return profile data from src/data/profile.json.
@@ -76,8 +78,9 @@ export async function getProjects() { return _getProjects(); }
  * Validates at request time — a malformed JSON file will throw on every request.
  * No caching — JSON is small and validation is fast.
  */
+// eslint-disable-next-line @typescript-eslint/require-await -- "use server" RPC contract requires async
 export async function getProfile(): Promise<Profile> {
-  return validate(ProfileSchema, profileRaw, "profile.json");
+    return validate(ProfileSchema, profileRaw, "profile.json")
 }
 
 /**
@@ -89,7 +92,7 @@ export async function getProfile(): Promise<Profile> {
  *
  * @remarks Body is NOT parsed — use getWritingPost(slug) for that.
  */
-export async function getWriting() { return _getWriting(); }
+export async function getWriting() { return _getWriting() }
 
 /**
  * Find a writing post by slug, parsing body on demand.
@@ -99,4 +102,4 @@ export async function getWriting() { return _getWriting(); }
  *
  * @throws {IoError|ValidationError|ParseError|DateError} Propagated from content.ts.
  */
-export async function getWritingPost(slug: string) { return _getWritingPost(slug); }
+export async function getWritingPost(slug: string) { return _getWritingPost(slug) }

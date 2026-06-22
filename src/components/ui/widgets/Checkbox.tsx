@@ -1,38 +1,38 @@
-import { createSignal, createEffect, type JSX } from "solid-js";
+import { createSignal, createEffect, type JSX } from "solid-js"
 
 interface CheckboxProps {
-    id: string;
-    class?: string;
-    checked?: boolean;
-    disabled?: boolean;
-    "aria-label"?: string;
-    "aria-labelledby"?: string;
-    children?: JSX.Element;
-    onChange?: (checked: boolean) => void;
+    id: string
+    class?: string
+    checked?: boolean
+    disabled?: boolean
+    "aria-label"?: string
+    "aria-labelledby"?: string
+    children?: JSX.Element
+    onChange?: (checked: boolean) => void
 }
 
 export function Checkbox(props: CheckboxProps) {
-    const [localChecked, setLocalChecked] = createSignal(props.checked ?? false);
-    const [previousChecked, setPreviousChecked] = createSignal(localChecked());
-    const [toggling, setToggling] = createSignal(false);
+    const [localChecked, setLocalChecked] = createSignal(props.checked ?? false) // eslint-disable-line solid/reactivity -- signal initializer, not reactive by design
+    const [previousChecked, setPreviousChecked] = createSignal(localChecked()) // eslint-disable-line solid/reactivity -- signal initializer, not reactive by design
+    const [toggling, setToggling] = createSignal(false)
 
-    createEffect(() => setLocalChecked(props.checked ?? false));
+    createEffect(() => setLocalChecked(props.checked ?? false))
 
     createEffect(() => {
-        const current = localChecked();
-        const prev = previousChecked();
-        if (current === prev) return;
+        const current = localChecked()
+        const prev = previousChecked()
+        if (current === prev) return
 
-        setPreviousChecked(current);
-        setToggling(true);
-        requestAnimationFrame(() => setToggling(false));
-    });
+        setPreviousChecked(current)
+        setToggling(true)
+        requestAnimationFrame(() => setToggling(false))
+    })
 
     const handleChange = (e: Event) => {
-        const input = e.target as HTMLInputElement;
-        setLocalChecked(input.checked);
-        props.onChange?.(input.checked);
-    };
+        const input = e.target as HTMLInputElement
+        setLocalChecked(input.checked)
+        props.onChange?.(input.checked)
+    }
 
     return (
         <label
@@ -71,5 +71,5 @@ export function Checkbox(props: CheckboxProps) {
                 <span class="checkbox-content">{props.children}</span>
             )}
         </label>
-    );
+    )
 }

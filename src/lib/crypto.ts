@@ -26,21 +26,21 @@
  */
 
 /** Supported post-quantum signature algorithms. */
-export type PqAlgorithm = "ml-dsa-87";
+export type PqAlgorithm = "ml-dsa-87"
 
 /** A raw public key for a post-quantum signature scheme. */
-export type PublicKey = Uint8Array;
+export type PublicKey = Uint8Array
 
 /** A raw private (secret) key for a post-quantum signature scheme. */
-export type PrivateKey = Uint8Array;
+export type PrivateKey = Uint8Array
 
 /** A digital signature produced by a post-quantum scheme. */
-export type Signature = Uint8Array;
+export type Signature = Uint8Array
 
 /** A generated key pair for signing and verification. */
 export interface KeyPair {
-    publicKey: PublicKey;
-    privateKey: PrivateKey;
+    publicKey: PublicKey
+    privateKey: PrivateKey
 }
 
 /**
@@ -55,14 +55,14 @@ export interface KeyPair {
  * Narrower side-channel surface than hash-based schemes — polynomial
  * arithmetic is easier to make constant-time than repeated hash invocations.
  */
-export async function generateKeyPair(
+export function generateKeyPair(
     algorithm: PqAlgorithm = "ml-dsa-87",
-): Promise<KeyPair> {
-    void algorithm;
+): KeyPair {
+    void algorithm
     throw new Error(
-        "Post-quantum signing not yet implemented. " +
-        "Install a PQ crypto library (e.g. @noble/post-quantum) and replace this stub.",
-    );
+        "Post-quantum signing not yet implemented. "
+        + "Install a PQ crypto library (e.g. @noble/post-quantum) and replace this stub.",
+    )
 }
 
 /**
@@ -73,18 +73,18 @@ export async function generateKeyPair(
  * @param algorithm - Signature scheme (default: `"ml-dsa-87"`).
  * @returns The signature as raw bytes.
  */
-export async function sign(
+export function sign(
     message: Uint8Array,
     privateKey: PrivateKey,
     algorithm: PqAlgorithm = "ml-dsa-87",
-): Promise<Signature> {
-    void message;
-    void privateKey;
-    void algorithm;
+): Signature {
+    void message
+    void privateKey
+    void algorithm
     throw new Error(
-        "Post-quantum signing not yet implemented. " +
-        "Install a PQ crypto library (e.g. @noble/post-quantum) and replace this stub.",
-    );
+        "Post-quantum signing not yet implemented. "
+        + "Install a PQ crypto library (e.g. @noble/post-quantum) and replace this stub.",
+    )
 }
 
 /**
@@ -96,18 +96,18 @@ export async function sign(
  * @param algorithm - Signature scheme (default: `"ml-dsa-87"`).
  * @returns `true` if the signature is valid, `false` otherwise.
  */
-export async function verify(
+export function verify(
     message: Uint8Array,
     signature: Signature,
     publicKey: PublicKey,
     algorithm: PqAlgorithm = "ml-dsa-87",
-): Promise<boolean> {
-    void message;
-    void signature;
-    void publicKey;
-    void algorithm;
+): boolean {
+    void message
+    void signature
+    void publicKey
+    void algorithm
     throw new Error(
-        "Post-quantum signing not yet implemented. " +
-        "Install a PQ crypto library (e.g. @noble/post-quantum) and replace this stub.",
-    );
+        "Post-quantum signing not yet implemented. "
+        + "Install a PQ crypto library (e.g. @noble/post-quantum) and replace this stub.",
+    )
 }

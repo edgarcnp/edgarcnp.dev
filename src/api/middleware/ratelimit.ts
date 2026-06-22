@@ -1,4 +1,12 @@
-import type { MiddlewareHandler } from "hono";
+import type { MiddlewareHandler } from "hono"
+
+interface RatelimitBinding {
+    limit(opts: { key: string }): Promise<{ success: boolean }>
+}
+
+interface CloudflareEnv {
+    RATE_LIMITER?: RatelimitBinding
+}
 
 /**
  * Rate limiting middleware using Cloudflare's native Rate Limiting binding.
@@ -14,19 +22,20 @@ import type { MiddlewareHandler } from "hono";
  * @throws Will return 429 response if rate limit is exceeded.
  */
 export const rateLimit: MiddlewareHandler = async (c, next) => {
-  const ip = c.req.header("cf-connecting-ip") ?? c.req.header("x-forwarded-for") ?? "unknown";
+    const ip = c.req.header("cf-connecting-ip") ?? c.req.header("x-forwarded-for") ?? "unknown"
 
-  const rateLimiter = (c.env as any)?.RATE_LIMITER;
-  if (!rateLimiter) {
-    await next();
-    return;
-  }
+    const env = c.env as CloudflareEnv
+    const rateLimiter = env.RATE_LIMITER
+    if (!rateLimiter) {
+        await next()
+        return
+    }
 
-  const { success } = await rateLimiter.limit({ key: ip });
+    const { success } = await rateLimiter.limit({ key: ip })
 
-  if (!success) {
-    return c.json({ error: "Too many requests" }, 429);
-  }
+    if (!success) {
+        return c.json({ error: "Too many requests" }, 429)
+    }
 
-  await next();
-};
+    await next()
+}

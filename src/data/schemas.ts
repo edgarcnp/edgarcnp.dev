@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { z } from "zod"
 
-import { ValidationError } from '~/lib/errors';
-import { safeHref } from '~/lib/schemas';
+import { ValidationError } from "~/lib/errors"
+import { safeHref } from "~/lib/schemas"
 
 /**
  * Schema for profile.json — personal info displayed on the home page.
@@ -20,7 +20,7 @@ export const ProfileSchema = z.object({
     summary: z.string(),
     email: z.email(),
     availability: z.string(),
-});
+})
 
 /**
  * Schema for a single contact link entry in contact.json.
@@ -35,11 +35,11 @@ export const ProfileSchema = z.object({
  */
 export const ContactLinkSchema = z.object({
     label: z.string(),
-    kind: z.enum(['email', 'code', 'profile']),
+    kind: z.enum(["email", "code", "profile"]),
     href: safeHref,
     detail: z.string(),
     external: z.boolean(),
-});
+})
 
 /**
  * Schema for a capability card in capabilities.json.
@@ -54,25 +54,25 @@ export const CapabilitySchema = z.object({
     label: z.string(),
     title: z.string(),
     description: z.string(),
-});
+})
 
 /**
  * Schema for contact.json — wraps an array of ContactLinkSchema.
  */
 export const ContactSchema = z.object({
     links: z.array(ContactLinkSchema),
-});
+})
 
 /**
  * Schema for capabilities.json — wraps an array of CapabilitySchema.
  */
 export const CapabilitiesSchema = z.object({
     capabilities: z.array(CapabilitySchema),
-});
+})
 
-export type Profile = z.infer<typeof ProfileSchema>;
-export type ContactLink = z.infer<typeof ContactLinkSchema>;
-export type Capability = z.infer<typeof CapabilitySchema>;
+export type Profile = z.infer<typeof ProfileSchema>
+export type ContactLink = z.infer<typeof ContactLinkSchema>
+export type Capability = z.infer<typeof CapabilitySchema>
 
 /**
  * Validate unknown data against a Zod schema, throwing ValidationError on failure.
@@ -89,18 +89,18 @@ export type Capability = z.infer<typeof CapabilitySchema>;
  * Converts Zod issues into our typed `ValidationError` with path + message pairs.
  * Used by `server-content.ts` to validate JSON data files at request time.
  */
-export function validate<T>(schema: z.ZodSchema<T>, data: unknown, source: string): T {
-    const result = schema.safeParse(data);
+export function validate<T>(schema: z.ZodType<T>, data: unknown, source: string): T {
+    const result = schema.safeParse(data)
     if (!result.success) {
         const issues = result.error.issues.map((i) => ({
-            path: i.path.join('.'),
+            path: i.path.join("."),
             message: i.message,
-        }));
+        }))
         throw new ValidationError(
             source,
             issues.map((i) => `${i.path}: ${i.message}`).join("; "),
             issues,
-        );
+        )
     }
-    return result.data;
+    return result.data
 }

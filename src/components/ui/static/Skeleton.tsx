@@ -1,14 +1,14 @@
 /**
  * Props for the Skeleton component.
  */
-type SkeletonProps = {
+interface SkeletonProps {
     /** Additional CSS classes. */
-    class?: string;
+    class?: string
     /** Width variant: "full" (100%) or "half" (50%). Default: "full". */
-    width?: "full" | "half";
+    width?: "full" | "half"
     /** Height variant: "sm" (8px), "md" (16px), "lg" (32px). Default: "md". */
-    height?: "sm" | "md" | "lg";
-};
+    height?: "sm" | "md" | "lg"
+}
 
 /**
  * Placeholder loading skeleton with pulsing animation.
@@ -25,7 +25,7 @@ export function Skeleton(props: SkeletonProps) {
         props.width === "half" ? "skeleton-w-half" : "skeleton-w-full",
         props.height === "sm" ? "skeleton-h-sm" : props.height === "lg" ? "skeleton-h-lg" : "skeleton-h-md",
         props.class,
-    ].filter(Boolean).join(" ");
+    ].filter(Boolean).join(" ")
 
-    return <div class={classes()} />;
+    return <div class={classes()} />
 }

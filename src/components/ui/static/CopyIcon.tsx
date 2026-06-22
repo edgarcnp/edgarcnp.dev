@@ -1,16 +1,16 @@
-import { IconCopy, IconLink, IconCheck } from "../icons/index";
+import { IconCopy, IconLink, IconCheck } from "../icons/index"
 
 /**
  * Props for the CopyIcon component.
  */
-type CopyIconProps = {
+interface CopyIconProps {
     /** Whether to show the check (copied) state. */
-    check: boolean;
+    check: boolean
     /** Whether to show the link icon instead of the copy icon. */
-    link?: boolean;
+    link?: boolean
     /** Additional CSS classes. */
-    class?: string;
-};
+    class?: string
+}
 
 /**
  * Animated copy/link icon that toggles between states.
@@ -25,7 +25,7 @@ export function CopyIcon(props: CopyIconProps) {
         "copy-animation",
         props.check && "check",
         props.class,
-    ].filter(Boolean).join(" ");
+    ].filter(Boolean).join(" ")
 
     return (
         <div class={classes()}>
@@ -36,5 +36,5 @@ export function CopyIcon(props: CopyIconProps) {
                 <IconCheck />
             </div>
         </div>
-    );
+    )
 }

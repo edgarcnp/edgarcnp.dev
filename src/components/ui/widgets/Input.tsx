@@ -1,41 +1,42 @@
-import { createEffect, type JSX } from "solid-js";
+import { createSignal, createEffect, type JSX } from "solid-js"
 
 interface InputProps {
-    id: string;
-    "aria-label": string;
-    class?: string;
-    value?: string;
-    type?: string;
-    placeholder?: string;
-    small?: boolean;
-    width?: string;
-    disabled?: boolean;
-    leading?: JSX.Element;
-    trailing?: JSX.Element;
-    onInput?: (value: string) => void;
-    ref?: (el: HTMLInputElement) => void;
+    id: string
+    "aria-label": string
+    class?: string
+    value?: string
+    type?: string
+    placeholder?: string
+    small?: boolean
+    width?: string
+    disabled?: boolean
+    leading?: JSX.Element
+    trailing?: JSX.Element
+    onInput?: (value: string) => void
+    ref?: (el: HTMLInputElement) => void
 }
 
 export function Input(props: InputProps) {
-    let labelEl!: HTMLLabelElement;
+    const [labelEl, setLabelEl] = createSignal<HTMLLabelElement>()
 
     createEffect(() => {
-        if (!labelEl) return;
+        const el = labelEl()
+        if (!el) return
         if (props.width) {
-            labelEl.style.setProperty("--input-width", props.width);
+            el.style.setProperty("--input-width", props.width)
         } else {
-            labelEl.style.removeProperty("--input-width");
+            el.style.removeProperty("--input-width")
         }
-    });
+    })
 
     const handleInput = (e: Event) => {
-        const input = e.target as HTMLInputElement;
-        props.onInput?.(input.value);
-    };
+        const input = e.target as HTMLInputElement
+        props.onInput?.(input.value)
+    }
 
     return (
         <label
-            ref={labelEl}
+            ref={setLabelEl}
             classList={{
                 "input-field": true,
                 small: props.small,
@@ -64,5 +65,5 @@ export function Input(props: InputProps) {
                 </span>
             )}
         </label>
-    );
+    )
 }

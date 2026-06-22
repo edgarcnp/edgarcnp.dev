@@ -1,4 +1,4 @@
-import { cors } from "hono/cors";
+import { cors } from "hono/cors"
 
 /**
  * CORS configuration for the Hono API.
@@ -10,15 +10,15 @@ import { cors } from "hono/cors";
  * - Applied via `app.use("*", corsMiddleware)` in `src/api/index.ts`.
  */
 export const corsMiddleware = cors({
-  origin: (origin, c) => {
-    try {
-      const requestHost = new URL(c.req.url).hostname;
-      const originHost = new URL(origin).hostname;
-      return requestHost === originHost ? origin : "";
-    } catch {
-      return "";
-    }
-  },
-  allowMethods: ["GET"],
-  maxAge: 86400,
-});
+    origin: (origin, c) => {
+        try {
+            const requestHost = new URL(c.req.url).hostname
+            const originHost = new URL(origin).hostname
+            return requestHost === originHost ? origin : ""
+        } catch {
+            return ""
+        }
+    },
+    allowMethods: ["GET"],
+    maxAge: 86400,
+})

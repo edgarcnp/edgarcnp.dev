@@ -1,9 +1,9 @@
-import { useLocation, useSearchParams } from "@solidjs/router";
-import { LinkAction } from "~/components/ui/static/LinkAction";
-import { useMeta } from "~/lib/meta";
+import { useLocation, useSearchParams } from "@solidjs/router"
+import { LinkAction } from "~/components/ui/static/LinkAction"
+import { useMeta } from "~/lib/meta"
 
 /** Maximum path length to display — prevents XSS via long URLs. */
-const MAX_PATH_LENGTH = 120;
+const MAX_PATH_LENGTH = 120
 
 /**
  * RFC 9110 status code → human-readable title mapping.
@@ -51,7 +51,7 @@ const titles: Record<number, string> = {
     508: "Loop detected",
     510: "Not extended",
     511: "Network authentication required",
-};
+}
 
 /**
  * Catch-all error page for unmatched routes.
@@ -63,15 +63,15 @@ const titles: Record<number, string> = {
  * - Displays RFC 9110 status title and navigation links.
  */
 export default function NotFound() {
-    const location = useLocation();
-    const [searchParams] = useSearchParams();
-    const meta = useMeta(() => ({ title: "Error", path: location.pathname }));
+    const location = useLocation()
+    const [searchParams] = useSearchParams()
+    const meta = useMeta(() => ({ title: "Error", path: location.pathname }))
     const path = () => {
-        const raw = searchParams.path || location.pathname;
-        return raw.length > MAX_PATH_LENGTH ? raw.slice(0, MAX_PATH_LENGTH) + "…" : raw;
-    };
-    const status = () => Number(searchParams.status) || 404;
-    const title = () => titles[status()] || "Something went wrong";
+        const raw = (Array.isArray(searchParams.path) ? searchParams.path[0] : searchParams.path) ?? location.pathname
+        return raw.length > MAX_PATH_LENGTH ? (raw.slice(0, MAX_PATH_LENGTH) + "…") : raw
+    }
+    const status = () => Number(searchParams.status) || 404
+    const title = () => titles[status()] || "Something went wrong"
 
     return (
         <section class="blueprint-frame max-w-2xl space-y-5 p-5 sm:p-6">
@@ -89,5 +89,5 @@ export default function NotFound() {
                 <LinkAction href="/projects" variant="secondary">View projects</LinkAction>
             </div>
         </section>
-    );
+    )
 }

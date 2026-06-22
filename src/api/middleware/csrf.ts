@@ -1,4 +1,4 @@
-import type { Context, MiddlewareHandler } from "hono";
+import type { Context, MiddlewareHandler } from "hono"
 
 /**
  * Extract the origin from the request, checking Origin header first, then Referer.
@@ -9,15 +9,15 @@ import type { Context, MiddlewareHandler } from "hono";
  * @remarks Parses the Referer URL if Origin is missing — handles partial referer strings.
  */
 function getOrigin(c: Context): string | null {
-  const origin = c.req.header("origin");
-  if (origin) return origin;
+    const origin = c.req.header("origin")
+    if (origin) return origin
 
-  const referer = c.req.header("referer");
-  if (referer) {
-    try { return new URL(referer).origin; } catch { return null; }
-  }
+    const referer = c.req.header("referer")
+    if (referer) {
+        try { return new URL(referer).origin } catch { return null }
+    }
 
-  return null;
+    return null
 }
 
 /**
@@ -31,16 +31,16 @@ function getOrigin(c: Context): string | null {
  * - Currently disabled in development via `import.meta.env.PROD` check in `src/api/index.ts`.
  */
 export const csrfGuard: MiddlewareHandler = async (c, next) => {
-  if (["GET", "HEAD", "OPTIONS"].includes(c.req.method)) {
-    await next();
-    return;
-  }
+    if (["GET", "HEAD", "OPTIONS"].includes(c.req.method)) {
+        await next()
+        return
+    }
 
-  const requestOrigin = new URL(c.req.url).origin;
-  const origin = getOrigin(c);
-  if (origin !== requestOrigin) {
-    return c.json({ error: "Forbidden" }, 403);
-  }
+    const requestOrigin = new URL(c.req.url).origin
+    const origin = getOrigin(c)
+    if (origin !== requestOrigin) {
+        return c.json({ error: "Forbidden" }, 403)
+    }
 
-  await next();
-};
+    await next()
+}

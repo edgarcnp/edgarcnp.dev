@@ -1,32 +1,33 @@
-import { createEffect } from "solid-js";
+import { createSignal, createEffect } from "solid-js"
 
-import { Input } from "./Input";
+import { Input } from "./Input"
 
 interface SearchBarProps {
-    id: string;
-    "aria-label": string;
-    class?: string;
-    value?: string;
-    placeholder?: string;
-    small?: boolean;
-    width?: string;
-    onInput?: (value: string) => void;
+    id: string
+    "aria-label": string
+    class?: string
+    value?: string
+    placeholder?: string
+    small?: boolean
+    width?: string
+    onInput?: (value: string) => void
 }
 
 export function SearchBar(props: SearchBarProps) {
-    let containerEl!: HTMLDivElement;
+    const [containerEl, setContainerEl] = createSignal<HTMLDivElement>()
 
     createEffect(() => {
-        if (!containerEl) return;
+        const el = containerEl()
+        if (!el) return
         if (props.width) {
-            containerEl.style.setProperty("--input-width", props.width);
+            el.style.setProperty("--input-width", props.width)
         } else {
-            containerEl.style.removeProperty("--input-width");
+            el.style.removeProperty("--input-width")
         }
-    });
+    })
 
     return (
-        <div ref={containerEl} class="search-bar" role="search">
+        <div ref={setContainerEl} class="search-bar" role="search">
             <Input
                 id={props.id}
                 small={props.small}
@@ -55,5 +56,5 @@ export function SearchBar(props: SearchBarProps) {
                 }
             />
         </div>
-    );
+    )
 }

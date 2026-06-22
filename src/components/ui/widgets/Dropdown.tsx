@@ -1,44 +1,45 @@
-import { createEffect, For, type JSX } from "solid-js";
+import { createSignal, createEffect, For, type JSX } from "solid-js"
 
 interface DropdownOption {
-    value: string;
-    label: string;
-    disabled?: boolean;
+    value: string
+    label: string
+    disabled?: boolean
 }
 
 interface DropdownProps {
-    id: string;
-    "aria-label": string;
-    class?: string;
-    value?: string;
-    width?: string;
-    placeholder?: string;
-    disabled?: boolean;
-    options?: DropdownOption[];
-    onChange?: (value: string) => void;
-    children?: JSX.Element;
+    id: string
+    "aria-label": string
+    class?: string
+    value?: string
+    width?: string
+    placeholder?: string
+    disabled?: boolean
+    options?: DropdownOption[]
+    onChange?: (value: string) => void
+    children?: JSX.Element
 }
 
 export function Dropdown(props: DropdownProps) {
-    let labelEl!: HTMLLabelElement;
+    const [labelEl, setLabelEl] = createSignal<HTMLLabelElement>()
 
     createEffect(() => {
-        if (!labelEl) return;
+        const el = labelEl()
+        if (!el) return
         if (props.width) {
-            labelEl.style.setProperty("--input-width", props.width);
+            el.style.setProperty("--input-width", props.width)
         } else {
-            labelEl.style.removeProperty("--input-width");
+            el.style.removeProperty("--input-width")
         }
-    });
+    })
 
     const handleChange = (e: Event) => {
-        const select = e.target as HTMLSelectElement;
-        props.onChange?.(select.value);
-    };
+        const select = e.target as HTMLSelectElement
+        props.onChange?.(select.value)
+    }
 
     return (
         <label
-            ref={labelEl}
+            ref={setLabelEl}
             classList={{
                 dropdown: true,
                 disabled: props.disabled,
@@ -83,5 +84,5 @@ export function Dropdown(props: DropdownProps) {
                 </svg>
             </span>
         </label>
-    );
+    )
 }

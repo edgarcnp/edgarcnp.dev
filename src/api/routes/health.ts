@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Hono } from "hono"
 
 /**
  * Health check API route — mounted at `/api/health`.
@@ -7,10 +7,10 @@ import { Hono } from "hono";
  *
  * @remarks Simple liveness probe for monitoring and load balancers.
  */
-const health = new Hono();
+const health = new Hono()
 
 health.get("/", (c) => {
-  return c.json({ status: "ok", timestamp: Date.now() });
-});
+    return c.json({ status: "ok", timestamp: Date.now() })
+})
 
-export { health };
+export { health }

@@ -1,14 +1,14 @@
-import { IconLoader } from "../icons/index";
+import { IconLoader } from "../icons/index"
 
 /**
  * Props for the Spinner component.
  */
-type SpinnerProps = {
+interface SpinnerProps {
     /** Spinner diameter in pixels (default: 24). Maps to --size CSS custom property. */
-    size?: number;
+    size?: number
     /** Additional CSS classes. */
-    class?: string;
-};
+    class?: string
+}
 
 /**
  * Loading spinner with a rotating loader icon.
@@ -21,13 +21,13 @@ type SpinnerProps = {
  */
 export function Spinner(props: SpinnerProps) {
     const sizeClass = () => {
-        const size = props.size ?? 24;
-        return `spinner-size-${size}`;
-    };
+        const size = props.size ?? 24
+        return `spinner-size-${size}`
+    }
 
     return (
         <div class={`spinner ${sizeClass()} ${props.class ?? ""}`}>
             <IconLoader />
         </div>
-    );
+    )
 }

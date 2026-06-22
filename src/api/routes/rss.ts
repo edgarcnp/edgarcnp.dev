@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Hono } from "hono"
 
 /**
  * RSS feed API route — mounted at `/api/rss`.
@@ -7,13 +7,13 @@ import { Hono } from "hono";
  *
  * @remarks Placeholder endpoint — will be populated with writing posts in the future.
  */
-const rss = new Hono();
+const rss = new Hono()
 
 rss.get("/", (c) => {
-  return c.text("", 200, {
-    "Content-Type": "application/rss+xml",
-    "Cache-Control": "public, max-age=900",
-  });
-});
+    return c.text("", 200, {
+        "Content-Type": "application/rss+xml",
+        "Cache-Control": "public, max-age=900",
+    })
+})
 
-export { rss };
+export { rss }

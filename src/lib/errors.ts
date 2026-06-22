@@ -14,15 +14,15 @@
  * - Subclasses: `ValidationError`, `NotFoundError`, `IoError`, `ParseError`, `CssError`, `DateError`.
  */
 export class AppError extends Error {
-  constructor(
-    message: string,
-    public readonly cause?: Error,
-  ) {
-    super(message);
-    this.name = this.constructor.name;
-  }
+    constructor(
+        message: string,
+        public readonly cause?: Error,
+    ) {
+        super(message)
+        this.name = this.constructor.name
+    }
 
-  /**
+    /**
    * Returns a user-safe error message with no internal details.
    *
    * @returns Generic fallback string "Something went wrong".
@@ -30,9 +30,10 @@ export class AppError extends Error {
    * @remarks Override in subclasses to provide specific but safe messages.
    * This is what the ErrorBoundary displays to end users.
    */
-  get displayMessage(): string {
-    return "Something went wrong";
-  }
+    // eslint-disable-next-line @typescript-eslint/class-literal-property-style -- polymorphic getter, overridden by subclasses
+    get displayMessage(): string {
+        return "Something went wrong"
+    }
 }
 
 /**
@@ -54,18 +55,18 @@ export class AppError extends Error {
  * - Full `issues` array is available in DevTools for debugging.
  */
 export class ValidationError extends AppError {
-  constructor(
-    public readonly source: string,
-    message: string,
-    public readonly issues: { path: string; message: string }[] = [],
-    cause?: Error,
-  ) {
-    super(message, cause);
-  }
+    constructor(
+        public readonly source: string,
+        message: string,
+        public readonly issues: { path: string, message: string }[] = [],
+        cause?: Error,
+    ) {
+        super(message, cause)
+    }
 
-  get displayMessage(): string {
-    return `Invalid data in ${this.source}`;
-  }
+    get displayMessage(): string {
+        return `Invalid data in ${this.source}`
+    }
 }
 
 /**
@@ -83,16 +84,16 @@ export class ValidationError extends AppError {
  * - Full message includes the slug for debugging.
  */
 export class NotFoundError extends AppError {
-  constructor(
-    public readonly resource: string,
-    public readonly id: string,
-  ) {
-    super(`${resource} not found: ${id}`);
-  }
+    constructor(
+        public readonly resource: string,
+        public readonly id: string,
+    ) {
+        super(`${resource} not found: ${id}`)
+    }
 
-  get displayMessage(): string {
-    return `${this.resource} not found`;
-  }
+    get displayMessage(): string {
+        return `${this.resource} not found`
+    }
 }
 
 /**
@@ -112,17 +113,17 @@ export class NotFoundError extends AppError {
  * - Common causes: file deleted between access check and read, permissions changed.
  */
 export class IoError extends AppError {
-  constructor(
-    public readonly operation: string,
-    public readonly path: string,
-    cause?: Error,
-  ) {
-    super(`Failed to ${operation}: ${path}`, cause);
-  }
+    constructor(
+        public readonly operation: string,
+        public readonly path: string,
+        cause?: Error,
+    ) {
+        super(`Failed to ${operation}: ${path}`, cause)
+    }
 
-  get displayMessage(): string {
-    return `Failed to ${this.operation}`;
-  }
+    get displayMessage(): string {
+        return `Failed to ${this.operation}`
+    }
 }
 
 /**
@@ -141,17 +142,17 @@ export class IoError extends AppError {
  * - Empty DOMPurify output is treated as a parse error (defensive — shouldn't happen with valid input).
  */
 export class ParseError extends AppError {
-  constructor(
-    public readonly source: string,
-    message: string,
-    cause?: Error,
-  ) {
-    super(`Parse error in ${source}: ${message}`, cause);
-  }
+    constructor(
+        public readonly source: string,
+        message: string,
+        cause?: Error,
+    ) {
+        super(`Parse error in ${source}: ${message}`, cause)
+    }
 
-  get displayMessage(): string {
-    return `Failed to parse ${this.source}`;
-  }
+    get displayMessage(): string {
+        return `Failed to parse ${this.source}`
+    }
 }
 
 /**
@@ -171,16 +172,16 @@ export class ParseError extends AppError {
  * - Common cause: CSS file not loaded or custom property removed.
  */
 export class CssError extends AppError {
-  constructor(
-    public readonly property: string,
-    message: string,
-  ) {
-    super(message);
-  }
+    constructor(
+        public readonly property: string,
+        message: string,
+    ) {
+        super(message)
+    }
 
-  get displayMessage(): string {
-    return `Missing configuration: ${this.property}`;
-  }
+    get displayMessage(): string {
+        return `Missing configuration: ${this.property}`
+    }
 }
 
 /**
@@ -199,16 +200,17 @@ export class CssError extends AppError {
  * - `Invalid Date` objects produce `NaN` from `.getTime()`, which this detects.
  */
 export class DateError extends AppError {
-  constructor(
-    public readonly value: string,
-    public readonly source: string,
-  ) {
-    super(`Invalid date "${value}" in ${source}`);
-  }
+    constructor(
+        public readonly value: string,
+        public readonly source: string,
+    ) {
+        super(`Invalid date "${value}" in ${source}`)
+    }
 
-  get displayMessage(): string {
-    return "Invalid date value";
-  }
+    // eslint-disable-next-line @typescript-eslint/class-literal-property-style -- polymorphic getter, overridden by subclasses
+    get displayMessage(): string {
+        return "Invalid date value"
+    }
 }
 
 /**
@@ -223,10 +225,10 @@ export class DateError extends AppError {
  * @remarks Used for CSS custom property reads and DOM element lookups.
  */
 export function assertDefined<T>(value: T | null | undefined, name: string): T {
-  if (value === null || value === undefined) {
-    throw new CssError(name, `Missing required value: ${name}`);
-  }
-  return value;
+    if (value === null || value === undefined) {
+        throw new CssError(name, `Missing required value: ${name}`)
+    }
+    return value
 }
 
 /**
@@ -241,11 +243,11 @@ export function assertDefined<T>(value: T | null | undefined, name: string): T {
  * @remarks Used for reading CSS custom properties like `--shimmer-alpha`.
  */
 export function assertFiniteNumber(value: string, name: string): number {
-  const num = Number(value);
-  if (!value || !Number.isFinite(num)) {
-    throw new CssError(name, `Missing or invalid CSS number: ${name}`);
-  }
-  return num;
+    const num = Number(value)
+    if (!value || !Number.isFinite(num)) {
+        throw new CssError(name, `Missing or invalid CSS number: ${name}`)
+    }
+    return num
 }
 
 /**
@@ -260,10 +262,10 @@ export function assertFiniteNumber(value: string, name: string): number {
  * @remarks Used for reading CSS custom properties like `--shimmer-start`.
  */
 export function assertNonEmpty(value: string, name: string): string {
-  if (!value) {
-    throw new CssError(name, `Missing CSS value: ${name}`);
-  }
-  return value;
+    if (!value) {
+        throw new CssError(name, `Missing CSS value: ${name}`)
+    }
+    return value
 }
 
 /**
@@ -278,12 +280,12 @@ export function assertNonEmpty(value: string, name: string): string {
  * @remarks Uses `localName` comparison instead of `instanceof` for tag matching.
  */
 export function assertElement<K extends keyof HTMLElementTagNameMap>(
-  selector: string,
-  tagName: K,
+    selector: string,
+    tagName: K,
 ): HTMLElementTagNameMap[K] {
-  const el = document.querySelector(selector);
-  if (!el || el.localName !== tagName) {
-    throw new AppError(`Missing required element: ${selector}`);
-  }
-  return el as HTMLElementTagNameMap[K];
+    const el = document.querySelector(selector)
+    if (el?.localName !== tagName) {
+        throw new AppError(`Missing required element: ${selector}`)
+    }
+    return el as HTMLElementTagNameMap[K]
 }

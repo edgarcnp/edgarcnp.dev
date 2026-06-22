@@ -1,18 +1,18 @@
-import { IconExternalLink } from "../icons/index";
+import { IconExternalLink } from "../icons/index"
 
 /**
  * Props for the CardLink component.
  */
-type CardLinkProps = {
+interface CardLinkProps {
     /** Card heading text. */
-    title: string;
+    title: string
     /** Description paragraph below the title. */
-    desc: string;
+    desc: string
     /** External URL to link to. */
-    href: string;
+    href: string
     /** Additional CSS classes to merge with the default card styling. */
-    class?: string;
-};
+    class?: string
+}
 
 /**
  * External link card with title, description, and external link icon.
@@ -36,5 +36,5 @@ export function CardLink(props: CardLinkProps) {
             </div>
             <IconExternalLink />
         </a>
-    );
+    )
 }

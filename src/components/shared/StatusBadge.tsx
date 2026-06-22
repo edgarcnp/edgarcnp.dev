@@ -1,13 +1,13 @@
-import { STATUS_CLASSES } from '~/lib/types';
+import { STATUS_CLASSES } from "~/lib/types"
 
-import type { ProjectStatus } from '~/lib/types';
+import type { ProjectStatus } from "~/lib/types"
 
 /**
  * Props for the StatusBadge component.
  */
 interface Props {
-  /** Project status — determines which CSS class and text label to display. */
-  status: ProjectStatus;
+    /** Project status — determines which CSS class and text label to display. */
+    status: ProjectStatus
 }
 
 /**
@@ -19,9 +19,9 @@ interface Props {
  * - Used by ProjectCard and project detail pages.
  */
 export function StatusBadge(props: Props) {
-  return (
-    <span class={STATUS_CLASSES[props.status]}>
-      {props.status}
-    </span>
-  );
+    return (
+        <span class={STATUS_CLASSES[props.status]}>
+            {props.status}
+        </span>
+    )
 }
