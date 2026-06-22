@@ -1,12 +1,17 @@
 /**
+ * General-purpose math utilities.
+ *
+ * Pure functions with zero domain coupling.
+ * Used across animation, canvas, and layout code.
+ */
+
+/**
  * Clamp a value between min and max bounds.
  *
  * @param value - The value to clamp.
  * @param min   - Minimum bound (default 0).
  * @param max   - Maximum bound (default 1).
  * @returns The clamped value.
- *
- * @remarks Used extensively in animation to prevent overshoot.
  */
 export const clamp = (value: number, min = 0, max = 1): number =>
     Math.max(min, Math.min(max, value))
@@ -52,3 +57,18 @@ export const easeInOutCubic = (value: number): number => {
     const t = (-(2 * value)) + 2
     return 1 - ((t * (t * t)) / 2)
 }
+
+/**
+ * Round a value to the nearest device pixel boundary.
+ *
+ * @param value - The value to round (in CSS pixels).
+ * @param dpr   - Device pixel ratio (1, 2, 3, etc.).
+ * @returns The rounded value.
+ *
+ * @remarks
+ * On non-Retina (dpr=1): standard `Math.round()`.
+ * On Retina (dpr>1): round to physical pixel, convert back to CSS pixels.
+ * Prevents sub-pixel rendering artifacts that cause blurry lines.
+ */
+export const snapToDevicePixel = (value: number, dpr: number): number =>
+    dpr === 1 ? Math.round(value) : Math.round(value * dpr) / dpr

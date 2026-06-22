@@ -4,7 +4,7 @@ import type {
     WaveSpeedUpValues,
 } from "~/lib/types"
 import { WAVE_SPEED_UP } from "./config"
-import { clamp, lerp, easeOutCubic, easeInOutCubic } from "./easing"
+import { clamp, lerp, easeOutCubic, easeInOutCubic } from "~/lib/math"
 
 const IDLE_SPEED_UP: WaveSpeedUpValues = {
     multiplier: 1,

@@ -13,6 +13,43 @@ import { safeHref } from "./schemas"
 const CONTENT_DIR = path.join(process.cwd(), "src", "content")
 const DOMPurify = createDOMPurify(parseHTML("<html><body></body></html>").window)
 const marked = new Marked({ gfm: true, breaks: false })
+
+/**
+ * Validate that a resolved path stays within the content directory.
+ *
+ * @param resolvedPath - The fully resolved absolute path.
+ * @throws {IoError} If the path escapes the content directory.
+ */
+function assertWithinContentDir(resolvedPath: string): void {
+    const relative = path.relative(CONTENT_DIR, resolvedPath)
+    if (relative.startsWith("..") || path.isAbsolute(relative)) {
+        throw new IoError("resolve content path", resolvedPath)
+    }
+}
+
+/**
+ * Validate a slug contains only safe characters (alphanumeric, hyphens, underscores).
+ *
+ * @param slug - The slug to validate.
+ * @throws {ValidationError} If the slug contains invalid characters.
+ */
+function assertValidSlug(slug: string): void {
+    if (!/^[a-zA-Z0-9_-]+$/.test(slug)) {
+        throw new ValidationError("slug", `Invalid slug: "${slug}"`, [{ path: "slug", message: "must contain only alphanumeric characters, hyphens, or underscores" }])
+    }
+}
+
+/**
+ * Validate a subdirectory name contains only safe characters.
+ *
+ * @param subdir - The subdirectory name to validate.
+ * @throws {ValidationError} If the subdirectory name contains invalid characters.
+ */
+function assertValidSubdir(subdir: string): void {
+    if (!/^[a-zA-Z0-9_-]+$/.test(subdir)) {
+        throw new ValidationError("subdir", `Invalid subdir: "${subdir}"`, [{ path: "subdir", message: "must contain only alphanumeric characters, hyphens, or underscores" }])
+    }
+}
 const projectSchema = z.object({
     title: z.string(),
     slug: z.string(),
@@ -205,7 +242,10 @@ async function parseFrontmatter<T extends z.ZodType>(
  * @throws {ParseError}    If markdown parsing or sanitization fails.
  */
 async function readBody(subdir: string, slug: string): Promise<string> {
-    const filePath = path.join(CONTENT_DIR, subdir, `${slug}.md`)
+    assertValidSubdir(subdir)
+    assertValidSlug(slug)
+    const filePath = path.resolve(CONTENT_DIR, subdir, `${slug}.md`)
+    assertWithinContentDir(filePath)
     let raw: string
     try {
         raw = await fs.readFile(filePath, "utf-8")
@@ -228,6 +268,7 @@ async function readBody(subdir: string, slug: string): Promise<string> {
  * @remarks Returns empty array if the directory doesn't exist (no error).
  */
 async function readMarkdownFiles(subdir: string): Promise<string[]> {
+    assertValidSubdir(subdir)
     const dir = path.join(CONTENT_DIR, subdir)
     try {
         await fs.access(dir)

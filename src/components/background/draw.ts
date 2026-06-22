@@ -1,6 +1,5 @@
-import { snapToDevicePixel } from "./canvas"
+import { snapToDevicePixel, clamp, lerp } from "~/lib/math"
 import { GRADIENT, INTRO } from "./config"
-import { clamp, lerp } from "./easing"
 import { getIntroRevealProgress, getIntroIdleProgress, getIdleCenter } from "./intro"
 
 import type { Colors, Stripe, Size, IntroAnimation } from "~/lib/types"
