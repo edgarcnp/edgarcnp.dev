@@ -50,7 +50,7 @@ export function Button(props: ButtonProps) {
             class={classes()}
             type={props.type ?? "button"}
             disabled={props.disabled}
-            onClick={() => props.onClick?.()}
+            onClick={(e) => props.onClick?.(e)}
         >
             {props.children}
         </button>
