@@ -33,9 +33,11 @@ By default, `npm run build` will generate a Node app that you can run with `npm 
 
 ## License
 
-This repository contains materials covered by two licenses:
+This repository contains materials covered by different terms:
 
-* All software source code is licensed under the **GNU General Public License, version 3 or any later version [GPL-3.0-or-later](LICENSE-GPL-3.0)**.
-* All non-code content, including documentation, written materials, and design work, is licensed under the **Creative Commons Attribution 4.0 International License [CC BY-NC 4.0](LICENSE-CC-BY-NC-4.0)**.
+* All software source code is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+* All non-code content, including documentation, written materials, images, graphics, logos, branding, artwork, and design assets, is **All Rights Reserved**. See [COPYRIGHT](COPYRIGHT) for details.
 
-*Unless otherwise stated, these licenses apply to all content within this repository.*
+You may use, copy, modify, and distribute the source code under the terms of the MIT License. No permission is granted to use, reproduce, modify, or distribute non-code content without explicit written consent from the copyright holder.
+
+*Unless otherwise stated, these terms apply to all content within this repository.*
