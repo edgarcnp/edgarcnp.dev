@@ -1,0 +1,31 @@
+---
+import { ACTION_CLASSES } from "~/lib/types"
+
+import type { ActionVariant } from "~/lib/types"
+
+/**
+ * Props for the LinkAction component.
+ */
+interface Props {
+    /** Target URL — can be an internal route or external URL. */
+    href: string
+    /** Force external link treatment (target="_blank", noopener noreferrer). */
+    external?: boolean
+    /** Visual style variant (default: "secondary"). */
+    variant?: ActionVariant
+    /** Link text content. */
+    children: unknown
+}
+
+const { href, external, variant } = Astro.props as Props
+
+const isExternal = external ?? (href.startsWith("http") || href.startsWith("mailto:"))
+---
+<a
+    href={href}
+    target={isExternal ? "_blank" : undefined}
+    rel={isExternal ? "noopener noreferrer" : undefined}
+    class={ACTION_CLASSES[variant ?? "secondary"]}
+>
+    <slot />
+</a>

@@ -1,0 +1,53 @@
+---
+import Layout from "~/layouts/Layout.astro"
+import { getCollection } from "astro:content"
+import ProjectCard from "~/components/shared/ProjectCard.astro"
+import SectionHeading from "~/components/shared/SectionHeading.astro"
+
+const projects = (await getCollection("projects")).sort((a, b) => b.data.year - a.data.year)
+
+let inProgress = 0
+let planned = 0
+for (const proj of projects) {
+    if (proj.data.status === "In Progress") inProgress++
+    else if (proj.data.status === "Planned") planned++
+}
+const stats = [
+    { label: "Total", value: projects.length },
+    { label: "In Progress", value: inProgress },
+    { label: "Planned", value: planned },
+]
+---
+
+<Layout title="Projects" description="A complete list of projects, sorted by year." path="/projects">
+    <div class="space-y-8">
+        <SectionHeading
+            label="Projects"
+            title="All projects"
+            description="A complete list of projects, sorted by year."
+        />
+
+        <div class="grid gap-4 sm:grid-cols-3">
+            {stats.map(({ label, value }) => (
+                <div class="blueprint-module p-5">
+                    <p class="blueprint-label">{label}</p>
+                    <p class="mt-2 text-3xl font-semibold text-(--blueprint-text)">{value}</p>
+                </div>
+            ))}
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+            {projects.map((p) => (
+                <ProjectCard
+                    title={p.data.title}
+                    href={`/projects/${p.data.slug}`}
+                    summary={p.data.summary}
+                    year={p.data.year}
+                    status={p.data.status}
+                    technologies={p.data.technologies}
+                    pinned={p.data.pinned}
+                />
+            ))}
+        </div>
+    </div>
+</Layout>

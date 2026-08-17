@@ -1,0 +1,29 @@
+{
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "edgarcnp-dev",
+    "compatibility_date": "2026-06-19",
+    "observability": {
+        "enabled": true
+    },
+    "assets": {
+        "binding": "ASSETS",
+        "directory": "./dist/client"
+    },
+    "compatibility_flags": [
+        "nodejs_compat"
+    ],
+    "kv_namespaces": [
+        {
+            "binding": "SESSION"
+        }
+    ],
+    "images": {
+        "binding": "IMAGES"
+    },
+    "routes": [
+        {
+            "pattern": "edgarcnp.dev",
+            "custom_domain": true
+        }
+    ]
+}

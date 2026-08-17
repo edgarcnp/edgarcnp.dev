@@ -1,0 +1,18 @@
+---
+import { STATUS_CLASSES } from "~/lib/types"
+
+import type { ProjectStatus } from "~/lib/types"
+
+/**
+ * Props for the StatusBadge component.
+ */
+interface Props {
+    /** Project status — determines which CSS class and text label to display. */
+    status: ProjectStatus
+}
+
+const { status } = Astro.props as Props
+---
+<span class={STATUS_CLASSES[status]}>
+    {status}
+</span>

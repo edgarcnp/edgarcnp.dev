@@ -1,0 +1,55 @@
+---
+/** Typography variant — determines default HTML tag and styling. */
+type Variant = "display" | "title" | "heading" | "subheading" | "body" | "caption"
+
+/** Color tone — applies a tone-specific CSS class. */
+type Tone = "primary" | "secondary" | "tertiary" | "white"
+
+/** HTML element tag for the rendered output. */
+type Tag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span" | "div"
+
+/**
+ * Props for the Text component.
+ */
+interface TextProps {
+    /** Typography variant — determines default tag and styling (default: "body"). */
+    variant?: Variant
+    /** Override the default HTML tag for this variant. */
+    tag?: Tag
+    /** Color tone class (e.g. "primary", "secondary"). */
+    tone?: Tone
+    /** Center-align the text. */
+    center?: boolean
+    /** Additional CSS classes. */
+    class?: string
+    /** Text content. */
+    children: unknown
+}
+
+const { variant, tag, tone, center, class: className } = Astro.props as TextProps
+
+const defaultTag = (variant: Variant): Tag => {
+    if (variant === "display") return "h1"
+    if (variant === "title") return "h2"
+    if (variant === "heading") return "h3"
+    if (variant === "subheading") return "h4"
+    return "p"
+}
+
+const tagName = tag ?? defaultTag(variant ?? "body")
+const classes = [
+    "text",
+    tone && `tone-${tone}`,
+    center && "center",
+    className,
+].filter(Boolean).join(" ")
+---
+{tagName === "h1" && <h1 class={classes}><slot /></h1>}
+{tagName === "h2" && <h2 class={classes}><slot /></h2>}
+{tagName === "h3" && <h3 class={classes}><slot /></h3>}
+{tagName === "h4" && <h4 class={classes}><slot /></h4>}
+{tagName === "h5" && <h5 class={classes}><slot /></h5>}
+{tagName === "h6" && <h6 class={classes}><slot /></h6>}
+{tagName === "span" && <span class={classes}><slot /></span>}
+{tagName === "div" && <div class={classes}><slot /></div>}
+{tagName === "p" && <p class={classes}><slot /></p>}

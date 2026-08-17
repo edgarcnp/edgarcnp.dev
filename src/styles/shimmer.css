@@ -1,0 +1,45 @@
+.shimmer-canvas {
+  --shimmer-alpha: 0.35;
+  --shimmer-grain-alpha: 0.15;
+  --shimmer-grain-luminance: 220;
+  --shimmer-grain-contrast: 34;
+  --shimmer-grain-saturation: 8;
+  --shimmer-intro-alpha: 0.6;
+  --shimmer-speed-up-shine-boost: 0.3;
+  --shimmer-highlight: var(--blueprint-accent);
+  --shimmer-start: var(--blueprint-bg);
+
+  display: block;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.shimmer-canvas.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  --shimmer-alpha: 0.45;
+  --shimmer-grain-alpha: 0.08;
+  --shimmer-grain-luminance: 138;
+  --shimmer-grain-contrast: 56;
+  --shimmer-grain-saturation: 30;
+  --shimmer-intro-alpha: 0.55;
+  --shimmer-speed-up-shine-boost: 0.15;
+  --shimmer-start: var(--blueprint-bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .shimmer-canvas:not(.background) {
+    --shimmer-alpha: 0.7;
+    --shimmer-grain-alpha: 0.15;
+    --shimmer-grain-luminance: 144;
+    --shimmer-grain-contrast: 64;
+    --shimmer-grain-saturation: 32;
+    --shimmer-intro-alpha: 1;
+    --shimmer-speed-up-shine-boost: 0.15;
+  }
+}

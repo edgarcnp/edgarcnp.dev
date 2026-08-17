@@ -1,0 +1,46 @@
+---
+/**
+ * Props for the Button component.
+ */
+interface ButtonProps {
+    /** Additional CSS classes to merge with variant classes. */
+    class?: string
+    /** HTML button type attribute (default: "button"). */
+    type?: "button" | "submit" | "reset"
+    /** Apply primary styling (blue accent). */
+    primary?: boolean
+    /** Apply card styling (bordered container). */
+    card?: boolean
+    /** Apply selected styling (active state). */
+    selected?: boolean
+    /** Apply circle styling (square → rounded). */
+    circle?: boolean
+    /** Apply transparent styling (no background/border). */
+    transparent?: boolean
+    /** Disable the button and prevent interaction. */
+    disabled?: boolean
+    /** Button content. */
+    children: unknown
+    /** Click event handler. */
+    onClick?: (e: MouseEvent) => void
+}
+
+const { class: className, type, primary, card, selected, circle, transparent, disabled } = Astro.props as ButtonProps
+
+const classes = [
+    "button",
+    primary && "primary",
+    card && "card",
+    selected && "selected",
+    circle && "circle",
+    transparent && "transparent",
+    className,
+].filter(Boolean).join(" ")
+---
+<button
+    class={classes}
+    type={type ?? "button"}
+    disabled={disabled}
+>
+    <slot />
+</button>

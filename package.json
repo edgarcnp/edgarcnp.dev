@@ -1,0 +1,38 @@
+{
+  "name": "edgarcnp-dev",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "bun run build && wrangler dev",
+    "deploy": "bun run build && wrangler deploy",
+    "typecheck": "astro check",
+    "lint": "eslint .",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "14.2.1",
+    "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/solid-js": "7.0.2",
+    "astro": "^7.2.2",
+    "dompurify": "3.4.13",
+    "solid-js": "1.9.14",
+    "tailwindcss": "^4.3.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@tailwindcss/vite": "^4.3.1",
+    "eslint": "^10.5.0",
+    "eslint-plugin-solid": "^0.14.5",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.1",
+    "wrangler": "4.123.0"
+  }
+}

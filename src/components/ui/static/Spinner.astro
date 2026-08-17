@@ -1,0 +1,20 @@
+---
+import IconLoader from "../icons/IconLoader.astro"
+
+/**
+ * Props for the Spinner component.
+ */
+interface SpinnerProps {
+    /** Spinner diameter in pixels (default: 24). Maps to --size CSS custom property. */
+    size?: number
+    /** Additional CSS classes. */
+    class?: string
+}
+
+const { size, class: className } = Astro.props as SpinnerProps
+
+const sizeClass = `spinner-size-${size ?? 24}`
+---
+<div class={`spinner ${sizeClass} ${className ?? ""}`}>
+    <IconLoader />
+</div>

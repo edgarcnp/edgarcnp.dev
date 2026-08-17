@@ -1,0 +1,33 @@
+---
+import IconCopy from "../icons/IconCopy.astro"
+import IconLink from "../icons/IconLink.astro"
+import IconCheck from "../icons/IconCheck.astro"
+
+/**
+ * Props for the CopyIcon component.
+ */
+interface CopyIconProps {
+    /** Whether to show the check (copied) state. */
+    check: boolean
+    /** Whether to show the link icon instead of the copy icon. */
+    link?: boolean
+    /** Additional CSS classes. */
+    class?: string
+}
+
+const { check, link, class: className } = Astro.props as CopyIconProps
+
+const classes = [
+    "copy-animation",
+    check && "check",
+    className,
+].filter(Boolean).join(" ")
+---
+<div class={classes}>
+    <div class="icon-copy">
+        {link ? <IconLink /> : <IconCopy />}
+    </div>
+    <div class="icon-check">
+        <IconCheck />
+    </div>
+</div>

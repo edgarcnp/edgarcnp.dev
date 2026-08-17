@@ -1,0 +1,140 @@
+---
+import profileData from "~/data/profile.json"
+import { GradientShimmer } from "~/components/background/GradientShimmer"
+import "../styles/app.css"
+
+interface Props {
+    title: string
+    description?: string
+    path: string
+}
+
+const { title, description, path } = Astro.props
+const email: string = profileData.email
+const DEFAULT_DESCRIPTION = "Software engineer building secure, pragmatic web systems."
+const metaDescription = description ?? DEFAULT_DESCRIPTION
+const siteName = "edgarcnp.dev"
+const fullTitle = !title ? siteName : title === siteName ? title : `${title} — ${siteName}`
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{fullTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <link rel="canonical" href={`https://edgarcnp.dev${path}`} />
+    </head>
+    <body>
+        <div class="blueprint-page">
+            <GradientShimmer background intro class="shimmer-canvas" client:load />
+
+            <header class="sticky top-0 z-20 border-b border-(--blueprint-line-muted) bg-[rgba(8,10,15,0.82)] px-4 py-3 shadow-[0_18px_48px_rgba(0,0,0,0.22)] backdrop-blur-xl sm:px-8 lg:px-12">
+                <nav aria-label="Primary navigation" class="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <a
+                        href="/"
+                        class="group flex min-h-11 w-fit items-center gap-3 rounded-sm pr-3 font-mono outline-none transition focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
+                    >
+                        <span class="grid size-9 place-items-center rounded-sm border border-(--blueprint-line-muted) bg-[rgba(244,247,251,0.035)] text-(--blueprint-muted) transition group-hover:border-(--blueprint-accent) group-hover:text-(--blueprint-accent)">
+                            <span class="text-xs font-semibold">EC</span>
+                        </span>
+                        <span class="flex flex-col leading-none">
+                            <span data-hostname class="text-sm font-semibold text-(--blueprint-text) transition group-hover:text-(--blueprint-accent)"></span>
+                            <span class="mt-1 text-[0.65rem] uppercase tracking-[0.18em] text-(--blueprint-muted)">Portfolio</span>
+                        </span>
+                    </a>
+
+                    <div class="grid grid-cols-3 gap-1 rounded-sm border border-(--blueprint-line-muted) bg-[rgba(244,247,251,0.035)] p-1 text-sm text-(--blueprint-muted) shadow-[inset_0_1px_0_rgba(244,247,251,0.05)] sm:flex sm:w-fit">
+                        <a
+                            href="/projects"
+                            data-nav-link
+                            data-match="startsWith:/projects"
+                            class="inline-flex min-h-10 items-center justify-center rounded-sm px-3 py-2 outline-none transition focus-visible:ring-2 focus-visible:ring-(--blueprint-accent) sm:min-w-24"
+                        >
+                            Projects
+                        </a>
+                        <a
+                            href="/writings"
+                            data-nav-link
+                            data-match="startsWith:/writings"
+                            class="inline-flex min-h-10 items-center justify-center rounded-sm px-3 py-2 outline-none transition focus-visible:ring-2 focus-visible:ring-(--blueprint-accent) sm:min-w-24"
+                        >
+                            Writings
+                        </a>
+                        <a
+                            href="/contact"
+                            data-nav-link
+                            data-match="equals:/contact"
+                            class="inline-flex min-h-10 items-center justify-center rounded-sm px-3 py-2 outline-none transition focus-visible:ring-2 focus-visible:ring-(--blueprint-accent) sm:min-w-24"
+                        >
+                            Contact
+                        </a>
+                    </div>
+                </nav>
+            </header>
+
+            <main class="mx-auto max-w-6xl px-4 py-10 sm:px-8 lg:px-12">
+                <div class="page-motion">
+                    <slot />
+                </div>
+            </main>
+
+            <footer class="border-t border-(--blueprint-line-muted) px-5 py-8 text-sm text-(--blueprint-subtle) sm:px-8 lg:px-12">
+                <div class="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p>&copy; 2026 Edgar Christian. SolidStart / SolidJS / Cloudflare-ready.</p>
+                    <a
+                        href={`mailto:${email}`}
+                        class="w-fit rounded-sm text-(--blueprint-muted) underline-offset-4 outline-none transition hover:text-(--blueprint-accent) hover:underline focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
+                    >
+                        {email}
+                    </a>
+                </div>
+            </footer>
+        </div>
+
+        <script>
+            const ACTIVE_CLASS = "bg-[rgba(94,214,238,0.12)] font-semibold text-(--blueprint-accent) ring-1 ring-[rgba(94,214,238,0.24)] hover:bg-[rgba(94,214,238,0.16)]"
+            const INACTIVE_CLASS = "hover:bg-[rgba(94,214,238,0.08)] hover:text-(--blueprint-accent)"
+
+            function applyNavigationState() {
+                const pathname = window.location.pathname
+
+                for (const link of document.querySelectorAll("a[data-nav-link]")) {
+                    const rule = link.getAttribute("data-match") ?? ""
+                    const separator = rule.indexOf(":")
+                    const kind = rule.slice(0, separator)
+                    const target = rule.slice(separator + 1)
+                    const active = kind === "equals" ? pathname === target : pathname.startsWith(target)
+
+                    if (active) {
+                        link.classList.add(...ACTIVE_CLASS.split(" "))
+                        link.classList.remove(...INACTIVE_CLASS.split(" "))
+                    } else {
+                        link.classList.remove(...ACTIVE_CLASS.split(" "))
+                        link.classList.add(...INACTIVE_CLASS.split(" "))
+                    }
+                }
+
+                const hostname = document.querySelector("span[data-hostname]")
+                if (hostname && hostname.textContent === "") {
+                    hostname.textContent = window.location.hostname
+                }
+            }
+
+            let initialized = false
+
+            function initNavigation() {
+                if (initialized) return
+                initialized = true
+                applyNavigationState()
+            }
+
+            document.addEventListener("DOMContentLoaded", initNavigation)
+            document.addEventListener("pagereveal", initNavigation)
+        </script>
+    </body>
+</html>

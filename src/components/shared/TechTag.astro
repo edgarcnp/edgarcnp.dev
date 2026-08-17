@@ -1,0 +1,12 @@
+---
+/**
+ * Props for the TechTag component.
+ */
+interface Props {
+    /** Technology name to display (e.g. "TypeScript", "Cloudflare Workers"). */
+    label: string
+}
+
+const { label } = Astro.props as Props
+---
+<span class="blueprint-chip">{label}</span>
