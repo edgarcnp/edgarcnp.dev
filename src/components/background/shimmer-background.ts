@@ -16,14 +16,19 @@ import type { Colors, Stripe, Size, IntroAnimation, GradientShimmerControls } fr
  * - Plays the intro animation once per tab session via the `sessionStorage` flag
  *   `edgarcnp:shimmer-intro-played`.
  * - Responds to clicks with a wave speed-up effect.
- * - Re-triggers emphasis on `pagereveal` (back/forward cache restores and view transitions).
+ * - Re-triggers emphasis on `astro:page-load` (fires on initial load and after every
+ *   ClientRouter navigation).
+ * - Persists across SPA navigations via `transition:persist` (Layout); the canvas node and wave
+ *   phase are handed off on the element instance so reconnects resume the drift instead of
+ *   snapping or re-randomizing.
  * - Defers initialization to `requestIdleCallback` to avoid blocking first paint.
  * - Degrades gracefully if CSS custom properties are missing (canvas becomes invisible).
  * - Respects `prefers-reduced-motion: reduce` — renders a static frame, no animation.
  * - Resizes via `ResizeObserver` and re-reads CSS colors on theme changes via `MutationObserver`.
- * - Lifecycle: `connectedCallback` initializes; `disconnectedCallback` tears everything down and
- *   is idempotent. Reconnecting after a disconnect re-initializes from scratch; connecting while
- *   already initialized is a no-op.
+ * - Lifecycle: `connectedCallback` initializes; `disconnectedCallback` stops animation and
+ *   clears observers but keeps the canvas node, so a reconnect (e.g. `transition:persist`
+ *   hand-off) reuses the existing canvas instead of recreating it. Connecting while already
+ *   initialized is a no-op.
  */
 export class ShimmerBackground extends HTMLElement {
     private canvas: HTMLCanvasElement | null = null
@@ -31,20 +36,31 @@ export class ShimmerBackground extends HTMLElement {
     private initialized = false
     private idleCallback: number | null = null
     private cleanupFns: (() => void)[] = []
+    private wavePhase: number | null = null
+    private grainPattern: CanvasPattern | null = null
+
+    private handlePageLoad = () => {
+        this.shimmerController?.emphasize()
+    }
 
     connectedCallback() {
         if (this.initialized) return
+
+        window.addEventListener("astro:page-load", this.handlePageLoad)
 
         const classes = [
             this.hasAttribute("background") ? "background" : "",
             this.getAttribute("class") ?? "",
         ].join(" ").trim()
 
-        const canvas = document.createElement("canvas")
-        canvas.className = classes
-        canvas.setAttribute("aria-hidden", "true")
-        this.appendChild(canvas)
-        this.canvas = canvas
+        let canvas = this.canvas
+        if (canvas === null) {
+            canvas = document.createElement("canvas")
+            canvas.className = classes
+            canvas.setAttribute("aria-hidden", "true")
+            this.appendChild(canvas)
+            this.canvas = canvas
+        }
 
         const init = () => {
             try {
@@ -80,7 +96,7 @@ export class ShimmerBackground extends HTMLElement {
                 let resizeFrame: number | null = null
                 let introAnimation: IntroAnimation | null = null
                 let speedUpAnimation: ReturnType<typeof triggerSpeedUpAnimation> | null = null
-                let wavePhase = getRandomWavePhase()
+                let wavePhase = this.wavePhase ?? getRandomWavePhase()
                 let secondaryWavePhase = -wavePhase * 0.7
                 let lastFrameTime: number | null = null
 
@@ -145,7 +161,8 @@ export class ShimmerBackground extends HTMLElement {
                             highlight: readCssString(styles, "--shimmer-highlight"),
                             speedUpShineBoost: readCssNumber(styles, "--shimmer-speed-up-shine-boost"),
                         }
-                        grainPattern = createGrainPattern(context, colors)
+                        grainPattern = this.grainPattern ?? createGrainPattern(context, colors)
+                        this.grainPattern = grainPattern
                         return true
                     } catch (e) {
                         console.error("[GradientShimmer] CSS read failed:", e instanceof Error ? e.message : e)
@@ -200,6 +217,7 @@ export class ShimmerBackground extends HTMLElement {
                         wavePhase += IDLE_WAVE.speed * speedUpState.multiplier * deltaSeconds
                         secondaryWavePhase += IDLE_WAVE.secondarySpeed * speedUpState.multiplier * deltaSeconds
                     }
+                    this.wavePhase = wavePhase
 
                     context.globalAlpha = 1
                     context.clearRect(0, 0, size.width, size.height)
@@ -321,13 +339,6 @@ export class ShimmerBackground extends HTMLElement {
 
                 document.addEventListener("click", onClick)
 
-                const handlePageReveal = (event: PageRevealEvent) => {
-                    if (!event.viewTransition) return
-                    controller.emphasize()
-                }
-
-                window.addEventListener("pagereveal", handlePageReveal)
-
                 const updateMotionPreference = () => {
                     if (reducedMotionQuery.matches) {
                         introAnimation = null
@@ -365,7 +376,6 @@ export class ShimmerBackground extends HTMLElement {
                     resizeObserver.disconnect()
                     themeObserver.disconnect()
                     document.removeEventListener("click", onClick)
-                    window.removeEventListener("pagereveal", handlePageReveal)
                     document.removeEventListener("visibilitychange", handleVisibilityChange)
                     colorSchemeQuery.removeEventListener("change", scheduleColorRead)
                     reducedMotionQuery.removeEventListener("change", updateMotionPreference)
@@ -392,6 +402,8 @@ export class ShimmerBackground extends HTMLElement {
     }
 
     disconnectedCallback() {
+        window.removeEventListener("astro:page-load", this.handlePageLoad)
+
         if (this.idleCallback !== null) {
             if (typeof cancelIdleCallback !== "undefined") {
                 cancelIdleCallback(this.idleCallback)
@@ -407,8 +419,6 @@ export class ShimmerBackground extends HTMLElement {
         this.cleanupFns = []
 
         this.shimmerController = null
-        this.canvas?.remove()
-        this.canvas = null
         this.initialized = false
     }
 }

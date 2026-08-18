@@ -6,7 +6,7 @@ Personal portfolio site — fully static Astro 7, zero client-side framework, de
 
 - **Astro 7** (`output: "static"`, output to `dist/client`) with the **Content Layer** (`src/content.config.ts`, Zod schemas, build-time validation) for projects, writing, and JSON data (`data` collection)
 - **No client framework**: SolidJS removed; UI widgets are plain `.astro` components; the shimmer background is a native **Web Component**; scroll reveals via **motion.dev**
-- **MPA with cross-document View Transitions** (`@view-transition { navigation: auto; }`), no client router
+- **SPA-style navigation** via Astro's `<ClientRouter />` with a **single shared shimmer instance** (`transition:persist` — one live canvas across all pages; wave drift handed off on the element instance)
 - **Strict CSP** (`script-src 'self'; style-src 'self'` — zero inline scripts/styles) plus full security header set, all in `public/_headers`
 - **Geist Sans / Geist Mono** via `@fontsource` (CSP-safe: the Astro Fonts API emits inline styles)
 - **Tailwind CSS 4** via `@tailwindcss/vite`
@@ -52,7 +52,8 @@ src/
 
 ## Notes
 
-- Production output must stay free of inline `<script>`/`<style>` — the CSP in `public/_headers` allows `'self'` only. Keep `vite.build.assetsInlineLimit: 0`, `build.inlineStylesheets: "never"`, and `markdown.syntaxHighlight: false` in `astro.config.mjs`.
+- Production output must stay free of inline `<script>`/`<style>` — the CSP in `public/_headers` allows `'self'` only. Keep `vite.build.assetsInlineLimit: 0`, `build.inlineStylesheets: "never"`, and `markdown.syntaxHighlight: false` in `astro.config.mjs`. Notably, Astro's `transition:name` emits a scoped inline `<style>` — don't use it (the shimmer persists via `transition:persist` alone).
+- Navigation uses `<ClientRouter />`; bundled scripts run once, so anything per-navigation hooks `astro:page-load` (`src/scripts/motion.ts` reveal re-scan, shimmer emphasis). If the router is ever removed, those listeners silently stop firing — remove them together.
 - Deployment is adapter-free: `astro build` emits `dist/client` and `wrangler deploy` uploads it as static assets. Do not re-add `@astrojs/cloudflare` — it injects SESSION/IMAGES bindings and a prerender worker config that are pointless (and noisy) for a fully static site (details in PLAN.md).
 - Fonts come from `@fontsource/geist-sans` / `@fontsource/geist-mono` imports in `src/styles/app.css`. Do not switch to the Astro Fonts API — it emits inline `<style>` (CSP violation).
 
