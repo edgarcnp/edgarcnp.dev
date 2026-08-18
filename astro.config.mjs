@@ -7,6 +7,7 @@ export default defineConfig({
     output: "static",
     outDir: "./dist/client",
     integrations: [sitemap()],
+    prefetch: { prefetchAll: true },
     vite: {
         plugins: [tailwindcss()],
         build: { assetsInlineLimit: 0 },
