@@ -15,18 +15,6 @@
     ],
     "automerge": false,
     "keepUpdatedLabel": "renovate-keep-updated",
-    "lockFileMaintenance": {
-        "enabled": true,
-        "recreateWhen": "always",
-        "branchTopic": "lock-file-maintenance",
-        "commitMessageAction": "Lock file maintenance",
-        "schedule": [
-            "* 0 * * 5"
-        ],
-        "prBodyDefinitions": {
-            "Change": "All locks refreshed"
-        }
-    },
     "osvVulnerabilityAlerts": true,
     "pruneBranchAfterAutomerge": true,
     "reviewers": [
@@ -41,7 +29,7 @@
         "schedule": [],
         "dependencyDashboardApproval": false,
         "minimumReleaseAge": null,
-        "rangeStrategy": "update-lockfile",
+        "rangeStrategy": "bump",
         "commitMessageSuffix": "[SECURITY]",
         "branchTopic": "{{{datasource}}}-{{{depNameSanitized}}}-vulnerability",
         "prCreation": "immediate",
