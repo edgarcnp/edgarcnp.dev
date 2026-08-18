@@ -22,11 +22,9 @@ interface Props {
     technologies: string[]
     /** Whether to show the "Pinned" indicator (gold pin icon). */
     pinned?: boolean
-    /** Override the default "Inspect" action label (e.g. "View Code"). */
-    actionLabel?: string
 }
 
-const { title, href, summary, year, status, technologies, pinned, actionLabel } = Astro.props as Props
+const { title, href, summary, year, status, technologies, pinned } = Astro.props as Props
 ---
 <a
     href={href}
@@ -57,7 +55,7 @@ const { title, href, summary, year, status, technologies, pinned, actionLabel } 
     <div class="mt-8 flex items-center justify-between gap-4">
         <StatusBadge status={status} />
         <span class="font-mono text-xs font-semibold uppercase tracking-wide text-(--blueprint-accent) underline-offset-4 group-hover:underline">
-            {actionLabel ?? "Inspect"}
+            Inspect
         </span>
     </div>
 </a>

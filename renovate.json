@@ -39,13 +39,6 @@
     "packageRules": [
         {
             "matchPackageNames": [
-                "/^@solidjs\\//",
-                "/^solid-js$/"
-            ],
-            "groupName": "SolidJS"
-        },
-        {
-            "matchPackageNames": [
                 "/^vite$/",
                 "/^@tailwindcss\\/vite$/"
             ],
@@ -56,15 +49,6 @@
                 "/^tailwindcss$/"
             ],
             "groupName": "Tailwind"
-        },
-        {
-            "matchPackageNames": [
-                "nitropack",
-                "h3",
-                "srvx",
-                "vinxi"
-            ],
-            "groupName": "Nitro/h3 core"
         }
     ]
 }

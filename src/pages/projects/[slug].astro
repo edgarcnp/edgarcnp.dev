@@ -1,68 +1,32 @@
 ---
 import Layout from "~/layouts/Layout.astro"
 import { getCollection, render } from "astro:content"
-import LinkAction from "~/components/ui/static/LinkAction.astro"
-import StatusBadge from "~/components/shared/StatusBadge.astro"
-import TechTag from "~/components/shared/TechTag.astro"
+import ArticleHeader from "~/components/shared/ArticleHeader.astro"
 
-const { slug } = Astro.params
-const projects = (await getCollection("projects")).sort((a, b) => b.data.year - a.data.year)
-const project = projects.find((p) => p.data.slug === slug)
-const { Content } = project ? await render(project) : { Content: undefined as never }
+export async function getStaticPaths() {
+    const projects = await getCollection("projects")
+    return projects.map((project) => ({ params: { slug: project.data.slug }, props: { project } }))
+}
+
+const { project } = Astro.props
+const { Content } = await render(project)
 ---
 
-<Layout
-    title={project?.data.title ?? "Project"}
-    description={project?.data.summary}
-    path={`/projects/${slug}`}
->
-    {
-        project ? (
-            <article class="mx-auto max-w-3xl space-y-8">
-                <header class="blueprint-frame space-y-5 p-5 sm:p-6">
-                    <LinkAction href="/projects" variant="secondary">Back to projects</LinkAction>
-                    <div class="space-y-3">
-                        <div class="blueprint-label flex flex-wrap gap-x-4 gap-y-1">
-                            <span class="whitespace-nowrap">Published {project.data.published}</span>
-                            <span class="whitespace-nowrap">Updated {project.data.updated}</span>
-                        </div>
-                        <div class="flex items-start justify-between gap-4">
-                            <h1 class="text-3xl font-semibold text-(--blueprint-text) sm:text-4xl">{project.data.title}</h1>
-                            <StatusBadge status={project.data.status} />
-                        </div>
-                        <p class="text-base leading-7 text-(--blueprint-muted)">{project.data.summary}</p>
-                    </div>
-                    <ul class="flex flex-wrap gap-2">
-                        {project.data.technologies.map((tech) => (
-                            <li><TechTag label={tech} /></li>
-                        ))}
-                    </ul>
-                    {
-                        project.data.links.length > 0 && (
-                            <div class="flex flex-wrap gap-3">
-                                {project.data.links.map((link) => (
-                                    <LinkAction href={link.href} external={link.external} variant="secondary">{link.label}</LinkAction>
-                                ))}
-                            </div>
-                        )
-                    }
-                </header>
-                <div class="markdown-body">
-                    <Content />
-                </div>
-            </article>
-        ) : (
-            <section class="blueprint-frame max-w-2xl space-y-5 p-5 sm:p-6">
-                <h1 class="text-3xl font-semibold text-(--blueprint-text)">Project not found</h1>
-                <LinkAction href="/projects" variant="secondary">Back to projects</LinkAction>
-            </section>
-        )
-    }
-
-    <script>
-        import { sanitize } from "~/lib/trusted-types"
-
-        const el = document.querySelector(".markdown-body")
-        if (el) el.innerHTML = sanitize(el.innerHTML)
-    </script>
+<Layout title={project.data.title} description={project.data.summary} path={`/projects/${project.data.slug}`}>
+    <article class="mx-auto max-w-3xl space-y-8">
+        <ArticleHeader
+            title={project.data.title}
+            published={project.data.published}
+            updated={project.data.updated}
+            summary={project.data.summary}
+            tags={project.data.technologies}
+            status={project.data.status}
+            links={project.data.links}
+            backHref="/projects"
+            backLabel="Back to projects"
+        />
+        <div class="markdown-body">
+            <Content />
+        </div>
+    </article>
 </Layout>

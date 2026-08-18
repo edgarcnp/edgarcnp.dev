@@ -1,0 +1,53 @@
+---
+interface Props {
+    id: string
+    class?: string
+    checked?: boolean
+    disabled?: boolean
+    "aria-label"?: string
+    "aria-labelledby"?: string
+    /** Label content rendered next to the checkbox control. */
+    children: unknown
+}
+
+const {
+    id,
+    class: className,
+    checked = false,
+    disabled,
+    "aria-label": ariaLabel,
+    "aria-labelledby": ariaLabelledby,
+} = Astro.props as Props
+---
+<label
+    class:list={["checkbox", { disabled }, className ?? undefined]}
+>
+    <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        disabled={disabled}
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledby}
+    />
+    <span class="checkbox-control" aria-hidden="true">
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+        >
+            <path d="M5 12l5 5l10 -10" />
+        </svg>
+    </span>
+    {Astro.slots.has("default") && (
+        <span class="checkbox-content">
+            <slot />
+        </span>
+    )}
+</label>

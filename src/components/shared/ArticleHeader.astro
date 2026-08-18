@@ -1,0 +1,72 @@
+---
+import { formatDate } from "~/lib/content"
+import LinkAction from "~/components/ui/static/LinkAction.astro"
+import StatusBadge from "~/components/shared/StatusBadge.astro"
+import TechTag from "~/components/shared/TechTag.astro"
+
+import type { ProjectStatus } from "~/lib/types"
+
+/**
+ * Props for the ArticleHeader component.
+ */
+interface Props {
+    /** Article title rendered as the heading. */
+    title: string
+    /** Publication date shown in the meta row. */
+    published: Date
+    /** Last-updated date shown in the meta row. */
+    updated: Date
+    /** Summary paragraph displayed below the heading. */
+    summary: string
+    /** Technology or tag names rendered as chips. */
+    tags?: string[]
+    /** Optional status badge rendered beside the heading. */
+    status?: ProjectStatus
+    /** Optional action links rendered below the tag list. */
+    links?: { label: string; href: string; external: boolean }[]
+    /** URL of the back link. */
+    backHref: string
+    /** Label of the back link. */
+    backLabel: string
+}
+
+const { title, published, updated, summary, tags, status, links, backHref, backLabel } = Astro.props as Props
+---
+<header class="blueprint-frame space-y-5 p-5 sm:p-6">
+    <LinkAction href={backHref} variant="secondary">{backLabel}</LinkAction>
+    <div class="space-y-3">
+        <div class="blueprint-label flex flex-wrap gap-x-4 gap-y-1">
+            <span class="whitespace-nowrap">Published {formatDate(published)}</span>
+            <span class="whitespace-nowrap">Updated {formatDate(updated)}</span>
+        </div>
+        {
+            status ? (
+                <div class="flex items-start justify-between gap-4">
+                    <h1 class="text-3xl font-semibold text-(--blueprint-text) sm:text-4xl">{title}</h1>
+                    <StatusBadge status={status} />
+                </div>
+            ) : (
+                <h1 class="text-3xl font-semibold text-(--blueprint-text) sm:text-4xl">{title}</h1>
+            )
+        }
+        <p class="text-base leading-7 text-(--blueprint-muted)">{summary}</p>
+    </div>
+    {
+        tags && (
+            <ul class="flex flex-wrap gap-2">
+                {tags.map((tag) => (
+                    <li><TechTag label={tag} /></li>
+                ))}
+            </ul>
+        )
+    }
+    {
+        links && links.length > 0 && (
+            <div class="flex flex-wrap gap-3">
+                {links.map((link) => (
+                    <LinkAction href={link.href} external={link.external} variant="secondary">{link.label}</LinkAction>
+                ))}
+            </div>
+        )
+    }
+</header>

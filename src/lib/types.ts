@@ -114,25 +114,11 @@ export interface Colors {
 }
 
 /**
- * Valid project statuses — matches the Zod enum in content.ts.
+ * Valid project statuses — matches the Zod enum in content.config.ts.
  *
  * @remarks Used by StatusBadge, ProjectCard, and project frontmatter validation.
  */
 export type ProjectStatus = "Planned" | "In Progress" | "Archived"
-
-/**
- * Navigation link with a matcher function for active state detection.
- *
- * @remarks
- * - `href`: Route path.
- * - `label`: Display text.
- * - `match`: Function that returns true if the current path should highlight this link.
- */
-export interface NavLink {
-    href: string
-    label: string
-    match: (path: string) => boolean
-}
 
 /**
  * Visual variant for LinkAction and similar interactive elements.

@@ -1,0 +1,70 @@
+---
+interface DropdownOption {
+    value: string
+    label: string
+    disabled?: boolean
+}
+
+interface Props {
+    id: string
+    "aria-label": string
+    class?: string
+    value?: string
+    width?: string
+    placeholder?: string
+    disabled?: boolean
+    options?: DropdownOption[]
+    /** Extra <option> elements appended after the options prop. */
+    children: unknown
+}
+
+const {
+    id,
+    "aria-label": ariaLabel,
+    class: className,
+    value,
+    width,
+    placeholder,
+    disabled,
+    options = [],
+} = Astro.props as Props
+---
+<label
+    class:list={["dropdown", { disabled }, className ?? undefined]}
+    style={width ? { "--input-width": width } : undefined}
+>
+    <select
+        id={id}
+        value={value ?? ""}
+        class={value ? undefined : "placeholder"}
+        aria-label={ariaLabel}
+        disabled={disabled}
+    >
+        {placeholder && (
+            <option value="" disabled hidden>
+                {placeholder}
+            </option>
+        )}
+        {options.map((option) => (
+            <option value={option.value} disabled={option.disabled}>
+                {option.label}
+            </option>
+        ))}
+        <slot />
+    </select>
+    <span class="dropdown-icon" aria-hidden="true">
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+        >
+            <path d="M6 9l6 6l6 -6" />
+        </svg>
+    </span>
+</label>

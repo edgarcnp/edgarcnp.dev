@@ -1,10 +1,10 @@
 ---
 import Layout from "~/layouts/Layout.astro"
-import { getCollection } from "astro:content"
+import { getProjects } from "~/lib/content"
 import ProjectCard from "~/components/shared/ProjectCard.astro"
 import SectionHeading from "~/components/shared/SectionHeading.astro"
 
-const projects = (await getCollection("projects")).sort((a, b) => b.data.year - a.data.year)
+const projects = await getProjects()
 
 let inProgress = 0
 let planned = 0

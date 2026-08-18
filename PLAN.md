@@ -1,255 +1,125 @@
-# Migration Plan: SolidStart → Astro 7 (Path A — revised after Phase 0 spike)
+# edgarcnp.dev — Overhaul Record
 
-**Goal**: Migrate `edgarcnp.dev` from SolidStart 2.0.0-alpha.3 to Astro 7 + SolidJS islands, using **standards-based cross-document View Transitions** (no `<ClientRouter />`) and Astro's **built-in hash-based `security.csp`** — no `'unsafe-inline'`, no nonces, no HTML rewriting.
+**Scope**: full rework of `edgarcnp.dev` (was: Astro 7 + SolidJS islands, SSR on a Cloudflare Worker, Hono API routes, hash-based CSP via `security.csp`).
 
-**Why Path A**: The Phase 0 spike (recorded below) proved the original plan's core assumptions wrong: Astro SSR emits inline scripts/styles in production HTML, Astro 7.2.2 has **no** first-party nonce support, `require-trusted-types-for 'script'` breaks both ClientRouter's `DOMParser` swap and DOMPurify, and `transition:persist`/`astro:after-swap` are ClientRouter-only (inert in MPA). Path A keeps a strict CSP with zero hacks.
+**Result**: fully static site (zero client-side framework, zero inline scripts/styles), deployed to Cloudflare Workers as an **assets-only Worker** (no runtime code, no bindings, no adapter), strict `'self'`-only CSP enforced via `public/_headers`.
 
-**Source**: `./solidstart/` (read-only reference, untracked; **deleted 2026-08-18**)
-**Target**: repo root (Astro 7 scaffold)
-
----
-
-## Key Decisions
-
-| Decision | Choice |
-|----------|--------|
-| Framework | Astro 7.2.2 (`output: 'server'`) |
-| Islands | SolidJS via `@astrojs/solid-js` 7.0.2 |
-| Client routing | **None** — MPA. Cross-document View Transitions (`@view-transition { navigation: auto; }`), zero JS for transitions |
-| Route-change emphasis | `pagereveal` event listener (replaces `astro:after-swap`, ClientRouter-only) |
-| State persistence | No DOM/state carry-over between navigations (client-router feature). Back/forward via bfcache (native); `introPlayed` via `sessionStorage` (≈ once per tab session) |
-| CSP | Astro built-in `security.csp` (hash-based, stable since Astro 6). Emits a **header** for on-demand routes, meta element for prerendered |
-| Trusted Types | **Dropped** (gate decision): `require-trusted-types-for` + `trusted-types` removed; DOMPurify sanitization kept as defense-in-depth |
-| Markdown content | Astro Content Layer (`src/content.config.ts`, glob loader, Zod 4, build-time validation) |
-| Markdown highlighting | **Shiki off** (`theme: 'none'`) — Shiki emits inline `style=""` attrs, incompatible with hash CSP; matches old `marked` output |
-| API routes | Hono (same worker, `src/pages/api/[...path].ts` catch-all) |
-| Sitemap | `@astrojs/sitemap` (prerendered endpoint) |
-| Dead code (`ui/widgets/*`, unused `ui/static/*`, `ui/icons/*`, `lib/crypto.ts`) | Port everything, no deletions |
-| Page rendering | SSR on Worker (behavior parity); prerendering is a Phase 10 follow-up |
-| Adapter output | `dist/server/entry.mjs` + `dist/server/wrangler.json` (`main: entry.mjs`, assets `../client`, `no_bundle`) — **not** `dist/_worker.js/index.js` |
-| Deployment | Cloudflare Workers via `@astrojs/cloudflare` 14.2.1 |
+**Out of scope, by user decision**: API combination (Hono, `src/api/`, `services: API` binding — removed entirely, not ported); a future API is planned separately and is not documented here.
 
 ---
 
-## Phase 0: Spike — RECORD (gate executed, decisions taken)
+## Final architecture
 
-Throwaway app in `/tmp/opencode/astro-spike` (astro 7.2.2, @astrojs/solid-js 7.0.2, @astrojs/cloudflare 14.2.1, solid-js 1.9.14, dompurify 3.4.13, wrangler 4.123.0), verified with headless Chromium against the production build served via wrangler. Findings:
-
-1. **Inline scripts are inherent**: production HTML contains inline scripts (island hydration bootstraps, `_$HY` delegation, `astro:load`) and inline `<style>` — the "0 inline scripts" assumption was wrong. Dev mode aside, even bundled small scripts can be inlined.
-2. **No first-party nonce support in Astro 7.2.2** (verified in installed package source — zero nonce handling in `dist/core/`). The `data-astro-nonce`/`locals.nonce` story circulating in one blog is not in the package.
-3. **Trusted Types enforcement is incompatible**: `require-trusted-types-for 'script'` blocks ClientRouter's `DOMParser.parseFromString` swap **and** DOMPurify's internal parsing. → **Decision: drop Trusted Types enforcement** (the plan's pre-documented fallback). Keep `lib/trusted-types.ts` ported as-is (policy creation is harmless without enforcement; `sanitize()` still DOMPurify-sanitizes) — no deletions per plan policy.
-4. **`security.csp` works for MPA**: stable since Astro 6; hash-based; auto-hashes Astro's own inline scripts/styles; emits header on on-demand routes. **Gap**: integration-injected inline scripts (`_$HY` from @astrojs/solid-js) are **not** auto-hashed → Solid islands don't hydrate under `security.csp` out of the box. Fixed by pinning the static `_$HY` hash in `scriptDirective.hashes` (see Phase 1). **Maintenance: recompute on every solid-js upgrade** — no CI check; manual note.
-5. **`transition:persist` + `astro:after-swap` are ClientRouter-only** — verified inert in MPA (fresh document per navigation, module state resets). → Chose standards-based cross-document VT: Chrome/Edge 126+, Safari 18.2+, Firefox not shipped (behind flag) — self-gating progressive enhancement, plain navigation otherwise.
-6. **Adapter output shape**: `dist/server/entry.mjs` + `dist/server/wrangler.json` (`main: entry.mjs`, assets `../client`) — Phase 7 uses this, not the planned `dist/_worker.js/index.js`.
-7. **Shiki incompatibility**: Astro markdown highlighting emits inline `style=""` attributes → blocked by hash CSP (documented Astro warning). → Shiki off.
-
-**Gate verdict: original path (nonce middleware + Trusted Types + ClientRouter) fails as specced; Path A (this plan) adopted after research + re-testing. Decision recorded here as required by the gate.**
+- **Astro 7.2** (`output: "static"`), Content Layer for projects/writing + a `data` collection for profile/contact/capabilities JSON.
+- **Zero client framework**: all `ui/widgets/*` ported from SolidJS `.tsx` to plain `.astro` (props-only components); the shimmer background became a native **Web Component** (`<shimmer-background>`); scroll reveals via **motion.dev** (`motion` ^13.1.0, `src/scripts/motion.ts`, `inView()` + `animate()`).
+- **MPA with cross-document View Transitions** (no client router). Route-change emphasis: the shimmer element listens for `pagereveal` (guarded by `e.viewTransition`) and calls `controller.emphasize()`. Intro runs once per tab session (`sessionStorage` key `edgarcnp:shimmer-intro-played`); bfcache covers back/forward.
+- **Fonts**: Geist Sans + Geist Mono via `@fontsource/geist-sans` / `@fontsource/geist-mono` (400/500/600/700 and 400/500), imported in `src/styles/app.css`; Tailwind `@theme` maps `--font-sans`/`--font-mono` to the Geist faces; site CSS uses `--font-geist-sans`/`--font-geist-mono`.
+- **CSP**: `default-src 'self'; script-src 'self'; style-src 'self'; ...` in `public/_headers` (HTTP header, applies to all static routes). This required: `vite.build.assetsInlineLimit: 0` (never inline assets), `build.inlineStylesheets: "never"` (all CSS external), no `security.csp` config, no nonces/hashes, **no inline `data-*`-driven JS**.
+- **Markdown**: `markdown.syntaxHighlight: false` (Shiki emits inline `style=""` attributes — incompatible with `style-src 'self'`; also matches the previous `marked` output).
+- **Deployment**: plain `wrangler` static-assets Worker. No adapter — `astro build` emits `dist/client` (`outDir`), `wrangler.jsonc` declares `assets.directory: "./dist/client"` plus the custom domain; `wrangler deploy` uploads assets only. The `@astrojs/cloudflare` adapter was removed after the overhaul (it generated a merge of the config, injected bindings, and emitted a prerender worker — all pointless for a fully static site).
+- **Headers** (all in `public/_headers`): the CSP block above, COOP/CORP/Permissions-Policy/Referrer-Policy/HSTS/X-Content-Type-Options/X-Frame-Options/X-Permitted-Cross-Domain-Policies, `/_astro/*` → `public, max-age=31536000, immutable`, pages → `public, s-maxage=3600, max-age=0, must-revalidate`, `noindex` on `*.workers.dev` (incl. staging), staging CORS rule.
+- **Sitemap**: `@astrojs/sitemap` (prerendered `sitemap-index.xml`).
 
 ---
 
-## Phase 1: Dependencies & Config — EXECUTED (2026-08-17)
+## Decision record
 
-- Pinned versions: `@astrojs/cloudflare` 14.2.1, `@astrojs/solid-js` 7.0.2, `@astrojs/sitemap` ^3.7.3, solid-js 1.9.14, dompurify 3.4.13, zod ^4.4.3, hono ^4.12.26, tailwindcss ^4.3.1; dev: @astrojs/check, typescript ^6.0.3, wrangler 4.123.0, eslint 10 + typescript-eslint + eslint-plugin-solid + @stylistic (ported from old project), @tailwindcss/vite.
-- Scripts: `dev`/`build`/`preview` (`build && wrangler dev`)/`deploy` (`build && wrangler deploy`)/`typecheck` (`astro check`)/`lint` (`eslint .`).
-- `astro.config.mjs`: `output: 'server'`, cloudflare adapter, solidJs + sitemap integrations, `@tailwindcss/vite` plugin, `security.csp` (directives list + `scriptDirective.hashes: ["sha256-VmEf2BGdqVUwcvyhTyarJo/bY7DNqS2+T2sz4IO/kbw="]` — the `_$HY` pin).
-- `eslint.config.js` copied from `solidstart/` (byte-identical). `tsconfig.json` keeps `astro/tsconfigs/strict` + adds `~/*` → `./src/*`.
-- Scaffold deleted: `Welcome.astro`, `src/assets/`. `index.astro` placeholder restored after smoke test.
-- Smoke-verified (served via `wrangler dev --config dist/server/wrangler.json`): CSP header contains **all** inline script hashes incl. `_$HY`, all inline style hashes, every directive, no `unsafe-inline`/nonce/unsafe-eval. Hash stable across builds.
-
----
-
-## Phase 2: Content & Data (Content Layer)
-
-### 2.1 `src/content.config.ts`
-- `glob()` loader for `projects` (base `./src/content/projects`) and `writing` (base `./src/content/writing`)
-- Port Zod schemas from `solidstart/src/data/schemas.ts` + `solidstart/src/lib/content/validate.ts` (`import { z } from 'astro/zod'`); build/dev-time validation replaces per-request runtime validation
-
-### 2.2 Content queries
-- `getCollection('projects')` / `getEntry('projects', id)` replace `query()` RPC calls
-- Article bodies via `render(entry)` (Astro 7 markdown pipeline, Shiki off) — no `gray-matter`/`marked`/`linkedom`
-- Keep client-side `lib/trusted-types.ts` (DOMPurify `sanitize()`) before `innerHTML` on article pages
-
-### 2.3 Data files
-- `src/data/*.json` (profile, contact, capabilities) stay; validate once at module scope
-
-### 2.4 Delete (from git history only — `solidstart/` holds the reference)
-- `src/lib/server-content.ts` (the `"use server"` RPC bridge), `src/lib/content/query.ts` — not ported
+| Topic | Decision | Rationale |
+|---|---|---|
+| Rendering model | `output: "static"`, assets-only Worker | Site is content-only (4 projects, 1 writing post, static data). Zero runtime code = nothing to protect, no bindings, no session surface. |
+| Adapter | **Removed** (`@astrojs/cloudflare` dropped from deps/config) | Static output needs no adapter: `wrangler deploy` serves `dist/client` directly. Removes the adapter's generated config merging, auto-injected SESSION/IMAGES bindings, and the prerender worker. |
+| Client framework | **Removed** (SolidJS, `@astrojs/solid-js`, `dompurify`, `zod` deps dropped) | No islands need hydration; a framework for zero interactive surface is pure weight. All `ui/widgets/*` are props-only. |
+| Shimmer background | Native Web Component (`shimmer-background.ts`) | Same API surface as the Solid island, no framework; `connectedCallback`/`disconnectedCallback` for lifecycle (abort controller, idle callback, reconnection guard). |
+| Scroll reveals | motion.dev (`motion` ^13.1.0) | Tiny, bundled client script (`src/scripts/motion.ts`), respects `prefers-reduced-motion`. |
+| Syntax highlighting | Off | Shiki inline styles violate `style-src 'self'`. |
+| Fonts | Fontsource CSS imports | Astro's Fonts API (`<Font>`) emits an inline `<style>` — violates CSP. Fallback chosen after testing the API. |
+| CSP delivery | `public/_headers` (static header), not `security.csp` | Static output has no on-demand routes to attach headers to; `_headers` is the Worker-assets-native mechanism. |
+| Middleware | **Removed** (`src/middleware.ts` deleted) | Static output never runs middleware in production; every header it set is now an `_headers` rule. |
+| TypeScript | `^6.0.3` (pinned) | TypeScript 7 is rejected by `astro check` and typescript-eslint as of this writing. |
+| Image service | Default Astro image service (build-time) | With the adapter gone there is no runtime image service; `astro:assets` handles images at build time if any are ever added. |
+| Sessions | Off by default | Static output has no session mechanism; the earlier `session: false` + adapter option gymnastics existed only to stop the adapter from injecting a SESSION KV binding. |
+| JSON data | `data` collection in Content Layer (`src/data/*.json`, `z.union` schema) | Build-time validation + typed `getEntry` access, same as markdown collections. |
+| Dates | `z.coerce.date()` on `published`/`updated` | JSON feeds use non-ISO strings ("May 18, 2026") — coerce, then format with `Intl.DateTimeFormat` in `src/lib/content.ts`. |
+| Fallback behavior | Unknown slugs → 404 via `getStaticPaths` + 404.astro | Inline not-found fallbacks removed; Astro emits a canonical 404 for undefined paths. |
+| Licensing | Unchanged | LICENSE (Apache-2.0) covers code; COPYRIGHT (All Rights Reserved) covers content; README statement verified accurate. |
 
 ---
 
-## Phase 3: Layout & Pages
+## Implementation notes (ordered)
 
-### 3.1 `src/layouts/Layout.astro`
-- `<head>`: native `<title>`/description/canonical (no `@solidjs/meta`, no `lib/meta.tsx`)
-- Header/footer, nav active-state via **bundled** script on `DOMContentLoaded`/`pagereveal` (no inline scripts anywhere)
-- `<GradientShimmer client:load />` mounted site-wide (no `transition:persist` — inert in MPA)
-- **No `<ClientRouter />`**; **no `transition:animate`/`transition:persist` attributes** (they emit un-hashed scope styles)
-- Global CSS: `@view-transition { navigation: auto; }` — cross-document transitions, self-gating
-- Per-route `view-transition-name` morphing (optional, JIT via `pageswap`/`pagereveal`) — keep minimal first
+1. **Deps**: added `motion`, `@fontsource/geist-sans`, `@fontsource/geist-mono`; removed `solid-js`, `@astrojs/solid-js`, `dompurify`, `zod`, `eslint-plugin-solid`; bumped `astro` ^7.2.3, `tailwindcss`/`@tailwindcss/vite` ^4.3.3, `eslint` ^10.8.1, `typescript-eslint` ^8.67.0, `wrangler` 4.124.0; dropped stale `renovate.json` groups (SolidJS, Nitro/h3). `@astrojs/cloudflare` removed at the end — no adapter needed for static output.
+2. **Config**: `output: "static"`; `outDir: "./dist/client"`; removed `fonts` config (Fonts API) and its `fontProviders` import; removed `jsxImportSource` from `tsconfig.json`; removed eslint Solid block. (The adapter-specific `session: false` / `imageService` / `imagesBindingName` settings went away with the adapter.)
+3. **wrangler.jsonc**: removed SESSION/IMAGES/ASSETS bindings; dropped `nodejs_compat` (no Worker code exists); `assets.directory: "./dist/client"`.
+4. **Background**: `GradientShimmer.tsx` → `shimmer-background.ts` (Web Component; Layout mounts it as `<shimmer-background background intro class="shimmer-canvas">`; scripts imported in Layout, bundled to `/_astro/*.js`).
+5. **Components**: `ui/widgets/*.tsx` → `.astro` (Checkbox, Dropdown, Input, Link, SearchBar, Toggle, Tooltip); barrel `index.tsx` deleted; `lib/crypto.ts`, `lib/schemas.ts`, `lib/trusted-types.ts` deleted; `lib/types.ts` (NavLink), `lib/errors.ts`, `lib/guards.ts` trimmed to live code.
+6. **Content**: `content.config.ts` gains the `data` collection; new `src/lib/content.ts` (getProjects, getWritingPosts, getProjectBySlug, getWritingPostBySlug, formatDate, sortByPublished); index/projects/writings pages rewritten; `[slug].astro` pages use `getStaticPaths` + `Astro.props`.
+7. **Layout/pages**: Layout.astro — build-time nav active state, server-rendered hostname, new footer copy ("© 2026 Edgar Christian. Built with Astro — deployed on Cloudflare."), shimmer + motion scripts; new `ErrorPage.astro` + `ArticleHeader.astro`; 404/500 use them; contact.astro reads `data.contact` via `getEntry`.
+8. **Styles**: `ui.css` deleted (dead selectors); `components.css` pruned (dropped stale `ui-*` references; fixed a dangling `.markdown-body pre {` that broke the build); `animations.css` orphaned keyframes removed; `base.css` cleaned of dead `.button` selectors. Entry is `app.css` (imported by Layout): Tailwind import + fontsource imports + `@theme` Geist variables, then `./global.css` which pulls in `theme.css`, `base.css`, `shimmer.css`, `animations.css`, `components.css`. Tailwind 4 token surface (`--ui-*`, blueprint vars) lives in `theme.css`.
+9. **Verification (all green at the end of the work)**:
+   - `bun run typecheck` — 0 errors / 0 warnings / 0 hints
+   - `bun run lint` — 0 errors
+   - `bun run build` — 11 pages, `sitemap-index.xml`, Geist woff2 files emitted to `dist/client/_astro/` (referenced relatively from the external CSS)
+   - `bunx wrangler deploy --dry-run` — exit 0, "No bindings found"
+   - `wrangler dev` smoke test — CSP + all security headers present on responses, `Cache-Control` correct (pages vs `/_astro/*`), `data-reveal` + `shimmer-background` present, external scripts only, `@font-face` for Geist Sans/Mono served from `/_astro/` CSS
 
-### 3.2 Routes
+### Binding mystery (historical — why the adapter is gone)
 
-| Astro file | SolidStart source | Notes |
-|------------|-------------------|-------|
-| `src/pages/index.astro` | `src/routes/index.tsx` | Hero, featured projects, capabilities, CTAs |
-| `src/pages/contact.astro` | `src/routes/contact.tsx` | Contact cards |
-| `src/pages/projects/index.astro` | `src/routes/projects/index.tsx` | Stats + grid |
-| `src/pages/projects/[slug].astro` | `src/routes/projects/[slug].tsx` | SSR detail, markdown body |
-| `src/pages/writings/index.astro` | `src/routes/writings/index.tsx` | List |
-| `src/pages/writings/[slug].astro` | `src/routes/writings/[slug].tsx` | SSR post, markdown body |
-| `src/pages/404.astro` + `500.astro` | `src/routes/[...error].tsx` | Port error UI; XSS-guarded path display via `Astro.url` |
-| `src/pages/api/[...path].ts` | `src/routes/api/[...].ts` | Hono catch-all (`export const ALL`) |
-
-### 3.3 Components
-- `background/*` → port as-is (Solid)
-- `shared/*` → `.tsx` → `.astro` (props-only, mechanical): `ProjectCard`, `StatusBadge`, `TechTag`, `SectionHeading`, `Grid4`, `BlueprintFrame`
-- `ui/static/*` → `.astro` (all, incl. unused — no deletions)
-- `ui/icons/*` → `.astro` SVG components (no deletions)
-- `ui/widgets/*` → keep Solid `.tsx`; fix only imports referencing `@solidjs/router`/`@solidjs/meta`
-- `lib/crypto.ts` → port as-is; `lib/meta.tsx` deleted; `lib/trusted-types.ts` kept
-- Markdown config: `markdown.shikiConfig.theme: 'none'` in `astro.config.mjs`
+The `@astrojs/cloudflare` adapter **auto-injects** `kv_namespaces: [{ binding: "SESSION" }]` (when sessions are enabled) and `images: { binding: "IMAGES" }` (for its default `cloudflare-binding` image service) into the generated wrangler config, plus a `dist/server/.prerender/` worker config that produced an invalid `images: { binding: false }` when opted out. Workarounds (`session: false`, `imageService: "compile"`, `imagesBindingName: false`) tamed it — but the whole mechanism is pointless for a static site, so the adapter itself was removed and `wrangler deploy` now serves `dist/client` directly.
 
 ---
 
-## Phase 4: Shimmer Island (per-page island, no persistence)
-
-### 4.1 Port `GradientShimmer.tsx` + `background/*` unchanged (Solid island, `client:load`, no persist)
-
-### 4.2 Intro semantics (changed from plan v1)
-- `introPlayed` moves from a module-level signal to a **`sessionStorage` flag** — survives navigations and reloads within a tab session; resets per tab. **Recorded deviation from v1's "once per hard reload"** (module signals reset on every MPA load; sessionStorage is the closest safe equivalent — no localStorage).
-- Read flag on island init; set it when intro completes
-
-### 4.3 Route-change emphasis
-- `astro:after-swap` (ClientRouter-only) → **`pagereveal` event** listener: guard `if (!e.viewTransition) return`, then `controller.emphasize()`
-- Back/forward: bfcache restores the previous page's canvas + state natively (no code needed)
-
----
-
-## Phase 5: Middleware & Security
-
-### 5.1 `src/middleware.ts` (NO CSP — `security.csp` in config owns it)
-Port `solidstart/server/plugins/security-headers.ts` via `defineMiddleware`, minus the CSP block:
-- `/old-path` 301 redirect map
-- Security headers (COOP, CORP, Permissions-Policy, Referrer-Policy, HSTS, X-Content-Type-Options, X-DNS-Prefetch-Control, X-Frame-Options, X-Permitted-Cross-Domain-Policies)
-- Cache headers: `/_astro/*` assets immutable; non-API pages `public, s-maxage=3600, max-age=0, must-revalidate`
-
-### 5.2 `public/_headers`
-- Asset cache paths `/_build/assets/*` → `/_astro/*`; keep `noindex` on `*.workers.dev`
-
-### 5.3 `_$HY` hash maintenance
-- Recompute `scriptDirective.hashes` entry on any solid-js upgrade (manual step; no CI check)
-
----
-
-## Phase 6: API (Hono)
-
-### 6.1 Keep `src/api/*` as-is: `index.ts` (basePath `/api`), `middleware/{cors,csrf,ratelimit}.ts`, `routes/{rss,news,health}.ts`
-
-### 6.2 Mount via `src/pages/api/[...path].ts`
-```ts
-import app from '~/api';
-export const ALL = ({ request }) => app.fetch(request);
-```
-- `import.meta.env.PROD` guards unchanged; `API` service binding unchanged
-
----
-
-## Phase 7: Deploy & CI
-
-### 7.1 Wrangler config
-- Adapter generates `dist/server/wrangler.json` (`main: entry.mjs`, assets `../client`) at build. **Open item**: reconcile old root `wrangler.jsonc` settings (custom domain route, `API` service binding, `compatibility_flags: ["nodejs_compat"]`, observability) with the adapter-generated config — decide: keep root `wrangler.jsonc` as the deploy source with the adapter output merged, or deploy with `--config dist/server/wrangler.json` + extra settings. Verify with `wrangler deploy --dry-run`.
-
-### 7.2 CI workflows (`.github/workflows/ci.yml` + `.forgejo/workflows/ci.yml`)
-- `bun install --frozen-lockfile` → `bun run typecheck` → `bun run lint` → `bun run build`
-- Same triggers (push/PR to main + manual)
-
-### 7.3 Docs
-- This PLAN.md becomes the migration record (final pass); update README licensing note if needed
-
----
-
-## Phase 8: Verification
-
-1. `astro check` / `bun run lint` / `bun run build` green
-2. `wrangler dev` manual QA (headless browser + console capture):
-   - Shimmer intro: once per tab session (sessionStorage); emphasis fires on every navigation (pagereveal); bfcache back/forward restores state
-   - **Zero CSP violations on every route** (hash coverage incl. `_$HY`), incl. direct loads, 404/500
-   - API endpoints (`/api/health`, `/api/news`, `/api/rss`)
-   - 404/500 pages with sanitized path display
-   - Meta/canonical/title correct per route; sitemap renders
-   - Direct URL loads, asset caching headers, `/old-path` redirects, cross-document VT fires in Chromium
-3. Visual diff of article pages (Astro markdown, Shiki off vs `marked`)
-
----
-
-## Phase 10: Follow-up (post-migration, out of scope)
-
-- Prerender all non-API pages (`export const prerender = true`) → Worker serves API only; prerendered routes emit the CSP as a meta element (better edge-cache story than per-request headers)
-
----
-
-## File Structure (target)
+## File structure (current)
 
 ```
-astro.config.mjs             # output: 'server', cloudflare, solidJs, sitemap, tailwind, security.csp (+ _$HY hash)
-wrangler.jsonc               # reconcile with adapter-generated dist/server/wrangler.json (Phase 7)
-src/
-├── middleware.ts            # redirects + security headers + cache headers (NO CSP)
-├── content.config.ts        # Content Layer: glob loader + Zod 4 schemas
-├── layouts/
-│   └── Layout.astro         # meta, header/footer, shimmer island, @view-transition CSS, no ClientRouter
-├── pages/
-│   ├── index.astro
-│   ├── contact.astro
-│   ├── 404.astro
-│   ├── 500.astro
-│   ├── api/[...path].ts     # Hono catch-all
-│   ├── projects/{index.astro,[slug].astro}
-│   └── writings/{index.astro,[slug].astro}
-├── components/
-│   ├── background/          # GradientShimmer + canvas (Solid island, unchanged)
-│   ├── shared/              # .astro ports
-│   └── ui/                  # static/, widgets/, icons/ (all ported, no deletions)
-├── api/                     # Hono app (unchanged)
-├── content/
-│   ├── projects/*.md
-│   └── writing/*.md
-├── data/                    # profile.json, contact.json, capabilities.json
-├── lib/                     # types, schemas, guards, errors, math, crypto, trusted-types
-└── styles/                  # global.css (Tailwind import), theme, base, ui, components, shimmer, animations
+astro.config.mjs          # static output, outDir ./dist/client, sitemap, tailwind
+wrangler.jsonc            # deploy config: name, compatibility_date, assets ./dist/client, custom_domain
 public/
-└── _headers                 # /_astro/* caching, noindex workers.dev
+├── _headers              # CSP + security headers + cache rules + noindex (the only header source)
+├── robots.txt
+└── favicon.*
+src/
+├── content.config.ts     # projects, writing (glob) + data (JSON) collections, Zod schemas
+├── lib/
+│   ├── content.ts        # typed collection queries + formatDate/sort helpers
+│   ├── types.ts, errors.ts, guards.ts, math.ts
+├── components/
+│   ├── background/       # canvas, config, draw, intro, shimmer-background (Web Component), speedup, stripe
+│   ├── shared/           # ArticleHeader, BlueprintFrame, ErrorPage, Grid4, ProjectCard, SectionHeading, StatusBadge, TechTag
+│   └── ui/
+│       ├── icons/        # .astro SVG components
+│       ├── static/       # Button, CardLink, CopyIcon, LinkAction, Skeleton, Spinner, Text
+│       └── widgets/      # Checkbox, Dropdown, Input, Link, SearchBar, Toggle, Tooltip (.astro ports)
+├── content/              # projects/*.md, writing/*.md
+├── data/                 # profile.json, contact.json, capabilities.json
+├── layouts/Layout.astro  # meta, header/footer, shimmer + motion scripts
+├── pages/                # index, contact, 404, 500, projects/{index,[slug]}, writings/{index,[slug]}
+├── scripts/motion.ts     # reveal-on-scroll (motion.dev)
+└── styles/               # app.css (entry: tailwind + fonts + global.css) + theme, base, components, shimmer, animations
 ```
 
 ---
 
-## Migration Order
+## Commands
 
-1. ~~Phase 0~~ — Spike + decision record (done: Path A)
-2. ~~Phase 1~~ — Dependencies & config, `_$HY` pin, smoke build (done)
-3. ~~Phase 2~~ — Content Layer & data (done: 4 projects + 1 writing, schemas 1:1 from old `query.ts`)
-4. ~~Phase 3~~ — Layout & pages (done: all routes ported, Shiki off via `syntaxHighlight: false`, `tsconfig.jsxImportSource: solid-js` added, `content/sanitize.ts` dropped — it was the server-side marked+linkedom pipeline; client-side DOMPurify retained)
-5. ~~Phase 4~~ — Shimmer island (done: sessionStorage key `edgarcnp:shimmer-intro-played` set at intro start; `pagereveal` listener → `controller.emphasize()`; bfcache covers back/forward)
-6. ~~Phase 5~~ — Middleware & headers (done: `src/middleware.ts` — redirects, 9 security headers, `/_astro/` + page cache headers; NO CSP; `_headers` + `robots.txt` ported, sitemap URL → `/sitemap-index.xml`)
-7. ~~Phase 6~~ — Hono API (done: `src/api/` byte-identical, `src/pages/api/[...path].ts` GET-only mount mirroring old route; **REMOVED by user decision 2026-08-18** — `src/api/`, the mount, `hono` dep, and `services: API` binding deleted; new overhauled API replaces it)
-8. ~~Phase 7~~ — Deploy & CI (done: root `wrangler.jsonc` — adapter MERGES it into `dist/server/wrangler.json` (verified); `wrangler deploy --dry-run` exit 0; CI workflows ported byte-identical)
-9. **Verify** — `astro check` + lint + build + `wrangler dev` QA (current: all three gates green — build 0 / typecheck 0 / lint 0; Phase 8 Gate 2 item e found `/api/*` 500s — `app.fetch(request)` passes no env → `c.env` undefined → ratelimit TypeError; **MOOT — API removed by user decision**, new API planned)
-10. **Phase 10** — Prerender follow-up (later)
+| Command | Action |
+|---|---|
+| `bun install` | Install dependencies |
+| `bun run dev` | Astro dev server (background: `astro dev --background`) |
+| `bun run build` | Build to `dist/` |
+| `bun run preview` | `bun run build && wrangler dev` (local Worker serving `dist/client`) |
+| `bun run deploy` | `bun run build && wrangler deploy` |
+| `bun run typecheck` | `astro check` |
+| `bun run lint` | `eslint .` |
 
-Each phase builds on the previous. Verify build after each phase.
+Deploy is a pure static asset upload ("Total Upload: 0.31 KiB" — no Worker script; all assets served from the assets directory).
 
 ---
 
-## Known Risks
+## Known risks / follow-ups
 
-| Risk | Mitigation |
-|------|------------|
-| `_$HY` hash drift on solid-js upgrade → island dead + CSP violation | Recompute + update `scriptDirective.hashes` (manual note in README); visible symptom is the island not hydrating |
-| `security.csp` misses other integration-injected inline content in future | Phase 8 full console QA per route; pin versions |
-| Firefox lacks cross-document VT | Self-gating `@view-transition` — plain navigation, no breakage |
-| Intro semantics changed (once per tab session vs once per hard reload) | Recorded deviation; trivially reversible (localStorage or per-reload flag) |
-| Astro 7 markdown rendering differs from `marked` | Visual diff pass (Phase 8); syntaxHighlight off to minimize divergence |
-| Error-page pattern differs (search-params is a SolidStart-ism) | 404/500 with `Astro.url` |
-| `wrangler.jsonc` vs adapter-generated config conflict | RESOLVED: adapter merges root config (verified empirically); no `main` in root config (adapter-owned); dry-run green |
-| Footer copy still says "SolidStart / SolidJS / Cloudflare-ready" | Ported verbatim from old site; needs copy decision |
-| `compatibility_date` 2026-06-19 (old value wins) + `nodejs_compat` | Possible runtime differences on workerd; validated via dry-run, runtime QA is Phase 8 |
+| Item | Note |
+|---|---|
+| Firefox lacks cross-document View Transitions | Self-gating `@view-transition { navigation: auto; }` — plain navigation elsewhere, no breakage. |
+| Fonts are `font-src 'self'` only | Any future third-party font CDN requires a CSP update. |
+| New API (planned separately) | Will need a Worker (`output: "server"` or a separate Worker) — bindings/CSP decisions documented here apply. |
+| `compatibility_date` 2026-06-19 in `wrangler.jsonc` | Bump when bumping Wrangler to keep the Worker current. |

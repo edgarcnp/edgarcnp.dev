@@ -1,7 +1,13 @@
 ---
 import Layout from "~/layouts/Layout.astro"
-import contactData from "~/data/contact.json"
+import { getEntry } from "astro:content"
 import SectionHeading from "~/components/shared/SectionHeading.astro"
+
+const contactEntry = await getEntry("data", "contact")
+if (!contactEntry || !("links" in contactEntry.data)) {
+    throw new Error("Missing contact data entry")
+}
+const contact = contactEntry.data
 ---
 
 <Layout title="Contact" description="Static links, no message collection. Email or verified profile links." path="/contact">
@@ -12,7 +18,7 @@ import SectionHeading from "~/components/shared/SectionHeading.astro"
             description="Use email or a verified profile link. This portfolio does not collect, store, or relay visitor messages."
         />
         <div class="section-motion motion-delay-1 grid gap-4 sm:grid-cols-2">
-            {contactData.links.map((link) => (
+            {contact.links.map((link) => (
                 <a
                     href={link.href}
                     target={link.external ? "_blank" : undefined}

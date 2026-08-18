@@ -1,20 +1,4 @@
-import { AppError, CssError } from "./errors"
-
-/**
- * Assert a value is not null or undefined.
- *
- * @param value - The value to check.
- * @param name  - Name of the value for the error message.
- * @returns The value if it's not null/undefined.
- *
- * @throws {CssError} If value is null or undefined.
- */
-export function assertDefined<T>(value: T | null | undefined, name: string): T {
-    if (value === null || value === undefined) {
-        throw new CssError(name, `Missing required value: ${name}`)
-    }
-    return value
-}
+import { CssError } from "./errors"
 
 /**
  * Assert a string parses to a finite number.
@@ -47,24 +31,4 @@ export function assertNonEmpty(value: string, name: string): string {
         throw new CssError(name, `Missing CSS value: ${name}`)
     }
     return value
-}
-
-/**
- * Assert a DOM element exists and matches the expected tag.
- *
- * @param selector - CSS selector to query (e.g. "#app", "canvas").
- * @param tagName  - Expected HTML tag name (e.g. "canvas", "div").
- * @returns The matched element cast to the correct type.
- *
- * @throws {AppError} If element is missing or tag doesn't match.
- */
-export function assertElement<K extends keyof HTMLElementTagNameMap>(
-    selector: string,
-    tagName: K,
-): HTMLElementTagNameMap[K] {
-    const el = document.querySelector(selector)
-    if (el?.localName !== tagName) {
-        throw new AppError(`Missing required element: ${selector}`)
-    }
-    return el as HTMLElementTagNameMap[K]
 }

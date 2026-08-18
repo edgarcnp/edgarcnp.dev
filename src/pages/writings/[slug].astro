@@ -1,57 +1,30 @@
 ---
 import Layout from "~/layouts/Layout.astro"
 import { getCollection, render } from "astro:content"
-import LinkAction from "~/components/ui/static/LinkAction.astro"
-import TechTag from "~/components/shared/TechTag.astro"
+import ArticleHeader from "~/components/shared/ArticleHeader.astro"
 
-const { slug } = Astro.params
-const posts = (await getCollection("writing")).sort(
-    (a, b) => new Date(b.data.published).getTime() - new Date(a.data.published).getTime(),
-)
-const post = posts.find((p) => p.data.slug === slug)
-const { Content } = post ? await render(post) : { Content: undefined as never }
+export async function getStaticPaths() {
+    const posts = await getCollection("writing")
+    return posts.map((post) => ({ params: { slug: post.data.slug }, props: { post } }))
+}
+
+const { post } = Astro.props
+const { Content } = await render(post)
 ---
 
-<Layout
-    title={post?.data.title ?? "Writing"}
-    description={post?.data.summary}
-    path={`/writings/${slug}`}
->
-    {
-        post ? (
-            <article class="mx-auto max-w-3xl space-y-8">
-                <header class="blueprint-frame space-y-5 p-5 sm:p-6">
-                    <LinkAction href="/writings" variant="secondary">Back to writing</LinkAction>
-                    <div class="space-y-3">
-                        <div class="blueprint-label flex flex-wrap gap-x-4 gap-y-1">
-                            <span class="whitespace-nowrap">Published {post.data.published}</span>
-                            <span class="whitespace-nowrap">Updated {post.data.updated}</span>
-                        </div>
-                        <h1 class="text-3xl font-semibold text-(--blueprint-text) sm:text-4xl">{post.data.title}</h1>
-                        <p class="text-base leading-7 text-(--blueprint-muted)">{post.data.summary}</p>
-                    </div>
-                    <ul class="flex flex-wrap gap-2">
-                        {post.data.tags.map((tag) => (
-                            <li><TechTag label={tag} /></li>
-                        ))}
-                    </ul>
-                </header>
-                <div class="markdown-body">
-                    <Content />
-                </div>
-            </article>
-        ) : (
-            <section class="blueprint-frame max-w-2xl space-y-5 p-5 sm:p-6">
-                <h1 class="text-3xl font-semibold text-(--blueprint-text)">Post not found</h1>
-                <LinkAction href="/writings" variant="secondary">Back to writings</LinkAction>
-            </section>
-        )
-    }
-
-    <script>
-        import { sanitize } from "~/lib/trusted-types"
-
-        const el = document.querySelector(".markdown-body")
-        if (el) el.innerHTML = sanitize(el.innerHTML)
-    </script>
+<Layout title={post.data.title} description={post.data.summary} path={`/writings/${post.data.slug}`}>
+    <article class="mx-auto max-w-3xl space-y-8">
+        <ArticleHeader
+            title={post.data.title}
+            published={post.data.published}
+            updated={post.data.updated}
+            summary={post.data.summary}
+            tags={post.data.tags}
+            backHref="/writings"
+            backLabel="Back to writing"
+        />
+        <div class="markdown-body">
+            <Content />
+        </div>
+    </article>
 </Layout>

@@ -1,35 +1,41 @@
 # edgarcnp.dev
 
-Personal portfolio site — Astro 7 with SolidJS islands, Hono API routes, and Cloudflare Workers deployment.
+Personal portfolio site — fully static Astro 7, zero client-side framework, deployed to Cloudflare Workers as a static-assets Worker (no adapter, no bindings, no Worker code).
 
 ## Stack
 
-- **Astro 7** (`output: 'server'`) with SolidJS islands via `@astrojs/solid-js`
-- **Cross-document View Transitions** (standards-based, no client router) with `@view-transition { navigation: auto; }`
-- **Hash-based CSP** via Astro's built-in `security.csp` (no `'unsafe-inline'`, no nonces) + DOMPurify sanitization before client-side `innerHTML`
-- **Content Layer** (`src/content.config.ts`, Zod 4, build-time validation) for projects and writing
+- **Astro 7** (`output: "static"`, output to `dist/client`) with the **Content Layer** (`src/content.config.ts`, Zod schemas, build-time validation) for projects, writing, and JSON data (`data` collection)
+- **No client framework**: SolidJS removed; UI widgets are plain `.astro` components; the shimmer background is a native **Web Component**; scroll reveals via **motion.dev**
+- **MPA with cross-document View Transitions** (`@view-transition { navigation: auto; }`), no client router
+- **Strict CSP** (`script-src 'self'; style-src 'self'` — zero inline scripts/styles) plus full security header set, all in `public/_headers`
+- **Geist Sans / Geist Mono** via `@fontsource` (CSP-safe: the Astro Fonts API emits inline styles)
 - **Tailwind CSS 4** via `@tailwindcss/vite`
-- Deployed to **Cloudflare Workers** via `@astrojs/cloudflare`
+- Deployed to **Cloudflare Workers** via plain `wrangler` static assets (`wrangler.jsonc` → `assets.directory: "./dist/client"`)
+
+See [PLAN.md](PLAN.md) for the full overhaul record and decision rationale.
 
 ## Project structure
 
 ```
-astro.config.mjs          # server output, cloudflare, solidJs, sitemap, tailwind, security.csp
-wrangler.jsonc            # deploy config (merged into dist/server/wrangler.json at build)
+astro.config.mjs          # static output (outDir: ./dist/client), sitemap, tailwind
+wrangler.jsonc            # deploy config (static assets, custom domain)
+public/
+├── _headers              # CSP + security headers + cache rules + noindex
+├── robots.txt
+└── favicon.*
 src/
-├── middleware.ts         # security headers, redirects, cache headers (CSP lives in config)
-├── content.config.ts     # glob loaders + Zod schemas for projects/writing
+├── content.config.ts     # glob loaders (projects, writing) + data collection (JSON)
+├── lib/content.ts        # typed collection queries, date formatting, sorting
 ├── layouts/Layout.astro
-├── pages/                # index, contact, 404, 500, projects/*, writings/*
+├── pages/                # index, contact, 404, 500, projects/{index,[slug]}, writings/{index,[slug]}
 ├── components/
-│   ├── background/       # GradientShimmer (Solid island) + canvas
+│   ├── background/       # shimmer Web Component + canvas engine
 │   ├── shared/           # .astro components
-│   └── ui/               # static/, icons/ (.astro), widgets/ (Solid, kept)
+│   └── ui/               # icons/, static/, widgets/ (.astro)
 ├── content/              # projects/*.md, writing/*.md
 ├── data/                 # profile.json, contact.json, capabilities.json
-├── lib/                  # types, schemas, guards, errors, math, crypto, trusted-types
-└── styles/               # global.css + theme, base, ui, components, shimmer, animations
-public/                   # _headers, robots.txt, favicons
+├── scripts/motion.ts     # reveal-on-scroll (motion.dev)
+└── styles/               # app.css (entry) + theme, base, components, shimmer, animations
 ```
 
 ## Commands
@@ -37,16 +43,18 @@ public/                   # _headers, robots.txt, favicons
 | Command | Action |
 |---|---|
 | `bun install` | Install dependencies |
-| `bun run dev` | Start the dev server at `localhost:4321` |
+| `bun run dev` | Start the dev server at `localhost:4321` (background: `astro dev --background`) |
 | `bun run build` | Build production output to `./dist/` |
-| `bun run preview` | `astro build` + `wrangler dev` (local worker) |
-| `bun run deploy` | `astro build` + `wrangler deploy` |
+| `bun run preview` | `bun run build` + `wrangler dev` (local worker serving `dist/client`) |
+| `bun run deploy` | `bun run build` + `wrangler deploy` |
 | `bun run typecheck` | `astro check` |
 | `bun run lint` | `eslint .` |
 
 ## Notes
 
-- The `_$HY` Solid hydration bootstrap hash is pinned in `security.csp.scriptDirective.hashes` (Astro 7.2.2 doesn't auto-hash it). **Recompute it on any `solid-js` upgrade** or the shimmer island will stop hydrating.
+- Production output must stay free of inline `<script>`/`<style>` — the CSP in `public/_headers` allows `'self'` only. Keep `vite.build.assetsInlineLimit: 0`, `build.inlineStylesheets: "never"`, and `markdown.syntaxHighlight: false` in `astro.config.mjs`.
+- Deployment is adapter-free: `astro build` emits `dist/client` and `wrangler deploy` uploads it as static assets. Do not re-add `@astrojs/cloudflare` — it injects SESSION/IMAGES bindings and a prerender worker config that are pointless (and noisy) for a fully static site (details in PLAN.md).
+- Fonts come from `@fontsource/geist-sans` / `@fontsource/geist-mono` imports in `src/styles/app.css`. Do not switch to the Astro Fonts API — it emits inline `<style>` (CSP violation).
 
 ## License
 

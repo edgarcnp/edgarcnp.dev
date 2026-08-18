@@ -1,7 +1,6 @@
 import eslint from "@eslint/js"
 import { defineConfig, globalIgnores } from "eslint/config"
 import stylistic from "@stylistic/eslint-plugin"
-import solid from "eslint-plugin-solid"
 import tseslint from "typescript-eslint"
 
 export default defineConfig(
@@ -28,7 +27,6 @@ export default defineConfig(
             eslint.configs.recommended,
             ...tseslint.configs.strictTypeChecked,
             ...tseslint.configs.stylisticTypeChecked,
-            solid.configs["flat/recommended"],
         ],
         languageOptions: {
             parserOptions: {
@@ -114,9 +112,6 @@ export default defineConfig(
             "@stylistic/rest-spread-spacing": ["error", "never"],
             "@stylistic/template-curly-spacing": ["error", "never"],
             "@stylistic/jsx-quotes": ["error", "prefer-double"],
-
-            // --- SolidJS ---
-            "solid/no-innerhtml": "off", // sanitized via DOMPurify
         },
     },
 )

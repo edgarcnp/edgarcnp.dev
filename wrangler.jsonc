@@ -6,19 +6,7 @@
         "enabled": true
     },
     "assets": {
-        "binding": "ASSETS",
         "directory": "./dist/client"
-    },
-    "compatibility_flags": [
-        "nodejs_compat"
-    ],
-    "kv_namespaces": [
-        {
-            "binding": "SESSION"
-        }
-    ],
-    "images": {
-        "binding": "IMAGES"
     },
     "routes": [
         {

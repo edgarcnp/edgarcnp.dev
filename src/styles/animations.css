@@ -15,24 +15,6 @@
   }
 }
 
-@keyframes ui-skeleton {
-  from {
-    background-position: -350px 0;
-  }
-  to {
-    background-position: calc(350px + 100%) 0;
-  }
-}
-
-@keyframes ui-spinner {
-  from {
-    transform: rotate(0);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .page-motion {
   animation: page-enter 200ms ease-out both;
 }

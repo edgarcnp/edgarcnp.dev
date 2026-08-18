@@ -22,6 +22,7 @@ body {
   margin: 0;
   color: var(--blueprint-text);
   background: var(--blueprint-bg);
+  font-family: var(--font-geist-sans), sans-serif;
 }
 
 h1,
@@ -30,7 +31,6 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: 500;
   margin-block: 0;
   margin-inline: 0;
   line-height: 120%;
@@ -41,13 +41,6 @@ h2 {
   letter-spacing: -2%;
   line-height: 110%;
 }
-
-h1 { font-size: 43px; }
-h2 { font-size: 36px; }
-h3 { font-size: 24px; }
-h4 { font-size: 17px; }
-h5 { font-size: 14px; }
-h6 { font-size: 12px; }
 
 p,
 a,
@@ -67,7 +60,7 @@ a {
   text-underline-offset: 4px;
 }
 
-a:not(.button):focus-visible {
+a:focus-visible {
   border-radius: 5px;
 }
 
@@ -102,13 +95,7 @@ input {
 }
 
 button:focus-visible,
-.button:focus-visible,
 a:focus-visible {
   outline: 2px var(--ui-primary) solid;
   outline-offset: 3px;
-}
-
-@media screen and (max-width: 535px) {
-  h1 { font-size: 38px; }
-  h2 { font-size: 30px; }
 }

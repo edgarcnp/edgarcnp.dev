@@ -1,9 +1,6 @@
 ---
 import Layout from "~/layouts/Layout.astro"
-import profileData from "~/data/profile.json"
-import contactData from "~/data/contact.json"
-import capabilitiesData from "~/data/capabilities.json"
-import { getCollection } from "astro:content"
+import { getCollection, getEntry } from "astro:content"
 import BlueprintFrame from "~/components/shared/BlueprintFrame.astro"
 import Grid4 from "~/components/shared/Grid4.astro"
 import LinkAction from "~/components/ui/static/LinkAction.astro"
@@ -12,12 +9,25 @@ import SectionHeading from "~/components/shared/SectionHeading.astro"
 
 const projects = (await getCollection("projects")).sort((a, b) => b.data.year - a.data.year)
 const featuredProjects = projects.filter((p) => p.data.featured)
-const codeberg = contactData.links.find((l) => l.label === "Codeberg")
+
+const profileEntry = await getEntry("data", "profile")
+const contactEntry = await getEntry("data", "contact")
+const capabilitiesEntry = await getEntry("data", "capabilities")
+if (!profileEntry || !contactEntry || !capabilitiesEntry) {
+    throw new Error("Missing site data entry")
+}
+const profile = profileEntry.data
+const contact = contactEntry.data
+const capabilities = capabilitiesEntry.data
+if (!("name" in profile) || !("links" in contact) || !("capabilities" in capabilities)) {
+    throw new Error("Site data entry has unexpected shape")
+}
+const codeberg = contact.links.find((l) => l.kind === "code")
 
 const stats = [
     { label: "Runtime", value: "Cloudflare Workers" },
-    { label: "Interface", value: profileData.role },
-    { label: "Availability", value: profileData.availability },
+    { label: "Interface", value: profile.role },
+    { label: "Availability", value: profile.availability },
 ]
 
 const breakpoints = [
@@ -34,8 +44,8 @@ const breakpoints = [
                 <div class="space-y-5">
                     <p class="blueprint-label">Secure web systems / Responsive UI</p>
                     <div class="space-y-4">
-                        <h1 class="max-w-3xl text-4xl font-semibold tracking-normal text-(--blueprint-text) sm:text-5xl lg:text-6xl">{profileData.name}</h1>
-                        <p class="max-w-2xl text-lg leading-8 text-(--blueprint-muted) sm:text-xl">{profileData.summary}</p>
+                        <h1 class="max-w-3xl text-4xl font-semibold tracking-normal text-(--blueprint-text) sm:text-5xl lg:text-6xl">{profile.name}</h1>
+                        <p class="max-w-2xl text-lg leading-8 text-(--blueprint-muted) sm:text-xl">{profile.summary}</p>
                     </div>
                 </div>
 
@@ -73,7 +83,7 @@ const breakpoints = [
             </div>
         </section>
 
-        <section class="section-motion motion-delay-1 space-y-6">
+        <section data-reveal class="section-motion motion-delay-1 space-y-6">
             <SectionHeading
                 label="Selected Work"
                 title="Secure content, responsive UI, and edge deployment."
@@ -94,9 +104,9 @@ const breakpoints = [
             </div>
         </section>
 
-        <Grid4 items={capabilitiesData.capabilities} />
+        <Grid4 items={capabilities.capabilities} />
 
-        <section class="section-motion motion-delay-2 grid gap-4 lg:grid-cols-[1fr_1fr]">
+        <section data-reveal class="section-motion motion-delay-2 grid gap-4 lg:grid-cols-[1fr_1fr]">
             <BlueprintFrame class="p-5">
                 <SectionHeading
                     label="Writing"
@@ -109,11 +119,11 @@ const breakpoints = [
                 <div class="space-y-3">
                     <p class="blueprint-label">Contact Endpoint</p>
                     <h2 class="text-2xl font-semibold text-(--blueprint-text)">Static links, no message collection.</h2>
-                    <p class="text-sm leading-6 text-(--blueprint-muted)">{profileData.summary}</p>
+                    <p class="text-sm leading-6 text-(--blueprint-muted)">{profile.summary}</p>
                 </div>
                 <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                     <LinkAction href="/contact" variant="secondary">Open contact</LinkAction>
-                    <LinkAction href={`mailto:${profileData.email}`} variant="accent">{profileData.email}</LinkAction>
+                    <LinkAction href={`mailto:${profile.email}`} variant="accent">{profile.email}</LinkAction>
                     {codeberg && (
                         <LinkAction href={codeberg.href} external={codeberg.external} variant="warm-secondary">{codeberg.label}</LinkAction>
                     )}
