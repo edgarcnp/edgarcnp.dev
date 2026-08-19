@@ -1,0 +1,11 @@
+---
+import IconMoon from "~/components/ui/icons/IconMoon.astro"
+import IconSun from "~/components/ui/icons/IconSun.astro"
+
+const { class: _className, ...rest } = Astro.props as Record<string, string | undefined>
+---
+<button {...rest} type="button" class="theme-toggle" aria-pressed="false" aria-label="Switch to dark theme" title="Switch to dark theme">
+    <IconMoon class="theme-toggle__icon theme-toggle__moon" />
+    <IconSun class="theme-toggle__icon theme-toggle__sun" />
+</button>
+<script>import "~/scripts/theme-toggle";</script>

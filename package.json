@@ -28,6 +28,7 @@
     "@stylistic/eslint-plugin": "^5.10.0",
     "@tailwindcss/vite": "^4.3.3",
     "eslint": "^10.8.1",
+    "playwright-core": "^1.62.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.67.0",
     "wrangler": "4.124.0"

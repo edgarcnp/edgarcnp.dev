@@ -1,0 +1,26 @@
+/* Venetian-blind page-transition curtain. Slats scale shut to cover the view,
+ * the new page swaps in underneath, then the slats open to reveal it. */
+
+.curtains {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.curtains__slat {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  background: var(--bg-elevated);
+  transform: scaleY(0);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .curtains,
+  .curtains__slat {
+    display: none;
+  }
+}

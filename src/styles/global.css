@@ -1,6 +1,7 @@
 @import "./theme.css";
 @import "./base.css";
-@import "./shimmer.css";
+@import "./background.css";
+@import "./curtains.css";
 @import "./animations.css";
 @import "./components.css";
 

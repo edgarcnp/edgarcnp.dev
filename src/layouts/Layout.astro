@@ -2,6 +2,8 @@
 import { ClientRouter } from "astro:transitions"
 import profileData from "~/data/profile.json"
 import "../styles/app.css"
+import SkipLink from "~/components/shared/SkipLink.astro"
+import ThemeToggle from "~/components/shared/ThemeToggle.astro"
 
 interface Props {
     title: string
@@ -17,25 +19,17 @@ const siteName = "edgarcnp.dev"
 const fullTitle = !title ? siteName : title === siteName ? title : `${title} — ${siteName}`
 const hostname = Astro.site?.host ?? "edgarcnp.dev"
 
-const NAV_BASE_CLASS = "inline-flex min-h-10 items-center justify-center rounded-sm px-3 py-2 outline-none transition focus-visible:ring-2 focus-visible:ring-(--blueprint-accent) sm:min-w-24"
-const ACTIVE_CLASS = "bg-[rgba(94,214,238,0.12)] font-semibold text-(--blueprint-accent) ring-1 ring-[rgba(94,214,238,0.24)] hover:bg-[rgba(94,214,238,0.16)]"
-const INACTIVE_CLASS = "hover:bg-[rgba(94,214,238,0.08)] hover:text-(--blueprint-accent)"
-
-function isNavActive(rule: string): boolean {
-    const separator = rule.indexOf(":")
-    const kind = rule.slice(0, separator)
-    const target = rule.slice(separator + 1)
-    return kind === "equals" ? path === target : path.startsWith(target)
-}
-
-function navClass(rule: string): string {
-    return isNavActive(rule) ? `${NAV_BASE_CLASS} ${ACTIVE_CLASS}` : `${NAV_BASE_CLASS} ${INACTIVE_CLASS}`
-}
+const navLinks = [
+    { href: "/projects", label: "Projects", active: path === "/projects" || path.startsWith("/projects/") },
+    { href: "/writings", label: "Writings", active: path === "/writings" || path.startsWith("/writings/") },
+    { href: "/contact", label: "Contact", active: path === "/contact" },
+]
 ---
 
 <!doctype html>
 <html lang="en">
     <head>
+        <script src="/js/theme-init.js" is:inline></script>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -47,68 +41,42 @@ function navClass(rule: string): string {
         <ClientRouter />
     </head>
     <body>
-        <div class="blueprint-page">
-            <shimmer-background background intro class="shimmer-canvas" transition:persist></shimmer-background>
+        <SkipLink />
+        <div class="ambient-bg" aria-hidden="true"></div>
 
-            <header class="sticky top-0 z-20 border-b border-(--blueprint-line-muted) bg-[rgba(8,10,15,0.82)] px-4 py-3 shadow-[0_18px_48px_rgba(0,0,0,0.22)] backdrop-blur-xl sm:px-8 lg:px-12">
-                <nav aria-label="Primary navigation" class="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <a
-                        href="/"
-                        class="group flex min-h-11 w-fit items-center gap-3 rounded-sm pr-3 font-mono outline-none transition focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
-                    >
-                        <span class="grid size-9 place-items-center rounded-sm border border-(--blueprint-line-muted) bg-[rgba(244,247,251,0.035)] text-(--blueprint-muted) transition group-hover:border-(--blueprint-accent) group-hover:text-(--blueprint-accent)">
-                            <span class="text-xs font-semibold">EC</span>
-                        </span>
-                        <span class="flex flex-col leading-none">
-                            <span class="text-sm font-semibold text-(--blueprint-text) transition group-hover:text-(--blueprint-accent)">{hostname}</span>
-                            <span class="mt-1 text-[0.65rem] uppercase tracking-[0.18em] text-(--blueprint-muted)">Portfolio</span>
-                        </span>
-                    </a>
-
-                    <div class="grid grid-cols-3 gap-1 rounded-sm border border-(--blueprint-line-muted) bg-[rgba(244,247,251,0.035)] p-1 text-sm text-(--blueprint-muted) shadow-[inset_0_1px_0_rgba(244,247,251,0.05)] sm:flex sm:w-fit">
-                        <a
-                            href="/projects"
-                            class={navClass("startsWith:/projects")}
-                        >
-                            Projects
-                        </a>
-                        <a
-                            href="/writings"
-                            class={navClass("startsWith:/writings")}
-                        >
-                            Writings
-                        </a>
-                        <a
-                            href="/contact"
-                            class={navClass("equals:/contact")}
-                        >
-                            Contact
-                        </a>
-                    </div>
+        <header class="border-b border-(--border)">
+            <div class="mx-auto flex max-w-[72rem] flex-wrap items-center justify-between gap-x-4 gap-y-2 px-[max(clamp(1.25rem,4vw,2.5rem),env(safe-area-inset-left),env(safe-area-inset-right))] py-4">
+                <a href="/" class="group flex w-fit min-h-11 items-center gap-3 pr-2 [view-transition-name:brand]">
+                    <span class="grid size-9 place-items-center rounded-sm border border-(--border) font-mono text-xs font-semibold text-(--ink-muted) transition group-hover:border-(--accent) group-hover:text-(--accent)">
+                        EC
+                    </span>
+                    <span class="flex flex-col leading-none">
+                        <span class="text-sm font-semibold text-(--ink) transition group-hover:text-(--accent)">{hostname}</span>
+                        <span class="mt-1 text-[0.65rem] uppercase tracking-[0.18em] text-(--ink-faint)">Portfolio</span>
+                    </span>
+                </a>
+                <nav aria-label="Primary navigation" class="nav">
+                    {navLinks.map((link) => (
+                        <a href={link.href} class="nav-link" aria-current={link.active ? "page" : undefined}>{link.label}</a>
+                    ))}
+                    <ThemeToggle transition:persist />
                 </nav>
-            </header>
+            </div>
+        </header>
 
-            <main class="mx-auto max-w-6xl px-4 py-10 sm:px-8 lg:px-12">
-                <div class="page-motion">
-                    <slot />
-                </div>
-            </main>
+        <main id="main">
+            <div class="page">
+                <slot />
+            </div>
+        </main>
 
-            <footer class="border-t border-(--blueprint-line-muted) px-5 py-8 text-sm text-(--blueprint-subtle) sm:px-8 lg:px-12">
-                <div class="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <p>&copy; 2026 Edgar Christian. Built with Astro &mdash; deployed on Cloudflare.</p>
-                    <a
-                        href={`mailto:${email}`}
-                        class="w-fit rounded-sm text-(--blueprint-muted) underline-offset-4 outline-none transition hover:text-(--blueprint-accent) hover:underline focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
-                    >
-                        {email}
-                    </a>
-                </div>
-            </footer>
-        </div>
+        <footer class="page footer">
+            <p>&copy; 2026 Edgar Christian. Built with Astro &mdash; deployed on Cloudflare.</p>
+            <a href={`mailto:${email}`}>{email}</a>
+        </footer>
 
-        <script>import "~/components/background/shimmer-background";</script>
-        <script>import "~/scripts/background";</script>
-        <script>import "~/scripts/motion";</script>
+        <script>import "~/scripts/motion-client";</script>
+        <script>import "~/scripts/background-motion";</script>
+        <script>import "~/scripts/curtains";</script>
     </body>
 </html>

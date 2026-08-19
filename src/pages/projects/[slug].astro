@@ -13,18 +13,20 @@ const { Content } = await render(project)
 ---
 
 <Layout title={project.data.title} description={project.data.summary} path={`/projects/${project.data.slug}`}>
-    <article class="mx-auto max-w-3xl space-y-8">
-        <ArticleHeader
-            title={project.data.title}
-            published={project.data.published}
-            updated={project.data.updated}
-            summary={project.data.summary}
-            tags={project.data.technologies}
-            status={project.data.status}
-            links={project.data.links}
-            backHref="/projects"
-            backLabel="Back to projects"
-        />
+    <article class="mx-auto max-w-3xl">
+        <div>
+            <ArticleHeader
+                title={project.data.title}
+                published={project.data.published}
+                updated={project.data.updated}
+                summary={project.data.summary}
+                tags={project.data.technologies}
+                status={project.data.status}
+                links={project.data.links}
+                backHref="/projects"
+                backLabel="Back to projects"
+            />
+        </div>
         <div class="markdown-body">
             <Content />
         </div>

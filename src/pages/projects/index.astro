@@ -29,9 +29,12 @@ const stats = [
 
         <div class="grid gap-4 sm:grid-cols-3">
             {stats.map(({ label, value }) => (
-                <div class="blueprint-module p-5">
-                    <p class="blueprint-label">{label}</p>
-                    <p class="mt-2 text-3xl font-semibold text-(--blueprint-text)">{value}</p>
+                <div class="card">
+                    <p class="kicker">{label}</p>
+                    <p class="mt-2 text-3xl font-semibold text-(--ink)">
+                        <span data-motion="counter" data-to={value} aria-hidden="true">0</span>
+                        <span class="sr-only">{value}</span>
+                    </p>
                 </div>
             ))}
         </div>

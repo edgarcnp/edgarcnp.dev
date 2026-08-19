@@ -1,15 +1,9 @@
 ---
-import LinkAction from "~/components/ui/static/LinkAction.astro"
+import LinkAction from "./LinkAction.astro"
 
-/**
- * Props for the ErrorPage component.
- */
 interface Props {
-    /** Error code shown in the label (e.g. "404"). */
     code: string
-    /** Heading text (e.g. "Not found"). */
     title: string
-    /** Requested path displayed inside the description. */
     path: string
 }
 
@@ -18,12 +12,10 @@ const { code, title, path } = Astro.props as Props
 const MAX_PATH_LENGTH = 120
 const displayPath = path.length > MAX_PATH_LENGTH ? path.slice(0, MAX_PATH_LENGTH) + "…" : path
 ---
-<section class="blueprint-frame max-w-2xl space-y-5 p-5 sm:p-6">
-    <p class="blueprint-label">Error / {code}</p>
-    <h1 class="text-3xl font-semibold text-(--blueprint-text) sm:text-4xl">{title}</h1>
-    <p class="leading-7 text-(--blueprint-muted)">
-        The requested path <code class="rounded-sm bg-[rgba(244,247,251,0.06)] px-1.5 py-0.5 text-(--blueprint-accent-2)">{displayPath}</code> is not available.
-    </p>
+<section class="error-page">
+    <p class="error-page__code">{code}</p>
+    <h1>{title}</h1>
+    <p>The requested path <code>{displayPath}</code> is not available.</p>
     <div class="flex flex-col gap-3 sm:flex-row">
         <LinkAction href="/" variant="primary">Return home</LinkAction>
         <LinkAction href="/projects" variant="secondary">View projects</LinkAction>

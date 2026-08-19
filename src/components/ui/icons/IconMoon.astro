@@ -1,0 +1,8 @@
+---
+import type { IconProps } from "~/lib/types"
+
+const { class: className } = Astro.props as IconProps
+---
+<svg class={className} fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9" />
+</svg>

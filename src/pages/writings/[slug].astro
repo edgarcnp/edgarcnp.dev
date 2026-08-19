@@ -13,16 +13,18 @@ const { Content } = await render(post)
 ---
 
 <Layout title={post.data.title} description={post.data.summary} path={`/writings/${post.data.slug}`}>
-    <article class="mx-auto max-w-3xl space-y-8">
-        <ArticleHeader
-            title={post.data.title}
-            published={post.data.published}
-            updated={post.data.updated}
-            summary={post.data.summary}
-            tags={post.data.tags}
-            backHref="/writings"
-            backLabel="Back to writing"
-        />
+    <article class="mx-auto max-w-3xl">
+        <div>
+            <ArticleHeader
+                title={post.data.title}
+                published={post.data.published}
+                updated={post.data.updated}
+                summary={post.data.summary}
+                tags={post.data.tags}
+                backHref="/writings"
+                backLabel="Back to writing"
+            />
+        </div>
         <div class="markdown-body">
             <Content />
         </div>

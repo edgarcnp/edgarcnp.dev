@@ -1,6 +1,7 @@
 ---
 import Layout from "~/layouts/Layout.astro"
 import { getEntry } from "astro:content"
+import LinkAction from "~/components/shared/LinkAction.astro"
 import SectionHeading from "~/components/shared/SectionHeading.astro"
 
 const contactEntry = await getEntry("data", "contact")
@@ -11,24 +12,22 @@ const contact = contactEntry.data
 ---
 
 <Layout title="Contact" description="Static links, no message collection. Email or verified profile links." path="/contact">
-    <section class="max-w-3xl space-y-8">
+    <section class="max-w-3xl">
         <SectionHeading
             label="Contact Endpoint"
             title="Static links, no message collection."
             description="Use email or a verified profile link. This portfolio does not collect, store, or relay visitor messages."
         />
-        <div class="section-motion motion-delay-1 grid gap-4 sm:grid-cols-2">
+        <div class="mt-8 grid gap-4 sm:grid-cols-2">
             {contact.links.map((link) => (
-                <a
-                    href={link.href}
-                    target={link.external ? "_blank" : undefined}
-                    rel={link.external ? "noopener noreferrer" : undefined}
-                    class="blueprint-module blueprint-module-link group p-5 outline-none focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
-                >
-                    <span class="blueprint-label block">{link.kind}</span>
-                    <span class="mt-4 block text-lg font-semibold text-(--blueprint-text) group-hover:text-(--blueprint-accent)">{link.label}</span>
-                    <span class="mt-2 block text-sm leading-6 text-(--blueprint-muted)">{link.detail}</span>
-                </a>
+                <div class="card">
+                    <p class="kicker">{link.kind}</p>
+                    <h2 class="mt-2 text-lg font-semibold text-(--ink)">{link.label}</h2>
+                    <p class="mt-2 text-sm leading-6 text-(--ink-muted)">{link.detail}</p>
+                    <div class="mt-5">
+                        <LinkAction href={link.href} external={link.external} variant="secondary" data-motion={link.kind === "email" ? "magnetic" : undefined}>{link.label}</LinkAction>
+                    </div>
+                </div>
             ))}
         </div>
     </section>

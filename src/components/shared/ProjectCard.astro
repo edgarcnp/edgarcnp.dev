@@ -1,61 +1,48 @@
 ---
 import StatusBadge from "./StatusBadge.astro"
 import TechTag from "./TechTag.astro"
+import IconArrowRight from "~/components/ui/icons/IconArrowRight.astro"
 
 import type { ProjectStatus } from "~/lib/types"
 
-/**
- * Props for the ProjectCard component.
- */
 interface Props {
-    /** Project title displayed as the card heading. */
     title: string
-    /** URL path to the project detail page (e.g. "/projects/my-project"). */
     href: string
-    /** Short summary paragraph displayed below the title. */
     summary: string
-    /** Year the project was created or last updated, displayed as a chip. */
     year: number
-    /** Current project status — determines the badge color. */
     status: ProjectStatus
-    /** Array of technology names rendered as tag chips. */
     technologies: string[]
-    /** Whether to show the "Pinned" indicator (gold pin icon). */
     pinned?: boolean
 }
 
 const { title, href, summary, year, status, technologies, pinned } = Astro.props as Props
 ---
-<a
-    href={href}
-    class="blueprint-module blueprint-module-link group flex h-full min-h-72 flex-col justify-between p-5 outline-none focus-visible:ring-2 focus-visible:ring-(--blueprint-accent)"
->
-    <div class="space-y-5">
-        <div class="flex items-start justify-between gap-4">
-            <div class="space-y-3">
-                {pinned && (
-                    <span class="inline-flex w-fit items-center gap-1.5 rounded-sm border border-[rgba(246,201,107,0.35)] bg-[rgba(246,201,107,0.07)] px-2 py-1 font-mono text-[0.68rem] font-semibold uppercase tracking-wide text-(--blueprint-accent-2)">
-                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M12 17v5" /><path d="M5 17h14" /><path d="M7 17l2-9h6l2 9" /><path d="M9 8V3h6v5" />
-                        </svg>
-                        Pinned
-                    </span>
-                )}
-                <h3 class="text-xl font-semibold leading-7 text-(--blueprint-text)">{title}</h3>
-            </div>
-            <span class="blueprint-chip shrink-0">{year}</span>
+<a href={href} class="card group flex h-full flex-col">
+    <div class="flex items-start justify-between gap-4">
+        <div>
+            {pinned && (
+                <span class="pill pill--accent">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 17v5" /><path d="M5 17h14" /><path d="M7 17l2-9h6l2 9" /><path d="M9 8V3h6v5" />
+                    </svg>
+                    Pinned
+                </span>
+            )}
+            <h3 class="text-lg font-semibold text-(--ink)">{title}</h3>
         </div>
-        <p class="text-sm leading-6 text-(--blueprint-muted)">{summary}</p>
-        <ul class="flex flex-wrap gap-2">
-            {technologies.map((tech) => (
-                <li><TechTag label={tech} /></li>
-            ))}
-        </ul>
+        <span class="shrink-0 font-mono text-xs text-(--ink-faint)">{year}</span>
     </div>
-    <div class="mt-8 flex items-center justify-between gap-4">
+    <p class="mt-4 grow text-sm leading-6 text-(--ink-muted)">{summary}</p>
+    <ul class="mt-6 flex flex-wrap gap-2">
+        {technologies.map((tech) => (
+            <li><TechTag label={tech} /></li>
+        ))}
+    </ul>
+    <div class="mt-6 flex items-center justify-between gap-4">
         <StatusBadge status={status} />
-        <span class="font-mono text-xs font-semibold uppercase tracking-wide text-(--blueprint-accent) underline-offset-4 group-hover:underline">
+        <span class="inline-flex items-center gap-1.5 font-mono text-[0.7rem] font-medium uppercase tracking-wider text-(--ink-faint) transition group-hover:text-(--accent)">
             Inspect
+            <IconArrowRight class="size-3.5" />
         </span>
     </div>
 </a>

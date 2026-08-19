@@ -1,9 +1,8 @@
 ---
 import Layout from "~/layouts/Layout.astro"
 import { getCollection, getEntry } from "astro:content"
-import BlueprintFrame from "~/components/shared/BlueprintFrame.astro"
 import Grid4 from "~/components/shared/Grid4.astro"
-import LinkAction from "~/components/ui/static/LinkAction.astro"
+import LinkAction from "~/components/shared/LinkAction.astro"
 import ProjectCard from "~/components/shared/ProjectCard.astro"
 import SectionHeading from "~/components/shared/SectionHeading.astro"
 
@@ -30,105 +29,101 @@ const stats = [
     { label: "Availability", value: profile.availability },
 ]
 
-const breakpoints = [
-    { label: "Mobile", range: "<640px", active: true },
-    { label: "Tablet", range: "640-1024px" },
-    { label: "Desktop", range: ">1024px" },
-]
+const techPills = ["Rust", "Dioxus", "Cloudflare"]
+const marqueeRow = [...techPills, ...techPills, ...techPills, ...techPills]
 ---
 
 <Layout title="edgarcnp.dev" path="/">
-    <div class="space-y-16">
-        <section class="section-motion grid gap-8 lg:grid-cols-[1.04fr_0.96fr] lg:items-center">
-            <div class="space-y-8">
-                <div class="space-y-5">
-                    <p class="blueprint-label">Secure web systems / Responsive UI</p>
-                    <div class="space-y-4">
-                        <h1 class="max-w-3xl text-4xl font-semibold tracking-normal text-(--blueprint-text) sm:text-5xl lg:text-6xl">{profile.name}</h1>
-                        <p class="max-w-2xl text-lg leading-8 text-(--blueprint-muted) sm:text-xl">{profile.summary}</p>
+    <section>
+        <div>
+            <p class="kicker">{profile.availability}</p>
+            <h1 class="display mt-4">{profile.name}</h1>
+            <p class="mt-5 max-w-[65ch] text-lg leading-8 text-(--ink-muted)">{profile.summary}</p>
+        </div>
+        <div class="mt-8">
+            <dl class="card grid gap-4 sm:grid-cols-3 sm:gap-0" data-motion="parallax" data-speed="0.08">
+                {stats.map(({ label, value }, index) => (
+                    <div class={index > 0 ? "sm:border-l sm:border-(--border) sm:pl-6" : undefined}>
+                        <dt class="kicker">{label}</dt>
+                        <dd class="mt-1 text-sm text-(--ink)">{value}</dd>
                     </div>
-                </div>
+                ))}
+            </dl>
+        </div>
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <LinkAction href="/projects" variant="primary" data-motion="magnetic">View projects</LinkAction>
+            <LinkAction href="/contact" variant="secondary">Contact</LinkAction>
+        </div>
+    </section>
 
-                <BlueprintFrame class="p-5">
-                    <dl class="grid gap-4 sm:grid-cols-3">
-                        {stats.map(({ label, value }) => (
-                            <div>
-                                <dt class="blueprint-label text-[0.68rem]">{label}</dt>
-                                <dd class="mt-1 text-sm text-(--blueprint-text)">{value}</dd>
-                            </div>
-                        ))}
-                    </dl>
-                </BlueprintFrame>
-
-                <div class="flex flex-col gap-3 sm:flex-row">
-                    <LinkAction href="/projects" variant="primary">View projects</LinkAction>
-                    <LinkAction href="/contact" variant="secondary">Contact</LinkAction>
-                </div>
-            </div>
-
-            <div class="space-y-4">
-                <BlueprintFrame class="aspect-4/3 p-5">
-                    <div class="flex h-full items-center justify-center">
-                        <span class="blueprint-label">Blueprint diagram</span>
-                    </div>
-                </BlueprintFrame>
-                <div class="blueprint-frame grid grid-cols-3 gap-1 p-1">
-                    {breakpoints.map(({ label, range, active }) => (
-                        <div class={`flex min-h-13 flex-col items-center justify-center gap-1 border-r border-(--blueprint-line-muted) px-3 py-3 last:border-r-0 ${active ? "text-(--blueprint-accent-2)" : ""}`}>
-                            <span class={`text-xs font-bold uppercase tracking-wide ${active ? "text-(--blueprint-accent-2)" : "text-(--blueprint-subtle)"}`}>{label}</span>
-                            <span class="text-xs text-(--blueprint-subtle)">{range}</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </section>
-
-        <section data-reveal class="section-motion motion-delay-1 space-y-6">
+    <section class="section">
+        <div>
             <SectionHeading
                 label="Selected Work"
                 title="Secure content, responsive UI, and edge deployment."
                 description="A short list of projects focused on making this portfolio fast, auditable, and stable across devices."
             />
-            <div class="grid gap-4 md:grid-cols-2">
-                {featuredProjects.map((p) => (
-                    <ProjectCard
-                        title={p.data.title}
-                        href={`/projects/${p.data.slug}`}
-                        summary={p.data.summary}
-                        year={p.data.year}
-                        status={p.data.status}
-                        technologies={p.data.technologies}
-                        pinned={p.data.pinned}
-                    />
-                ))}
-            </div>
-        </section>
-
-        <Grid4 items={capabilities.capabilities} />
-
-        <section data-reveal class="section-motion motion-delay-2 grid gap-4 lg:grid-cols-[1fr_1fr]">
-            <BlueprintFrame class="p-5">
-                <SectionHeading
-                    label="Writing"
-                    title="Notes from the build."
-                    description="Short technical writing about security, responsive UI, and Cloudflare deployment."
+        </div>
+        <div class="mt-8 grid gap-4 md:grid-cols-2">
+            {featuredProjects.map((p) => (
+                <ProjectCard
+                    title={p.data.title}
+                    href={`/projects/${p.data.slug}`}
+                    summary={p.data.summary}
+                    year={p.data.year}
+                    status={p.data.status}
+                    technologies={p.data.technologies}
+                    pinned={p.data.pinned}
                 />
-            </BlueprintFrame>
+            ))}
+        </div>
+    </section>
 
-            <BlueprintFrame class="flex flex-col justify-between gap-6 p-5">
-                <div class="space-y-3">
-                    <p class="blueprint-label">Contact Endpoint</p>
-                    <h2 class="text-2xl font-semibold text-(--blueprint-text)">Static links, no message collection.</h2>
-                    <p class="text-sm leading-6 text-(--blueprint-muted)">{profile.summary}</p>
+    <Grid4 items={capabilities.capabilities} />
+
+    <section class="section" aria-hidden="true">
+        <div class="overflow-hidden border-y border-(--border) py-4">
+            <div class="flex w-max" data-motion="marquee" data-duration="30">
+                <div class="flex shrink-0 items-center">
+                    {marqueeRow.map((tech) => (
+                        <span class="pill mr-4">{tech}</span>
+                    ))}
+                </div>
+                <div class="flex shrink-0 items-center">
+                    {marqueeRow.map((tech) => (
+                        <span class="pill mr-4">{tech}</span>
+                    ))}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="grid gap-4 md:grid-cols-2">
+            <div class="card flex flex-col justify-between gap-6">
+                <div>
+                    <p class="kicker">Writing</p>
+                    <h2 class="section-title mt-2">Notes from the build.</h2>
+                    <p class="section-heading__description mt-3">Short technical writing about security, responsive UI, and Cloudflare deployment.</p>
+                </div>
+                <div>
+                    <LinkAction href="/writings" variant="ghost">Open writing</LinkAction>
+                </div>
+            </div>
+            <div class="card flex flex-col justify-between gap-6">
+                <div>
+                    <p class="kicker">Contact Endpoint</p>
+                    <h2 class="section-title mt-2">Static links, no message collection.</h2>
+                    <p class="section-heading__description mt-3">{profile.summary}</p>
                 </div>
                 <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                     <LinkAction href="/contact" variant="secondary">Open contact</LinkAction>
-                    <LinkAction href={`mailto:${profile.email}`} variant="accent">{profile.email}</LinkAction>
+                    <LinkAction href={`mailto:${profile.email}`} variant="primary">{profile.email}</LinkAction>
                     {codeberg && (
-                        <LinkAction href={codeberg.href} external={codeberg.external} variant="warm-secondary">{codeberg.label}</LinkAction>
+                        <LinkAction href={codeberg.href} external={codeberg.external} variant="secondary">{codeberg.label}</LinkAction>
                     )}
                 </div>
-            </BlueprintFrame>
-        </section>
-    </div>
+            </div>
+        </div>
+    </section>
 </Layout>
