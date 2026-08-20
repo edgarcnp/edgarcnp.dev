@@ -54,7 +54,7 @@ const ORB_SPECS: readonly OrbSpec[] = [
 /** Resolves a token value (hex, rgb, color-mix, ...) to a plain color for reliable interpolation. */
 const PROBE_ID = "__ambient-probe"
 const resolveColor = (value: string): string => {
-    let probe = document.getElementById(PROBE_ID) as HTMLSpanElement | null
+    let probe = document.getElementById(PROBE_ID)
     if (!probe) {
         probe = document.createElement("span")
         probe.id = PROBE_ID
@@ -155,7 +155,7 @@ const teardown = (): void => {
 const setup = (): void => {
     // If the container already has orbs (e.g. persisted across navigation), skip
     const container = document.querySelector<HTMLElement>(`.${ELEMENT_CLASS}`)
-    if (container && container.querySelector(`.${ORB_CLASS}`)) return
+    if (container?.querySelector(`.${ORB_CLASS}`)) return
 
     teardown()
     const el = getOrCreateElement()
