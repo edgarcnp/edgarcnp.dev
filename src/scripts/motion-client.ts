@@ -208,7 +208,15 @@ const handlers = new Map<string, (el: HTMLElement) => void>([
 
 const init = () => {
     teardown()
-    if (isReduced()) return
+    if (isReduced()) {
+        for (const el of document.querySelectorAll<HTMLElement>("[data-motion='counter']")) {
+            const source = el.dataset.to ?? el.textContent
+            const target = parseFloat(source.replace(/,/g, ""))
+            if (Number.isNaN(target)) continue
+            el.textContent = formatFrom(source)(target)
+        }
+        return
+    }
     const elements = document.querySelectorAll<HTMLElement>("[data-motion]")
     for (const el of elements) {
         const kind = el.dataset.motion

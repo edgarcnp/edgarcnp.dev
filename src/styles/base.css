@@ -21,7 +21,6 @@ html {
 body {
   margin: 0;
   color: var(--ink);
-  background: var(--bg);
   font-family: var(--font-geist-sans), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

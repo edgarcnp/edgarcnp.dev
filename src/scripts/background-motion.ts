@@ -1,28 +1,18 @@
 /**
- * Ambient background — soft, slow-drifting color orbs behind all content.
+ * Ambient background — three soft color orbs arranged in Borromean rings,
+ * centered on the viewport. Static arrangement (no drift), so the visual is
+ * identical under reduced motion.
  *
- * Replaces the canvas shimmer system. A single `<div class="ambient-bg">` is
- * managed entirely from this module: adopted if already present in the DOM,
- * otherwise created as the first child of `<body>`.
- *
- * - Colors are read at runtime from the theme tokens on `:root` (`--bg`,
- *   `--accent`, `--ink`, `--accent-soft`); nothing is hardcoded.
+ * - Colors are read at runtime from the theme tokens on `:root` (`--accent`,
+ *   `--accent-soft`, `--ink`); nothing is hardcoded.
  * - Theme changes (`data-theme` attribute) re-read the tokens and crossfade
  *   each orb's color via motion.
- * - Reduced motion renders one static frame and runs no animation loop; live
- *   preference changes pause/resume accordingly.
- * - The animation loop pauses while the tab is hidden.
  *
- * Astro's ClientRouter swaps `document.body`, destroying the element on every
- * navigation; `astro:page-load` recreates it. The module itself re-executes on
- * each page's bundle, so a `window` guard keeps listeners/singleton intact.
+ * Astro's ClientRouter swaps `document.body`; the container carries
+ * `transition:persist` so it (and its orbs) survive navigation. When a page
+ * arrives without one (e.g. a fresh load), `astro:page-load` rebuilds it.
  */
-import {
-    animate,
-    initPrefersReducedMotion,
-    prefersReducedMotion,
-    type AnimationPlaybackControls,
-} from "motion"
+import { animate, initPrefersReducedMotion, prefersReducedMotion } from "motion"
 
 const ELEMENT_CLASS = "ambient-bg"
 const ORB_CLASS = "ambient-orb"
@@ -40,65 +30,40 @@ const TOKENS = ["--bg", "--accent", "--ink", "--accent-soft"] as const
 type Token = (typeof TOKENS)[number]
 
 /**
- * Per-orb layout: base translate (in % of the orb's own size, relative to a
- * viewport-centered 60vmax circle), drift applied by the animation, scale
- * range, alpha for the radial gradient, and drift duration/delay.
+ * Per-orb layout. Each orb is a 60vmax circle whose top-left corner sits at
+ * the viewport center (`left: 50%; top: 50%`); `x`/`y` are translates in %
+ * of the orb's own size, so the whole composition scales with `vmax`.
+ *
+ * The three centers form an equilateral triangle (side ≈ 0.75 × orb size)
+ * centered on the viewport — the Borromean ring arrangement, where every
+ * pair of rings overlaps in a lens but no pair is itself linked.
  */
 interface OrbSpec {
     token: Token
     alpha: number
     x: number
     y: number
-    driftX: number
-    driftY: number
-    scale: [number, number]
-    duration: number
-    delay: number
 }
 
 const ORB_SPECS: readonly OrbSpec[] = [
-    {
-        token: "--accent",
-        alpha: 32,
-        x: -28,
-        y: -18,
-        driftX: -10,
-        driftY: -14,
-        scale: [1, 1.14],
-        duration: 78,
-        delay: 0,
-    },
-    {
-        token: "--accent-soft",
-        alpha: 42,
-        x: -62,
-        y: -40,
-        driftX: 12,
-        driftY: 8,
-        scale: [1, 1.08],
-        duration: 64,
-        delay: 6,
-    },
-    {
-        token: "--ink",
-        alpha: 15,
-        x: -44,
-        y: -62,
-        driftX: -8,
-        driftY: 12,
-        scale: [1, 1.18],
-        duration: 88,
-        delay: 12,
-    },
+    { token: "--accent", alpha: 32, x: -50, y: -78.9 },
+    { token: "--accent", alpha: 32, x: -75, y: -35.6 },
+    { token: "--accent", alpha: 32, x: -25, y: -35.6 },
 ]
 
-const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
-
 /** Resolves a token value (hex, rgb, color-mix, ...) to a plain color for reliable interpolation. */
-const colorProbe = document.createElement("span")
+const PROBE_ID = "__ambient-probe"
 const resolveColor = (value: string): string => {
-    colorProbe.style.color = value
-    return getComputedStyle(colorProbe).color
+    let probe = document.getElementById(PROBE_ID) as HTMLSpanElement | null
+    if (!probe) {
+        probe = document.createElement("span")
+        probe.id = PROBE_ID
+        probe.setAttribute("aria-hidden", "true")
+        probe.style.cssText = "position:absolute;left:-9999px;width:0;height:0;opacity:0"
+        document.documentElement.appendChild(probe)
+    }
+    probe.style.color = value
+    return getComputedStyle(probe).color
 }
 
 const readThemeTokens = (): Partial<Record<Token, string>> => {
@@ -119,13 +84,7 @@ const isLightTheme = (): boolean => {
     return !window.matchMedia("(prefers-color-scheme: dark)").matches
 }
 
-const orbAlpha = (base: number): number => (isLightTheme() ? Math.min(Math.round(base * 1.6), 60) : base)
-
-const orbCount = (): number => {
-    const narrow = window.matchMedia("(max-width: 640px)").matches
-    const highDpr = window.devicePixelRatio >= 2
-    return narrow || highDpr ? 2 : 3
-}
+const orbAlpha = (base: number): number => (isLightTheme() ? Math.min(Math.round(base * 2), 72) : base)
 
 interface OrbInstance {
     node: HTMLElement
@@ -138,10 +97,7 @@ interface AmbientState {
 }
 
 let ambient: AmbientState | null = null
-let controls: AnimationPlaybackControls[] = []
 let themeObserver: MutationObserver | null = null
-let visibilityHandler: (() => void) | null = null
-let reducedMotionHandler: (() => void) | null = null
 
 const getOrCreateElement = (): HTMLElement => {
     const existing = document.querySelector<HTMLElement>(`.${ELEMENT_CLASS}`)
@@ -157,50 +113,16 @@ const getOrCreateElement = (): HTMLElement => {
 }
 
 const buildOrbs = (container: HTMLElement, tokens: Partial<Record<Token, string>>): OrbInstance[] => {
-    return ORB_SPECS.slice(0, orbCount()).map((spec) => {
+    return ORB_SPECS.map((spec) => {
         const node = document.createElement("div")
         node.className = ORB_CLASS
         const color = tokens[spec.token]
         if (color) node.style.setProperty(COLOR_PROP, color)
         node.style.setProperty(ALPHA_PROP, `${orbAlpha(spec.alpha)}%`)
+        node.style.transform = `translate(${spec.x}%, ${spec.y}%)`
         container.appendChild(node)
         return { node, spec }
     })
-}
-
-const staticTransform = (spec: OrbSpec): string =>
-    `translate(${spec.x}%, ${spec.y}%) scale(${spec.scale[0]})`
-
-const applyStaticFrame = (orbs: OrbInstance[]): void => {
-    for (const { node, spec } of orbs) {
-        node.style.transform = staticTransform(spec)
-    }
-}
-
-const startOrbAnimations = (orbs: OrbInstance[]): AnimationPlaybackControls[] => {
-    return orbs.map(({ node, spec }) => {
-        return animate(
-            node,
-            {
-                transform: [
-                    staticTransform(spec),
-                    `translate(${spec.x + spec.driftX}%, ${spec.y + spec.driftY}%) scale(${spec.scale[1]})`,
-                ],
-            },
-            {
-                duration: spec.duration,
-                delay: spec.delay,
-                ease: "easeInOut",
-                repeat: Infinity,
-                repeatType: "mirror",
-            },
-        )
-    })
-}
-
-const stopAllAnimations = (): void => {
-    for (const control of controls) control.stop()
-    controls = []
 }
 
 const crossfadeOrbColors = (): void => {
@@ -224,74 +146,38 @@ const crossfadeOrbColors = (): void => {
     }
 }
 
-const handleVisibilityChange = (): void => {
-    if (!ambient) return
-    if (document.visibilityState === "hidden") {
-        for (const control of controls) control.pause()
-    } else {
-        for (const control of controls) control.play()
-    }
-}
-
-const handleReducedMotionChange = (): void => {
-    if (!ambient) return
-    if (reducedMotion()) {
-        stopAllAnimations()
-        applyStaticFrame(ambient.orbs)
-    } else {
-        controls = startOrbAnimations(ambient.orbs)
-    }
-}
-
 const teardown = (): void => {
-    stopAllAnimations()
     themeObserver?.disconnect()
     themeObserver = null
-    if (visibilityHandler) {
-        document.removeEventListener("visibilitychange", visibilityHandler)
-        visibilityHandler = null
-    }
-    if (reducedMotionHandler) {
-        reducedMotionQuery.removeEventListener("change", reducedMotionHandler)
-        reducedMotionHandler = null
-    }
     ambient = null
 }
 
 const setup = (): void => {
-    teardown()
-    const container = getOrCreateElement()
-    const orbs = buildOrbs(container, readThemeTokens())
-    ambient = { container, orbs }
+    // If the container already has orbs (e.g. persisted across navigation), skip
+    const container = document.querySelector<HTMLElement>(`.${ELEMENT_CLASS}`)
+    if (container && container.querySelector(`.${ORB_CLASS}`)) return
 
-    if (reducedMotion()) {
-        applyStaticFrame(orbs)
-    } else {
-        controls = startOrbAnimations(orbs)
-    }
+    teardown()
+    const el = getOrCreateElement()
+    const orbs = buildOrbs(el, readThemeTokens())
+    ambient = { container: el, orbs }
 
     themeObserver = new MutationObserver(crossfadeOrbColors)
     themeObserver.observe(document.documentElement, {
         attributes: true,
         attributeFilter: ["data-theme"],
     })
-
-    visibilityHandler = handleVisibilityChange
-    document.addEventListener("visibilitychange", visibilityHandler)
-
-    reducedMotionHandler = handleReducedMotionChange
-    reducedMotionQuery.addEventListener("change", reducedMotionHandler)
 }
 
 /**
  * Boots the ambient background. Self-invoked once per window; safe to call
  * again after Astro SPA navigations re-execute this module.
  */
-export const initAmbientBackground = (): void => {
+const initAmbientBackground = (): void => {
     if (window.__ambientBgInstalled) return
     window.__ambientBgInstalled = true
     document.addEventListener("astro:page-load", () => {
-        if (!document.querySelector(`.${ELEMENT_CLASS}`)) setup()
+        setup()
     })
     setup()
 }

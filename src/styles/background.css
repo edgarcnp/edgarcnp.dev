@@ -1,4 +1,8 @@
-/* Ambient background — full-viewport color orbs painted behind all content. */
+/* Ambient background — three soft color orbs arranged in Borromean rings,
+ * centered on the viewport. The arrangement is static and identical under
+ * reduced motion; colors come from theme tokens. Created and managed by
+ * `background-motion.ts` inside the persisted `.ambient-bg` container. */
+
 .ambient-bg {
   position: fixed;
   inset: 0;
@@ -19,34 +23,4 @@
     color-mix(in srgb, var(--orb-color-raw, transparent) var(--orb-alpha, 35%), transparent) 0%,
     transparent 68%
   );
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .ambient-orb {
-    will-change: transform;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ambient-bg {
-    background:
-      radial-gradient(circle at 20% 25%, color-mix(in srgb, var(--accent, transparent) 30%, transparent) 0%, transparent 55%),
-      radial-gradient(circle at 80% 75%, color-mix(in srgb, var(--ink, transparent) 14%, transparent) 0%, transparent 55%);
-  }
-
-  :root[data-theme="light"] .ambient-bg {
-    background:
-      radial-gradient(circle at 20% 25%, color-mix(in srgb, var(--accent, transparent) 42%, transparent) 0%, transparent 58%),
-      radial-gradient(circle at 80% 75%, color-mix(in srgb, var(--accent-soft, transparent) 48%, transparent) 0%, transparent 60%),
-      radial-gradient(circle at 55% 60%, color-mix(in srgb, var(--ink, transparent) 22%, transparent) 0%, transparent 65%);
-  }
-
-  @media (prefers-color-scheme: light) {
-    :root:not([data-theme="dark"]) .ambient-bg {
-      background:
-        radial-gradient(circle at 20% 25%, color-mix(in srgb, var(--accent, transparent) 42%, transparent) 0%, transparent 58%),
-        radial-gradient(circle at 80% 75%, color-mix(in srgb, var(--accent-soft, transparent) 48%, transparent) 0%, transparent 60%),
-        radial-gradient(circle at 55% 60%, color-mix(in srgb, var(--ink, transparent) 22%, transparent) 0%, transparent 65%);
-    }
-  }
 }
