@@ -6,7 +6,8 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev",
+    "clean": "rm -rf node_modules/.vite .astro",
+    "dev": "bun run clean && astro dev",
     "build": "astro build",
     "preview": "bun run build && wrangler dev",
     "deploy": "bun run build && wrangler deploy",
