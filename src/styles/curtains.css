@@ -13,7 +13,7 @@
   position: absolute;
   left: 0;
   width: 100%;
-  background: var(--accent);
+  background: var(--curtain);
   transform: scaleY(0);
   will-change: transform;
 }
@@ -29,7 +29,7 @@
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: -0.02em;
-  color: #2a3544;
+  color: var(--curtain-ink);
   opacity: 0;
   will-change: transform, opacity;
 }
