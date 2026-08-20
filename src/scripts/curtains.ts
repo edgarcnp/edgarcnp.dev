@@ -10,11 +10,29 @@ const REVEAL_DURATION = 0.5
 const BLINDS_EASE: [number, number, number, number] = [0.76, 0, 0.24, 1]
 const COVER_WAIT_MS = 1100
 const SAFETY_TIMEOUT_MS = 4000
+const TITLE_FALLBACK = "edgarcnp.dev"
+const TITLE_Y_OFFSET = 32
+
+const TITLES: { pattern: RegExp, title: string }[] = [
+    { pattern: /^\/projects(?:\/.*)?$/, title: "Projects" },
+    { pattern: /^\/writings(?:\/.*)?$/, title: "Writings" },
+    { pattern: /^\/contact$/, title: "Contact" },
+    { pattern: /^\/$/, title: "Home" },
+]
+
+const getTransitionTitle = (pathname: string): string => {
+    for (const { pattern, title } of TITLES) {
+        if (pattern.test(pathname)) return title
+    }
+    return TITLE_FALLBACK
+}
 
 let overlay: HTMLDivElement | null = null
 let slats: HTMLDivElement[] = []
+let titleElement: HTMLDivElement | null = null
 let coverPromise: Promise<void> | null = null
 let safetyTimer: number | null = null
+let transitionTitle = ""
 
 const reducedMotion = (): boolean => prefersReducedMotion.current === true
 
@@ -44,6 +62,10 @@ const mountOverlay = (): void => {
         overlay.appendChild(slat)
         slats.push(slat)
     }
+    titleElement = document.createElement("div")
+    titleElement.className = "curtains__title"
+    titleElement.textContent = transitionTitle
+    overlay.appendChild(titleElement)
     document.documentElement.appendChild(overlay)
 }
 
@@ -63,6 +85,16 @@ const runCover = async (): Promise<void> => {
             delay: index * (0.4 / slats.length),
         }),
     )
+    if (titleElement) {
+        controls.push(animate(titleElement, {
+            opacity: [0, 1],
+            transform: [`translateY(-${TITLE_Y_OFFSET}px)`, "translateY(0)"],
+        }, {
+            duration: COVER_DURATION,
+            ease: BLINDS_EASE,
+            delay: 0.25,
+        }))
+    }
     await settleOrTimeout(controls, COVER_DURATION)
 }
 
@@ -92,6 +124,11 @@ const snapSlatsClosed = (): Promise<void> =>
             }
             slat.style.transform = "scaleY(1)"
         }
+        if (titleElement) {
+            for (const animation of titleElement.getAnimations()) {
+                animation.finish()
+            }
+        }
         const fallback = window.setTimeout(resolve, 150)
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
@@ -114,11 +151,22 @@ const runReveal = (): void => {
             delay: index * (0.4 / slats.length),
         }),
     )
+    if (titleElement) {
+        controls.push(animate(titleElement, {
+            opacity: [1, 0],
+            transform: ["translateY(0)", `translateY(${TITLE_Y_OFFSET}px)`],
+        }, {
+            duration: REVEAL_DURATION,
+            ease: BLINDS_EASE,
+            delay: 0.4 * (1 / 3),
+        }))
+    }
     void settleOrTimeout(controls, REVEAL_DURATION).then(() => {
         currentOverlay.remove()
         if (overlay === currentOverlay) {
             overlay = null
             slats = []
+            titleElement = null
         }
     })
 }
@@ -135,6 +183,7 @@ const armSafety = (): void => {
 
 const onBeforePreparation = (event: TransitionBeforePreparationEvent): void => {
     if (event.formData) return
+    transitionTitle = getTransitionTitle(event.to.pathname)
     startCover()
 }
 

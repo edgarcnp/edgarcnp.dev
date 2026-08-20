@@ -18,6 +18,22 @@
   will-change: transform;
 }
 
+.curtains__title {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-sans);
+  font-size: clamp(2.5rem, 6vw + 1rem, 4.5rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #2a3544;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .curtains,
   .curtains__slat {
