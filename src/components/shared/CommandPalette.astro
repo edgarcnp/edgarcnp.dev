@@ -1,0 +1,44 @@
+---
+import IconSearch from "~/components/ui/icons/IconSearch.astro"
+import { getCollection } from "astro:content"
+import { navIndex } from "~/data/nav"
+
+const { class: _className, ...rest } = Astro.props as Record<string, string | undefined>
+
+type Command = { id: string; label: string; href: string; category: string; keywords: string[] }
+
+const projects = await getCollection("projects")
+const writings = await getCollection("writing")
+
+const commands: Command[] = [
+    ...navIndex.map((link) => ({
+        id: `nav:${link.label.toLowerCase()}`,
+        label: link.label,
+        href: link.href,
+        category: "Nav",
+        keywords: [],
+    })),
+    ...projects.map((entry) => ({
+        id: `project:${entry.data.slug}`,
+        label: entry.data.title,
+        href: `/projects/${entry.data.slug}`,
+        category: "Projects",
+        keywords: [...entry.data.technologies, entry.data.summary],
+    })),
+    ...writings.map((entry) => ({
+        id: `writing:${entry.data.slug}`,
+        label: entry.data.title,
+        href: `/writings/${entry.data.slug}`,
+        category: "Writings",
+        keywords: [...entry.data.tags, entry.data.summary],
+    })),
+]
+---
+
+<button {...rest} type="button" class="palette-trigger" aria-haspopup="dialog" aria-expanded="false" aria-label="Search">
+    <IconSearch class="palette-trigger__icon" />
+    <span class="palette-trigger__label">Search commands, projects, writings…</span>
+    <kbd class="palette-kbd" aria-hidden="true">⌘K</kbd>
+</button>
+<script type="application/json" data-command-index is:inline set:html={JSON.stringify(commands).replace(/</g, "\\u003c")}></script>
+<script>import "~/scripts/command-palette";</script>

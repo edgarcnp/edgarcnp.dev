@@ -1,7 +1,9 @@
 ---
 import { ClientRouter } from "astro:transitions"
 import profileData from "~/data/profile.json"
+import { headerNav } from "~/data/nav"
 import "../styles/app.css"
+import CommandPalette from "~/components/shared/CommandPalette.astro"
 import SkipLink from "~/components/shared/SkipLink.astro"
 import ThemeToggle from "~/components/shared/ThemeToggle.astro"
 
@@ -21,11 +23,7 @@ const siteName = "edgarcnp.dev"
 const fullTitle = !title ? siteName : title === siteName ? title : `${title} — ${siteName}`
 const hostname = Astro.site?.host ?? "edgarcnp.dev"
 
-const navLinks = [
-    { href: "/projects", label: "Projects", active: path === "/projects" || path.startsWith("/projects/") },
-    { href: "/writings", label: "Writings", active: path === "/writings" || path.startsWith("/writings/") },
-    { href: "/contact", label: "Contact", active: path === "/contact" },
-]
+const navLinks = headerNav.map((link) => ({ href: link.href, label: link.label, active: link.match(path) }))
 ---
 
 <!doctype html>
@@ -47,7 +45,7 @@ const navLinks = [
         <div class="ambient-bg" aria-hidden="true" transition:persist="ambient"></div>
 
         <header class="site-header border-b border-(--border)">
-            <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-[max(clamp(1.25rem,4vw,2.5rem),env(safe-area-inset-left),env(safe-area-inset-right))] py-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-[max(clamp(1.25rem,4vw,2.5rem),env(safe-area-inset-left),env(safe-area-inset-right))] py-2.5 md:grid md:grid-cols-[1fr_auto_1fr] md:flex-nowrap">
                 <a href="/" class="group flex w-fit min-h-11 items-center gap-3 pr-2 [view-transition-name:brand]">
                     <span class="grid size-9 place-items-center rounded-sm border border-(--border) font-mono text-xs font-semibold text-(--ink-muted) transition group-hover:border-(--accent) group-hover:text-(--accent)">
                         EC
@@ -57,7 +55,8 @@ const navLinks = [
                         <span class="mt-1 text-[0.65rem] uppercase tracking-[0.18em] text-(--ink-faint)">Portfolio</span>
                     </span>
                 </a>
-                <nav aria-label="Primary navigation" class="nav">
+                <CommandPalette transition:persist />
+                <nav aria-label="Primary navigation" class="nav md:justify-self-end">
                     {navLinks.map((link) => (
                         <a href={link.href} class="nav-link" aria-current={link.active ? "page" : undefined}>{link.label}</a>
                     ))}
