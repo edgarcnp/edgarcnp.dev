@@ -21,14 +21,14 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  background-color: color-mix(in srgb, var(--bg) 72%, transparent);
+  background-color: color-mix(in srgb, var(--bg-elevated) 72%, transparent);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
 }
 
 @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
   .site-header {
-    background-color: var(--bg);
+    background-color: var(--bg-elevated);
   }
 }
 
@@ -444,26 +444,61 @@
 }
 
 .footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 40;
+  border-top: 1px solid var(--border);
+  background-color: color-mix(in srgb, var(--bg-elevated) 82%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .footer {
+    background-color: var(--bg-elevated);
+  }
+}
+
+.footer__ticker {
+  overflow: hidden;
+  padding-block: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.footer__ticker-track {
+  display: flex;
+  width: max-content;
+}
+
+.footer__ticker-group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.footer__meta {
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: max(clamp(1.25rem, 4vw, 2.5rem), env(safe-area-inset-left), env(safe-area-inset-right));
+  padding-block: 1.1rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding-block: 2rem;
-  border-top: 1px solid var(--border);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.04em;
   color: var(--ink-faint);
 }
 
-.footer a {
+.footer__meta a {
   color: inherit;
   text-decoration: none;
   transition: color 150ms ease;
 }
 
-.footer a:hover {
+.footer__meta a:hover {
   color: var(--ink);
 }
 
