@@ -28,9 +28,6 @@ const stats = [
     { label: "Interface", value: profile.role },
     { label: "Availability", value: profile.availability },
 ]
-
-const techPills = ["Rust", "Dioxus", "Cloudflare"]
-const marqueeRow = [...techPills, ...techPills, ...techPills, ...techPills]
 ---
 
 <Layout title="edgarcnp.dev" path="/">
@@ -80,23 +77,6 @@ const marqueeRow = [...techPills, ...techPills, ...techPills, ...techPills]
     </section>
 
     <Grid4 items={capabilities.capabilities} />
-
-    <section class="section" aria-hidden="true">
-        <div class="overflow-hidden border-y border-(--border) py-4">
-            <div class="flex w-max" data-motion="marquee" data-duration="30">
-                <div class="flex shrink-0 items-center">
-                    {marqueeRow.map((tech) => (
-                        <span class="pill mr-4">{tech}</span>
-                    ))}
-                </div>
-                <div class="flex shrink-0 items-center">
-                    {marqueeRow.map((tech) => (
-                        <span class="pill mr-4">{tech}</span>
-                    ))}
-                </div>
-            </div>
-        </div>
-    </section>
 
     <section class="section">
         <div class="grid gap-4 md:grid-cols-2">
