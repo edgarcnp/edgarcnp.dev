@@ -32,6 +32,8 @@ const SPRING = { type: "spring", stiffness: 170, damping: 26 } as const
 const SCALE_SPRING = { type: "spring", stiffness: 300, damping: 25 } as const
 const RELEASE_SPRING = { type: "spring", stiffness: 300, damping: 17 } as const
 const WOBBLE_SPRING = { type: "spring", stiffness: 170, damping: 20 } as const
+const BLUR_CLOSED = "blur(0px) saturate(100%)"
+const BLUR_OPEN = "blur(20px) saturate(180%)"
 
 const DOT_STATES: { dot: string, line: string }[] = [
     { dot: "M27.75 27.75L27.7499 27.7499", line: "M15.75 15.75L27.75 27.75" },
@@ -127,6 +129,10 @@ const applyStatic = (open: boolean): void => {
         setAttr(path, "stroke-width", open ? "6" : "12")
     })
     state.wrapper?.style.setProperty("transform", `rotate(${open ? 90 : 0}deg)`, "important")
+    if (state.backdrop) {
+        state.backdrop.style.backdropFilter = open ? BLUR_OPEN : ""
+        state.backdrop.style.setProperty("-webkit-backdrop-filter", open ? BLUR_OPEN : "")
+    }
 }
 
 const setScale = (
@@ -276,6 +282,7 @@ const closeMenu = (restoreFocus: boolean): void => {
     const gen = ++transitionId
     clearPressedLinks()
     stopAll()
+    backdrop.classList.remove("is-open")
 
     const panelHidden = animate(
         panel,
@@ -297,7 +304,7 @@ const closeMenu = (restoreFocus: boolean): void => {
 
     state.backdropControls = animate(
         backdrop,
-        { opacity: [1, 0] },
+        { opacity: [1, 0], backdropFilter: [BLUR_OPEN, BLUR_CLOSED], WebkitBackdropFilter: [BLUR_OPEN, BLUR_CLOSED] } as never,
         SPRING,
     )
     state.backdropControls.finished
@@ -305,7 +312,8 @@ const closeMenu = (restoreFocus: boolean): void => {
             if (gen !== transitionId || state.open) return
             backdrop.style.opacity = "0"
             backdrop.hidden = true
-            backdrop.classList.remove("is-open")
+            backdrop.style.backdropFilter = ""
+            backdrop.style.removeProperty("-webkit-backdrop-filter")
         })
         .catch(() => undefined)
 
@@ -388,7 +396,7 @@ const openMenu = (): void => {
         .catch(() => undefined)
     state.backdropControls = animate(
         backdrop,
-        { opacity: [0, 1] },
+        { opacity: [0, 1], backdropFilter: [BLUR_CLOSED, BLUR_OPEN], WebkitBackdropFilter: [BLUR_CLOSED, BLUR_OPEN] } as never,
         SPRING,
     )
     state.backdropControls.finished

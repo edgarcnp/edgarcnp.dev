@@ -837,13 +837,21 @@ a.footer__meta:hover {
   position: fixed;
   inset: 0;
   z-index: var(--z-menu-backdrop);
-  background: color-mix(in srgb, var(--bg) 30%, rgba(0, 0, 0, 0.45));
+  background: color-mix(in srgb, var(--bg) 30%, rgba(0, 0, 0, 0.30));
+  -webkit-backdrop-filter: blur(0px) saturate(100%);
+  backdrop-filter: blur(0px) saturate(100%);
   will-change: transform, opacity;
   opacity: 0;
 }
 
 .mobile-menu-backdrop.is-open {
   opacity: 1;
+}
+
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .mobile-menu-backdrop {
+    background: color-mix(in srgb, var(--bg) 30%, rgba(0, 0, 0, 0.45));
+  }
 }
 
 /* Mobile floating dropdown panel (equal top/left/right gutters, clear of navbar) */
