@@ -16,7 +16,12 @@ const windowRef = window as unknown as { __mobileMenuBound?: boolean }
 
 initPrefersReducedMotion()
 
-const BREAKPOINT = window.matchMedia("(min-width: 48rem)")
+/* Matches the desktop chrome (>=64rem), i.e. the width at which the dot-morph
+   menu is replaced by the inline nav. Below this — compact phones, tablets, and
+   phones held sideways — the menu stays available, so it is not force-closed.
+   Keep in sync with the desktop: variant and the chrome media queries in
+   components.css. */
+const BREAKPOINT = window.matchMedia("(min-width: 64rem)")
 const BUTTON_SELECTOR = ".dots-morph-button.mobile-menu"
 const PANEL_SELECTOR = "#mobile-menu-panel"
 const BACKDROP_SELECTOR = "#mobile-menu-backdrop"

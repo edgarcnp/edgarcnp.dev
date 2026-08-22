@@ -11,3 +11,47 @@
     --font-geist-sans: "Geist Sans", sans-serif;
     --font-geist-mono: "Geist Mono", ui-monospace, monospace;
 }
+
+/*
+ * Device classes (Tailwind default widths): compact <48rem, tablet 48-64rem,
+ * desktop >=64rem.
+ *
+ * Content columns are width-driven on the extended: variant (tablet + desktop).
+ * Header chrome is a simpler split: the dot-morph menu serves everything below
+ * the desktop: breakpoint (<=63.99rem) — i.e. compact, tablet, and any phone in
+ * landscape, all of which are narrower than 64rem — while the inline nav is
+ * desktop-only. `compact:` and `tablet:` are not used directly in markup; they
+ * exist as the readable device vocabulary and share the media conditions below.
+ */
+@custom-variant compact {
+    @media (max-width: 47.99rem) {
+        @slot;
+    }
+    @media (min-width: 48rem) and (max-width: 63.99rem) and (orientation: landscape) and (max-height: 35rem) {
+        @slot;
+    }
+}
+
+@custom-variant extended {
+    @media (min-width: 48rem) and (orientation: portrait) {
+        @slot;
+    }
+    @media (min-width: 48rem) and (orientation: landscape) and (min-height: 35rem) {
+        @slot;
+    }
+}
+
+@custom-variant tablet {
+    @media (min-width: 48rem) and (max-width: 63.99rem) and (orientation: portrait) {
+        @slot;
+    }
+    @media (min-width: 48rem) and (max-width: 63.99rem) and (orientation: landscape) and (min-height: 35rem) {
+        @slot;
+    }
+}
+
+@custom-variant desktop {
+    @media (min-width: 64rem) {
+        @slot;
+    }
+}

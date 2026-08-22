@@ -61,7 +61,7 @@ const stats = [
                 description="A short list of projects focused on making this portfolio fast, auditable, and stable across devices."
             />
         </div>
-        <div class="mt-8 grid gap-4 md:grid-cols-2">
+        <div class="mt-8 grid gap-4 extended:grid-cols-2">
             {featuredProjects.map((p) => (
                 <ProjectCard
                     title={p.data.title}
@@ -79,7 +79,7 @@ const stats = [
     <Grid4 items={capabilities.capabilities} />
 
     <section class="section">
-        <div class="grid gap-4 md:grid-cols-2">
+        <div class="grid gap-4 extended:grid-cols-2">
             <div class="card flex flex-col justify-between gap-6">
                 <div>
                     <p class="kicker">Writing</p>

@@ -1017,23 +1017,27 @@ a.footer__meta:hover {
   text-underline-offset: 2px;
 }
 
-@media (min-width: 48rem) {
-  .dots-morph-button.mobile-menu {
-    display: none;
-  }
+/* Device chrome split: the dot-morph menu serves everything below the desktop
+   breakpoint (≤63.99rem) — compact phones, tablets, and phones held sideways,
+   all narrower than 64rem. The inline nav + command palette are desktop-only
+   (≥64rem). Keep in sync with the desktop: variant in app.css. */
+@media (max-width: 63.99rem) {
+    .site-header .nav-desktop {
+        display: none;
+    }
 
-  .mobile-menu-panel,
-  .mobile-menu-backdrop {
-    display: none !important;
-  }
+    .site-header .palette-trigger {
+        display: none;
+    }
 }
 
-@media (max-width: 47.99rem) {
-  .site-header .nav-desktop {
-    display: none;
-  }
+@media (min-width: 64rem) {
+    .dots-morph-button.mobile-menu {
+        display: none;
+    }
 
-  .site-header .palette-trigger {
-    display: none;
-  }
+    .mobile-menu-panel,
+    .mobile-menu-backdrop {
+        display: none !important;
+    }
 }
