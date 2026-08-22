@@ -2,7 +2,7 @@
   position: fixed;
   inset-block-start: 0.75rem;
   inset-inline-start: 0.75rem;
-  z-index: 100;
+  z-index: var(--z-skip);
   padding: 0.6rem 1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -20,7 +20,7 @@
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: var(--z-chrome);
   background-color: color-mix(in srgb, var(--bg-elevated) 72%, transparent);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
@@ -473,7 +473,7 @@
 .footer {
   position: sticky;
   bottom: 0;
-  z-index: 40;
+  z-index: var(--z-chrome);
   border-top: 1px solid var(--border);
   background-color: color-mix(in srgb, var(--bg-elevated) 82%, transparent);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -643,7 +643,7 @@ a.footer__meta:hover {
 .palette-overlay {
   position: fixed;
   inset: 0;
-  z-index: 70;
+  z-index: var(--z-palette-overlay);
   background: color-mix(in srgb, var(--bg) 45%, rgba(0, 0, 0, 0.35));
 }
 
@@ -658,7 +658,7 @@ a.footer__meta:hover {
   top: clamp(4rem, 12vh, 6rem);
   left: 0;
   right: 0;
-  z-index: 80;
+  z-index: var(--z-palette-panel);
   width: var(--palette-width);
   margin-inline: auto;
   border: 1px solid var(--border);

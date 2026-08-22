@@ -1,3 +1,14 @@
+:root {
+  --z-bg: -1;
+  --z-content: 0;
+  --z-warning: 30;
+  --z-chrome: 40;
+  --z-palette-overlay: 50;
+  --z-palette-panel: 60;
+  --z-curtain: 70;
+  --z-skip: 80;
+}
+
 *,
 *::before,
 *::after {
@@ -32,10 +43,9 @@ body {
 }
 
 #content-warp {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  min-height: 100dvh;
 }
 
 main {
