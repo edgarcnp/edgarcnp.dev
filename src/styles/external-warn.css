@@ -1,0 +1,139 @@
+/* External-link warning overlay.
+ *
+ * Port of the Motion "warp overlay" example. The page-content warp pulse is
+ * driven by `external-warn.ts`, which also drives every overlay animation with
+ * Motion (exactly as the source does); these styles only set the static shapes,
+ * colours and blurred backgrounds. The blur values are scaled in JS by
+ * width/375 so the frosted ratio matches the source's fixed 375px frame on any
+ * layout. */
+
+.external-warn {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+/* Frosted red wash that blurs the page behind the dialog (OG: .overlay-content). */
+.external-warn__content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(246, 63, 42, 0.12);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  will-change: opacity;
+}
+
+/* Gradient layer (OG: .gradient-container). */
+.external-warn__gradient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Expanding circle that surges from the bottom edge (OG: .expanding-circle). */
+.external-warn__burst {
+  position: absolute;
+  border-radius: 50%;
+  bottom: 0;
+  transform-origin: 50% 100%;
+  transform: scale(0);
+  background: rgb(233, 167, 160);
+  opacity: 1;
+  will-change: transform, opacity, background-color;
+}
+
+/* Soft gradient orbs that breathe (OG: .gradient-circle). */
+.external-warn__orb {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0);
+  will-change: transform, opacity;
+}
+
+.external-warn__orb--tl {
+  background: rgb(246, 63, 42, 0.5);
+}
+
+.external-warn__orb--br {
+  background: rgb(243, 92, 76, 0.5);
+}
+
+/* Dialog text that warps in (OG: .modal-content). */
+.external-warn__card {
+  width: 75%;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  text-align: center;
+  transform-origin: top center;
+  will-change: transform;
+}
+
+.external-warn__eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.external-warn__title {
+  margin: 0;
+  color: #fff;
+}
+
+.external-warn__message {
+  margin: 0;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.external-warn__host {
+  font-weight: 600;
+  color: #fff;
+}
+
+.external-warn__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .external-warn__content,
+  .external-warn__burst,
+  .external-warn__orb,
+  .external-warn__card {
+    animation: none !important;
+  }
+
+  .external-warn__content {
+    opacity: 1;
+  }
+
+  .external-warn__orb {
+    opacity: 0.25;
+    transform: scale(0.9);
+  }
+
+  .external-warn__burst {
+    transform: scale(10);
+    opacity: 0.2;
+    background-color: rgb(246, 63, 42);
+  }
+
+  .external-warn__card {
+    transform: none;
+  }
+}
