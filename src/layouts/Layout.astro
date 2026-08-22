@@ -59,7 +59,7 @@ const navLinks = headerNav.map((link) => ({ href: link.href, label: link.label, 
                     </span>
                 </a>
                 <CommandPalette transition:persist />
-                <div class="flex items-center gap-x-1.5 extended:justify-self-end">
+                <div class="flex items-center gap-x-1.5 extended:col-start-3 extended:justify-self-end">
                     <nav aria-label="Primary navigation" class="nav nav-desktop">
                         {navLinks.map((link) => (
                             <a href={link.href} class="nav-link" aria-current={link.active ? "page" : undefined}>{link.label}</a>
