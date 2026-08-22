@@ -1,0 +1,20 @@
+---
+const { class: _className, ...rest } = Astro.props as Record<string, string | undefined>
+const className = ["dots-morph-button", "morph-button", "mobile-menu", _className].filter(Boolean).join(" ").trim()
+const paths = [
+    "M27.75 27.75L27.7499 27.7499",
+    "M27.75 3.75L27.7499 3.75007",
+    "M3.75 27.75L3.75007 27.7499",
+    "M3.75 3.75L3.75007 3.75007",
+]
+---
+
+<button {...rest} type="button" class={className} aria-expanded="false" aria-controls="mobile-menu-panel" aria-label="Open menu" title="Open menu">
+    <span class="dots-morph-button__wrapper">
+        <svg class="dots-morph-button__icon" viewBox="0 0 32 32" fill="none" aria-hidden="true" focusable="false">
+            {paths.map((d) => (
+                <path data-dots-morph {...{ d, stroke: "currentColor", "stroke-linecap": "round", "stroke-width": "12" }} />
+            ))}
+        </svg>
+    </span>
+</button>

@@ -3,6 +3,8 @@
   --z-content: 0;
   --z-warning: 30;
   --z-chrome: 40;
+  --z-menu-backdrop: 35;
+  --z-menu-panel: 46;
   --z-palette-overlay: 50;
   --z-palette-panel: 60;
   --z-curtain: 70;

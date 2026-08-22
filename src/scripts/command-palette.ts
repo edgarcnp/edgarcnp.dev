@@ -10,10 +10,11 @@ const reduced = (): boolean => prefersReducedMotion.current === true
 const windowRef = window as unknown as { __paletteBound?: boolean }
 
 const INDEX_SELECTOR = "script[type='application/json'][data-command-index]"
-const TRIGGER_SELECTOR = ".palette-trigger"
+const TRIGGER_SELECTOR = ".palette-trigger, [data-palette-open]"
 const OVERLAY_CLASS = "palette-overlay"
 const PANEL_CLASS = "palette-panel"
 const ENTRANCE_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
+const EMPTY_HINT = "Type to search…"
 
 let commands: Command[] = []
 let filtered: Command[] = []
@@ -21,6 +22,8 @@ let active = -1
 let open = false
 
 let trigger: HTMLButtonElement | null = null
+let triggers: HTMLButtonElement[] = []
+let emptyMessage = EMPTY_HINT
 let optionEls: HTMLElement[] = []
 
 let overlay: HTMLDivElement | null = null
@@ -44,9 +47,16 @@ const bindTrigger = (element: HTMLButtonElement): void => {
     const bound = element as HTMLButtonElement & { __paletteBound?: boolean }
     if (bound.__paletteBound) return
     bound.__paletteBound = true
-    bound.addEventListener("click", () => {
+    element.addEventListener("click", () => {
+        trigger = element
         if (open) closePalette()
         else openPalette()
+    })
+}
+
+const setTriggerExpanded = (value: boolean): void => {
+    document.querySelectorAll<HTMLElement>(TRIGGER_SELECTOR).forEach((element) => {
+        element.setAttribute("aria-expanded", String(value))
     })
 }
 
@@ -113,7 +123,7 @@ const renderList = (): void => {
     if (filtered.length === 0) {
         const empty = document.createElement("div")
         empty.className = "palette-empty"
-        empty.textContent = "No results"
+        empty.textContent = emptyMessage
         list.appendChild(empty)
         return
     }
@@ -157,8 +167,9 @@ const filter = (query: string): void => {
         ? commands.filter((command) =>
             `${command.label} ${command.category} ${(command.keywords ?? []).join(" ")}`.toLowerCase().includes(normalized),
         )
-        : commands.filter((command) => command.category === "Nav")
+        : []
     active = -1
+    emptyMessage = normalized ? "No results" : EMPTY_HINT
     renderList()
     setActive(0)
 }
@@ -226,7 +237,7 @@ const openPalette = (): void => {
     filter("")
     setActive(0)
     input?.focus()
-    trigger?.setAttribute("aria-expanded", "true")
+    setTriggerExpanded(true)
     document.documentElement.style.overflow = "hidden"
 
     if (!overlay || !dialog) return
@@ -252,7 +263,7 @@ const closePalette = (): void => {
     const currentOverlay = overlay
     const currentDialog = dialog
 
-    trigger?.setAttribute("aria-expanded", "false")
+    setTriggerExpanded(false)
     trigger?.focus()
     document.documentElement.style.overflow = ""
 
@@ -342,8 +353,9 @@ const boot = (): void => {
     document.documentElement.style.overflow = ""
 
     loadIndex()
-    trigger = document.querySelector<HTMLButtonElement>(TRIGGER_SELECTOR)
-    if (trigger) bindTrigger(trigger)
+    triggers = Array.from(document.querySelectorAll<HTMLButtonElement>(TRIGGER_SELECTOR))
+    triggers.forEach(bindTrigger)
+    trigger = triggers[0] ?? null
     open = false
 }
 
