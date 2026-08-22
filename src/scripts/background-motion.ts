@@ -5,14 +5,16 @@
  *
  * - Colors are read at runtime from the theme tokens on `:root` (`--accent`,
  *   `--accent-soft`, `--ink`); nothing is hardcoded.
- * - Theme changes (`data-theme` attribute) re-read the tokens and crossfade
- *   each orb's color via motion.
+ * - Theme changes (`data-theme` attribute) re-read the tokens and set each
+ *   orb's color synchronously; the eye-level fade between themes is produced by
+ *   a composited view-transition crossfade instead of per-property animation.
  *
  * Astro's ClientRouter swaps `document.body`; the container carries
  * `transition:persist` so it (and its orbs) survive navigation. When a page
  * arrives without one (e.g. a fresh load), `astro:page-load` rebuilds it.
  */
-import { animate, initPrefersReducedMotion, prefersReducedMotion } from "motion"
+
+export {}
 
 const ELEMENT_CLASS = "ambient-bg"
 const ORB_CLASS = "ambient-orb"
@@ -59,7 +61,7 @@ const resolveColor = (value: string): string => {
         probe = document.createElement("span")
         probe.id = PROBE_ID
         probe.setAttribute("aria-hidden", "true")
-        probe.style.cssText = "position:absolute;left:-9999px;width:0;height:0;opacity:0"
+        probe.style.cssText = "position:absolute;left:-9999px;width:0;height:0;opacity:0;transition:none"
         document.documentElement.appendChild(probe)
     }
     probe.style.color = value
@@ -76,14 +78,11 @@ const readThemeTokens = (): Partial<Record<Token, string>> => {
     return tokens
 }
 
-const reducedMotion = (): boolean => prefersReducedMotion.current === true
-
 const isLightTheme = (): boolean => {
     const explicit = document.documentElement.dataset.theme
     if (explicit) return explicit === "light"
     return !window.matchMedia("(prefers-color-scheme: dark)").matches
 }
-
 const orbAlpha = (base: number): number => (isLightTheme() ? Math.min(Math.round(base * 2), 72) : base)
 
 interface OrbInstance {
@@ -132,17 +131,10 @@ const crossfadeOrbColors = (): void => {
         node.style.setProperty(ALPHA_PROP, `${orbAlpha(spec.alpha)}%`)
         const next = tokens[spec.token]
         if (!next) continue
-        const current = node.style.getPropertyValue(COLOR_PROP)
-        if (current === next) continue
-        if (reducedMotion()) {
-            node.style.setProperty(COLOR_PROP, next)
-            continue
-        }
-        if (!current) {
-            node.style.setProperty(COLOR_PROP, next)
-            continue
-        }
-        animate(node, { [COLOR_PROP]: [current, next] }, { duration: 0.9, ease: "easeInOut" })
+        // Update synchronously; the theme swap is animated as a composited
+        // view-transition crossfade, so the orbs must already hold the target
+        // color when the new frame is captured.
+        node.style.setProperty(COLOR_PROP, next)
     }
 }
 
@@ -182,5 +174,4 @@ const initAmbientBackground = (): void => {
     setup()
 }
 
-initPrefersReducedMotion()
 initAmbientBackground()
