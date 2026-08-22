@@ -20,6 +20,11 @@
   display: none;
 }
 
+html,
+body {
+  scrollbar-width: none;
+}
+
 ::selection {
   color: var(--ink);
   background-color: var(--accent-soft);

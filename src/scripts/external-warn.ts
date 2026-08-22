@@ -12,6 +12,7 @@ const CONTENT_SELECTOR = "#content-warp"
 const OVERLAY_ID = "external-warn"
 
 let warpControls: AnimationPlaybackControls[] = []
+let warpOrigin = "50% 0%"
 let overlayControls: AnimationPlaybackControls[] = []
 let breatheUnsub: (() => void) | null = null
 let overlay: HTMLElement | null = null
@@ -45,7 +46,7 @@ const applyWarp = (value: number): void => {
     const skewY = -1.5 * value
     const scaleY = 1 + (value * intensity)
     const scaleX = 1 - (value * intensity * 0.6)
-    target.style.transformOrigin = "50% 0%"
+    target.style.transformOrigin = warpOrigin
     target.style.transform = `perspective(500px) rotateX(${rotateX}deg) skewY(${skewY}deg) scaleY(${scaleY}) scaleX(${scaleX})`
 }
 
@@ -352,6 +353,12 @@ const onDocumentClick = (event: MouseEvent): void => {
 
     event.preventDefault()
     returnFocusTo = anchor
+    // Capture the pivot BEFORE the scroll-locking `overflow: hidden`, so the
+    // measurement isn't affected by any browser scroll adjustment it triggers.
+    // The origin is pinned to the viewport top so warp intensity is identical
+    // no matter how far the page is scrolled (browser-agnostic).
+    const target = document.querySelector<HTMLElement>(CONTENT_SELECTOR)
+    if (target) warpOrigin = `50% ${-target.getBoundingClientRect().top}px`
     document.body.style.overflow = "hidden"
     runWarp()
     showOverlay(href)
