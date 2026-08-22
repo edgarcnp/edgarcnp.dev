@@ -804,7 +804,6 @@ a.footer__meta:hover {
   transition: border-color 150ms ease, color 150ms ease;
 }
 
-.dots-morph-button.mobile-menu:hover,
 .dots-morph-button.mobile-menu[aria-expanded="true"] {
   border-color: var(--accent);
   color: var(--ink);
@@ -833,28 +832,18 @@ a.footer__meta:hover {
   height: 1.25rem;
 }
 
-/* Mobile blurred backdrop */
+/* Mobile backdrop */
 .mobile-menu-backdrop {
   position: fixed;
   inset: 0;
   z-index: var(--z-menu-backdrop);
   background: color-mix(in srgb, var(--bg) 30%, rgba(0, 0, 0, 0.45));
-  -webkit-backdrop-filter: blur(14px) saturate(120%);
-  backdrop-filter: blur(14px) saturate(120%);
+  will-change: transform, opacity;
   opacity: 0;
-  transition: opacity 220ms ease, backdrop-filter 220ms ease;
 }
 
 .mobile-menu-backdrop.is-open {
   opacity: 1;
-  -webkit-backdrop-filter: blur(14px) saturate(120%);
-  backdrop-filter: blur(14px) saturate(120%);
-}
-
-@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-  .mobile-menu-backdrop {
-    background: rgba(0, 0, 0, 0.4);
-  }
 }
 
 /* Mobile floating dropdown panel (equal top/left/right gutters, clear of navbar) */
@@ -869,6 +858,7 @@ a.footer__meta:hover {
   border-radius: var(--radius);
   background: var(--bg-elevated);
   box-shadow: var(--shadow), 0 12px 40px rgba(0, 0, 0, 0.18);
+  will-change: transform, opacity;
   overflow: hidden;
 }
 
@@ -1002,11 +992,17 @@ a.footer__meta:hover {
   color: var(--ink-muted);
   text-decoration: none;
   text-transform: uppercase;
-  transition: color 150ms ease;
+  transition: color 150ms ease, background-color 80ms ease;
 }
 
 .mobile-menu-link:hover {
   color: var(--ink);
+}
+
+.mobile-menu-link.is-pressed {
+  background-color: var(--accent-soft);
+  border-radius: var(--radius-sm);
+  transition: background-color 80ms ease;
 }
 
 .mobile-menu-link[aria-current="page"] {

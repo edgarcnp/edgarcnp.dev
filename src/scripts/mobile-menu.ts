@@ -1,4 +1,4 @@
-import { animate, initPrefersReducedMotion, prefersReducedMotion } from "motion"
+import { animate, initPrefersReducedMotion, prefersReducedMotion, stagger } from "motion"
 import type { AnimationPlaybackControls } from "motion"
 import { navigate } from "astro:transitions/client"
 
@@ -28,10 +28,10 @@ const BACKDROP_SELECTOR = "#mobile-menu-backdrop"
 const INDEX_SELECTOR = "script[type='application/json'][data-command-index]"
 const INPUT_SELECTOR = "#mobile-menu-input"
 const RESULTS_SELECTOR = "#mobile-menu-results"
-const OUT_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
-
 const SPRING = { type: "spring", stiffness: 170, damping: 26 } as const
 const SCALE_SPRING = { type: "spring", stiffness: 300, damping: 25 } as const
+const RELEASE_SPRING = { type: "spring", stiffness: 300, damping: 17 } as const
+const WOBBLE_SPRING = { type: "spring", stiffness: 170, damping: 20 } as const
 
 const DOT_STATES: { dot: string, line: string }[] = [
     { dot: "M27.75 27.75L27.7499 27.7499", line: "M15.75 15.75L27.75 27.75" },
@@ -51,6 +51,8 @@ interface State {
     wrapperControls: AnimationPlaybackControls | null
     scaleControls: AnimationPlaybackControls | null
     panelControls: AnimationPlaybackControls | null
+    itemControls: AnimationPlaybackControls | null
+    backdropControls: AnimationPlaybackControls | null
     hovering: boolean
     pressing: boolean
 }
@@ -66,6 +68,8 @@ const state: State = {
     wrapperControls: null,
     scaleControls: null,
     panelControls: null,
+    itemControls: null,
+    backdropControls: null,
     hovering: false,
     pressing: false,
 }
@@ -77,6 +81,7 @@ let activeResult = -1
 let input: HTMLInputElement | null = null
 let results: HTMLElement | null = null
 let navList: HTMLElement | null = null
+let transitionId = 0
 
 const reduced = (): boolean => prefersReducedMotion.current === true
 
@@ -102,6 +107,14 @@ const stopAll = (): void => {
     state.scaleControls = null
     state.panelControls?.stop()
     state.panelControls = null
+    state.itemControls?.stop()
+    state.itemControls = null
+    state.backdropControls?.stop()
+    state.backdropControls = null
+    for (const item of state.panel?.querySelectorAll<HTMLElement>(".mobile-menu-panel__item") ?? []) {
+        item.style.opacity = ""
+        item.style.transform = ""
+    }
 }
 
 const setAttr = (path: DotsPath, key: string, value: string): void => {
@@ -116,14 +129,17 @@ const applyStatic = (open: boolean): void => {
     state.wrapper?.style.setProperty("transform", `rotate(${open ? 90 : 0}deg)`, "important")
 }
 
-const setScale = (target: number): void => {
+const setScale = (
+    target: number,
+    spring: { type: "spring", stiffness: number, damping: number } = SCALE_SPRING,
+): void => {
     if (!state.button) return
     if (reduced()) {
         state.button.style.transform = `scale(${target})`
         return
     }
     state.scaleControls?.stop()
-    state.scaleControls = animate(state.button, { scale: target }, SCALE_SPRING)
+    state.scaleControls = animate(state.button, { scale: target }, spring)
 }
 
 const focusFirst = (): void => {
@@ -147,6 +163,12 @@ const updateA11y = (): void => {
 
 const setScrollLock = (locked: boolean): void => {
     document.documentElement.style.overflow = locked ? "hidden" : ""
+}
+
+const clearPressedLinks = (): void => {
+    for (const link of state.panel?.querySelectorAll<HTMLElement>(".mobile-menu-link.is-pressed") ?? []) {
+        link.classList.remove("is-pressed")
+    }
 }
 
 const filterCommands = (query: string): Command[] => {
@@ -238,6 +260,7 @@ const closeMenu = (restoreFocus: boolean): void => {
     resetSearch()
 
     if (reduced() || !state.panel || !state.backdrop) {
+        clearPressedLinks()
         if (state.panel) state.panel.hidden = true
         if (state.backdrop) {
             state.backdrop.hidden = true
@@ -250,28 +273,41 @@ const closeMenu = (restoreFocus: boolean): void => {
 
     const panel = state.panel
     const backdrop = state.backdrop
+    const gen = ++transitionId
+    clearPressedLinks()
     stopAll()
 
     const panelHidden = animate(
         panel,
-        { opacity: 0, transform: "translateY(8px) scale(0.98)" },
-        { duration: 0.18, ease: OUT_EASE },
+        { opacity: 0, transform: "scale(0.9)" },
+        SPRING,
     )
     void Promise.race([
         panelHidden.finished,
         new Promise<void>((resolve) => {
-            window.setTimeout(resolve, 260)
+            window.setTimeout(resolve, 450)
         }),
     ]).then(() => {
+        if (gen !== transitionId || state.open) return
+        panel.style.opacity = "0"
         panel.hidden = true
         state.panelControls = null
     })
     state.panelControls = panelHidden
 
-    void animate(backdrop, { opacity: [1, 0] }, { duration: 0.18, ease: "easeOut" }).finished.then(() => {
-        backdrop.hidden = true
-        backdrop.classList.remove("is-open")
-    })
+    state.backdropControls = animate(
+        backdrop,
+        { opacity: [1, 0] },
+        SPRING,
+    )
+    state.backdropControls.finished
+        .then(() => {
+            if (gen !== transitionId || state.open) return
+            backdrop.style.opacity = "0"
+            backdrop.hidden = true
+            backdrop.classList.remove("is-open")
+        })
+        .catch(() => undefined)
 
     for (const path of state.paths) {
         const index = state.paths.indexOf(path)
@@ -279,7 +315,7 @@ const closeMenu = (restoreFocus: boolean): void => {
             animate(path, { d: DOT_STATES[index].dot, strokeWidth: 12 }, SPRING),
         )
     }
-    state.wrapperControls = animate(state.wrapper, { rotate: 0 }, SPRING)
+    state.wrapperControls = animate(state.wrapper, { rotate: 0 }, WOBBLE_SPRING)
 
     if (restoreFocus) focusButton()
 }
@@ -287,6 +323,7 @@ const closeMenu = (restoreFocus: boolean): void => {
 const openMenu = (): void => {
     if (state.open || !state.panel || !state.backdrop) return
     state.open = true
+    transitionId++
     updateA11y()
     setScrollLock(true)
     resetSearch()
@@ -311,12 +348,55 @@ const openMenu = (): void => {
     }
     state.wrapperControls = animate(state.wrapper, { rotate: 90 }, SPRING)
 
+    const panelRect = state.panel.getBoundingClientRect()
+    const buttonRect = state.button?.getBoundingClientRect()
+    if (buttonRect && panelRect.width > 0 && panelRect.height > 0) {
+        const x = ((buttonRect.left + (buttonRect.width / 2) - panelRect.left) / panelRect.width) * 100
+        const y = ((buttonRect.top + (buttonRect.height / 2) - panelRect.top) / panelRect.height) * 100
+        state.panel.style.transformOrigin = `${x}% ${y}%`
+    }
+
+    const panel = state.panel
+    const backdrop = state.backdrop
+    const items = Array.from(state.panel.querySelectorAll<HTMLElement>(".mobile-menu-panel__item"))
+
     state.panelControls = animate(
-        state.panel,
-        { opacity: [0, 1], transform: ["translateY(8px) scale(0.98)", "translateY(0) scale(1)"] },
-        { duration: 0.22, ease: OUT_EASE },
+        panel,
+        { opacity: [0, 1], transform: ["scale(0.85)", "scale(1)"] },
+        SPRING,
     )
-    void animate(state.backdrop, { opacity: [0, 1] }, { duration: 0.22, ease: "easeOut" })
+    state.panelControls.finished
+        .then(() => {
+            if (!state.open) return
+            panel.style.opacity = "1"
+            panel.style.transform = "none"
+        })
+        .catch(() => undefined)
+    state.itemControls = animate(
+        items,
+        { opacity: [0, 1], transform: ["translateY(12px)", "translateY(0px)"] },
+        { ...SPRING, delay: stagger(0.035) },
+    )
+    state.itemControls.finished
+        .then(() => {
+            if (!state.open) return
+            for (const item of items) {
+                item.style.opacity = ""
+                item.style.transform = ""
+            }
+        })
+        .catch(() => undefined)
+    state.backdropControls = animate(
+        backdrop,
+        { opacity: [0, 1] },
+        SPRING,
+    )
+    state.backdropControls.finished
+        .then(() => {
+            if (!state.open) return
+            backdrop.style.opacity = "1"
+        })
+        .catch(() => undefined)
     focusFirst()
 }
 
@@ -399,6 +479,18 @@ const bind = (): void => {
     results = state.panel.querySelector<HTMLElement>(RESULTS_SELECTOR)
     navList = state.panel.querySelector<HTMLElement>(".mobile-menu-panel__list")
 
+    const linkFromPointer = (event: PointerEvent): HTMLElement | null =>
+        (event.target as HTMLElement | null)?.closest<HTMLElement>(".mobile-menu-link") ?? null
+    state.panel.addEventListener("pointerdown", (event) => {
+        linkFromPointer(event)?.classList.add("is-pressed")
+    })
+    state.panel.addEventListener("pointerup", () => clearPressedLinks())
+    state.panel.addEventListener("pointercancel", () => clearPressedLinks())
+    state.panel.addEventListener("pointerleave", (event) => {
+        linkFromPointer(event)?.classList.remove("is-pressed")
+    }, true)
+
+    clearPressedLinks()
     setPanelTop()
 
     loadCommands()
@@ -430,11 +522,11 @@ const bind = (): void => {
         })
         state.button.addEventListener("pointerup", () => {
             state.pressing = false
-            setScale(state.hovering ? 1.05 : 1)
+            setScale(state.hovering ? 1.05 : 1, RELEASE_SPRING)
         })
         state.button.addEventListener("pointercancel", () => {
             state.pressing = false
-            setScale(state.hovering ? 1.05 : 1)
+            setScale(state.hovering ? 1.05 : 1, RELEASE_SPRING)
         })
         input?.addEventListener("input", onInput)
     }
