@@ -8,7 +8,7 @@ import CommandPalette from "~/components/shared/CommandPalette.astro"
 import DotsMorphButton from "~/components/shared/DotsMorphButton.astro"
 import SkipLink from "~/components/shared/SkipLink.astro"
 import ThemeToggle from "~/components/shared/ThemeToggle.astro"
-import IconSearch from "~/components/ui/icons/IconSearch.astro"
+import { Search } from "@lucide/astro"
 
 interface Props {
     title: string
@@ -75,7 +75,7 @@ const navLinks = headerNav.map((link) => ({ href: link.href, label: link.label, 
         <nav id="mobile-menu-panel" class="mobile-menu-panel" aria-label="Mobile navigation" hidden>
             <div class="mobile-menu-panel__inner">
                 <div class="mobile-menu-search">
-                    <IconSearch class="mobile-menu-search__icon" />
+                    <Search class="mobile-menu-search__icon" />
                     <input type="search" id="mobile-menu-input" class="mobile-menu-search__input" placeholder="Search" aria-label="Search" aria-controls="mobile-menu-results" autocomplete="off" spellcheck="false" />
                 </div>
                 <ul id="mobile-menu-results" class="mobile-menu-results" role="listbox" hidden></ul>

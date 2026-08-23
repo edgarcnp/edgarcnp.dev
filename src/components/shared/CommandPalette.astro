@@ -1,5 +1,5 @@
 ---
-import IconSearch from "~/components/ui/icons/IconSearch.astro"
+import { Search } from "@lucide/astro"
 import { getCollection } from "astro:content"
 import { navIndex } from "~/data/nav"
 
@@ -35,10 +35,21 @@ const commands: Command[] = [
 ]
 ---
 
-<button {...rest} type="button" class="palette-trigger" aria-haspopup="dialog" aria-expanded="false" aria-label="Search">
-    <IconSearch class="palette-trigger__icon" />
-    <span class="palette-trigger__label">Search commands, projects, writings…</span>
-    <kbd class="palette-kbd" aria-hidden="true">⌘K</kbd>
-</button>
+<div {...rest} class="palette-field">
+    <Search class="palette-trigger__icon" />
+    <input
+        type="search"
+        class="palette-input"
+        placeholder="Search commands, projects, writings…"
+        role="combobox"
+        aria-expanded="false"
+        aria-controls="palette-listbox"
+        aria-autocomplete="list"
+        aria-label="Search"
+        autocomplete="off"
+        spellcheck="false"
+    />
+    <kbd class="palette-kbd" aria-hidden="true">⌘ K</kbd>
+</div>
 <script type="application/json" data-command-index is:inline set:html={JSON.stringify(commands).replace(/</g, "\\u003c")}></script>
 <script>import "~/scripts/command-palette";</script>

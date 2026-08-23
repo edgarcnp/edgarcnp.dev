@@ -3,7 +3,7 @@ import { formatDate } from "~/lib/content"
 import LinkAction from "./LinkAction.astro"
 import StatusBadge from "./StatusBadge.astro"
 import TechTag from "./TechTag.astro"
-import IconArrowLeft from "~/components/ui/icons/IconArrowLeft.astro"
+import { ArrowLeft } from "@lucide/astro"
 
 import type { ProjectStatus } from "~/lib/types"
 
@@ -23,7 +23,7 @@ const { title, published, updated, summary, tags, status, links, backHref, backL
 ---
 <header class="article-header">
     <LinkAction href={backHref} variant="ghost">
-        <IconArrowLeft class="size-3.5" />
+        <ArrowLeft class="size-3.5" />
         {backLabel}
     </LinkAction>
     <p class="kicker">

@@ -1,6 +1,8 @@
 import { animate, initPrefersReducedMotion, prefersReducedMotion } from "motion"
 import type { AnimationPlaybackControls } from "motion"
 import { navigate } from "astro:transitions/client"
+import { ChevronDown, ChevronUp, CornerDownLeft, createElement } from "lucide"
+import type { IconNode } from "lucide"
 
 interface Command { id: string, label: string, href: string, category: string, keywords?: string[] }
 
@@ -10,28 +12,42 @@ const reduced = (): boolean => prefersReducedMotion.current === true
 const windowRef = window as unknown as { __paletteBound?: boolean }
 
 const INDEX_SELECTOR = "script[type='application/json'][data-command-index]"
-const TRIGGER_SELECTOR = ".palette-trigger, [data-palette-open]"
-const OVERLAY_CLASS = "palette-overlay"
+const FIELD_SELECTOR = ".palette-field"
+const INPUT_SELECTOR = ".palette-input"
 const PANEL_CLASS = "palette-panel"
 const ENTRANCE_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1]
-const EMPTY_HINT = "Type to search…"
+
+const iconElement = (icon: IconNode): SVGElement => createElement(icon, { width: 10, height: 10, "aria-hidden": "true" })
+
+const hint = (keys: (SVGElement | string)[], label: string): HTMLSpanElement => {
+    const span = document.createElement("span")
+    const kbd = document.createElement("kbd")
+    keys.forEach((key) => {
+        if (typeof key === "string") {
+            kbd.textContent = key
+        } else {
+            kbd.classList.add("palette-footer__kbd-nav")
+            kbd.appendChild(key)
+        }
+    })
+    span.appendChild(kbd)
+    span.appendChild(document.createTextNode(label))
+    return span
+}
 
 let commands: Command[] = []
 let filtered: Command[] = []
 let active = -1
 let open = false
 
-let trigger: HTMLButtonElement | null = null
-let triggers: HTMLButtonElement[] = []
-let emptyMessage = EMPTY_HINT
-let optionEls: HTMLElement[] = []
-
-let overlay: HTMLDivElement | null = null
-let dialog: HTMLElement | null = null
+let field: HTMLElement | null = null
 let input: HTMLInputElement | null = null
+let panel: HTMLElement | null = null
 let list: HTMLElement | null = null
 let highlight: HTMLElement | null = null
 let highlightControls: AnimationPlaybackControls | null = null
+let optionEls: HTMLElement[] = []
+let emptyMessage = ""
 
 const loadIndex = (): void => {
     const script = document.querySelector<HTMLScriptElement>(INDEX_SELECTOR)
@@ -43,76 +59,33 @@ const loadIndex = (): void => {
     }
 }
 
-const bindTrigger = (element: HTMLButtonElement): void => {
-    const bound = element as HTMLButtonElement & { __paletteBound?: boolean }
-    if (bound.__paletteBound) return
-    bound.__paletteBound = true
-    element.addEventListener("click", () => {
-        trigger = element
-        if (open) closePalette()
-        else openPalette()
-    })
-}
-
-const setTriggerExpanded = (value: boolean): void => {
-    document.querySelectorAll<HTMLElement>(TRIGGER_SELECTOR).forEach((element) => {
-        element.setAttribute("aria-expanded", String(value))
-    })
+const setInputExpanded = (value: boolean): void => {
+    input?.setAttribute("aria-expanded", String(value))
 }
 
 const optionLabel = (index: number): string => `palette-option-${index}`
 
 const buildPanel = (): void => {
-    overlay = document.createElement("div")
-    overlay.className = OVERLAY_CLASS
-    overlay.dataset.palette = "overlay"
-    overlay.addEventListener("mousedown", closePalette)
-
-    dialog = document.createElement("div")
-    dialog.className = PANEL_CLASS
-    dialog.setAttribute("role", "dialog")
-    dialog.setAttribute("aria-modal", "true")
-    dialog.setAttribute("aria-label", "Search")
-
-    const inputRow = document.createElement("div")
-    inputRow.className = "palette-input-row"
-
-    input = document.createElement("input")
-    input.className = "palette-input"
-    input.type = "text"
-    input.placeholder = "Search commands, projects, writings…"
-    input.setAttribute("role", "combobox")
-    input.setAttribute("aria-autocomplete", "list")
-    input.setAttribute("aria-expanded", "true")
-    input.setAttribute("aria-controls", "palette-listbox")
-    input.setAttribute("aria-activedescendant", "")
-    input.addEventListener("input", () => {
-        filter(input?.value ?? "")
-    })
-
-    inputRow.appendChild(input)
-    dialog.appendChild(inputRow)
+    panel = document.createElement("div")
+    panel.className = PANEL_CLASS
 
     list = document.createElement("div")
     list.className = "palette-list"
     list.id = "palette-listbox"
     list.setAttribute("role", "listbox")
-    dialog.appendChild(list)
+    panel.appendChild(list)
 
     const footer = document.createElement("div")
     footer.className = "palette-footer"
-    const hints = document.createElement("div")
-    hints.className = "palette-footer__group"
-    hints.innerHTML = "<span>↑↓ navigate</span><span>↵ open</span><span>esc close</span>"
-    footer.appendChild(hints)
+    const group = document.createElement("div")
+    group.className = "palette-footer__group"
+    group.appendChild(hint([iconElement(ChevronUp), iconElement(ChevronDown)], " navigate"))
+    group.appendChild(hint([iconElement(CornerDownLeft)], " open"))
+    group.appendChild(hint(["esc"], " close"))
+    footer.appendChild(group)
+    panel.appendChild(footer)
 
-    const count = document.createElement("span")
-    count.className = "palette-footer__count"
-    footer.appendChild(count)
-    dialog.appendChild(footer)
-
-    overlay.appendChild(dialog)
-    document.body.appendChild(overlay)
+    field?.appendChild(panel)
 }
 
 const renderList = (): void => {
@@ -121,10 +94,12 @@ const renderList = (): void => {
     optionEls = []
 
     if (filtered.length === 0) {
-        const empty = document.createElement("div")
-        empty.className = "palette-empty"
-        empty.textContent = emptyMessage
-        list.appendChild(empty)
+        if (emptyMessage) {
+            const empty = document.createElement("div")
+            empty.className = "palette-empty"
+            empty.textContent = emptyMessage
+            list.appendChild(empty)
+        }
         return
     }
 
@@ -161,15 +136,45 @@ const renderList = (): void => {
     })
 }
 
+const fuzzyScore = (haystack: string, needle: string): number => {
+    let needleIndex = 0
+    let firstIndex = -1
+    let run = 0
+    let bestRun = 0
+    for (let i = 0; i < haystack.length && needleIndex < needle.length; i++) {
+        if (haystack[i] === needle[needleIndex]) {
+            if (firstIndex < 0) firstIndex = i
+            run += 1
+            if (run > bestRun) bestRun = run
+            needleIndex += 1
+        } else {
+            run = 0
+        }
+    }
+    if (needleIndex < needle.length) return 0
+    return 1 + (bestRun * 2) - (firstIndex * 0.25)
+}
+
 const filter = (query: string): void => {
-    const normalized = query.trim().toLowerCase()
-    filtered = normalized
-        ? commands.filter((command) =>
-            `${command.label} ${command.category} ${(command.keywords ?? []).join(" ")}`.toLowerCase().includes(normalized),
-        )
-        : []
+    const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
+    filtered = tokens.length === 0
+        ? []
+        : commands
+            .map((command) => {
+                const haystack = `${command.label} ${command.category} ${(command.keywords ?? []).join(" ")}`.toLowerCase()
+                let total = 0
+                for (const token of tokens) {
+                    const score = fuzzyScore(haystack, token)
+                    if (score === 0) return null
+                    total += score
+                }
+                return { command, score: total }
+            })
+            .filter((entry): entry is { command: Command, score: number } => entry !== null)
+            .sort((a, b) => b.score - a.score)
+            .map((entry) => entry.command)
     active = -1
-    emptyMessage = normalized ? "No results" : EMPTY_HINT
+    emptyMessage = tokens.length === 0 ? "" : "No results"
     renderList()
     setActive(0)
 }
@@ -230,28 +235,18 @@ const move = (step: number): void => {
 }
 
 const openPalette = (): void => {
-    if (open) return
-    document.querySelectorAll<HTMLElement>(`.${OVERLAY_CLASS}, .${PANEL_CLASS}`).forEach((element) => element.remove())
+    if (open || !input) return
     open = true
     buildPanel()
-    filter("")
-    setActive(0)
-    input?.focus()
-    setTriggerExpanded(true)
-    document.documentElement.style.overflow = "hidden"
+    filter(input.value)
+    setInputExpanded(true)
 
-    if (!overlay || !dialog) return
+    if (!panel) return
     if (reduced()) {
-        overlay.style.opacity = "1"
-        dialog.style.opacity = "1"
+        panel.style.opacity = "1"
         return
     }
-    animate(overlay, { opacity: [0, 1] }, { duration: 0.18, ease: "easeOut" })
-    animate(
-        dialog,
-        { opacity: [0, 1], transform: ["translateY(8px) scale(0.98)", "translateY(0) scale(1)"] },
-        { duration: 0.2, ease: ENTRANCE_EASE },
-    )
+    animate(panel, { opacity: [0, 1], transform: ["translateY(-4px)", "translateY(0)"] }, { duration: 0.15, ease: ENTRANCE_EASE })
 }
 
 const closePalette = (): void => {
@@ -259,26 +254,18 @@ const closePalette = (): void => {
     open = false
     highlightControls?.stop()
     highlightControls = null
+    setInputExpanded(false)
 
-    const currentOverlay = overlay
-    const currentDialog = dialog
-
-    setTriggerExpanded(false)
-    trigger?.focus()
-    document.documentElement.style.overflow = ""
-
+    const currentPanel = panel
     const teardown = (): void => {
-        currentOverlay?.remove()
-        currentDialog?.remove()
-        if (overlay === currentOverlay) overlay = null
-        if (dialog === currentDialog) dialog = null
-        input = null
+        currentPanel?.remove()
+        if (panel === currentPanel) panel = null
         list = null
         highlight = null
         optionEls = []
     }
 
-    if (!currentOverlay || !currentDialog) {
+    if (!currentPanel) {
         teardown()
         return
     }
@@ -286,12 +273,7 @@ const closePalette = (): void => {
         teardown()
         return
     }
-    animate(currentOverlay, { opacity: 0 }, { duration: 0.15, ease: "easeOut" })
-    const controls = animate(
-        currentDialog,
-        { opacity: 0, transform: "translateY(8px) scale(0.98)" },
-        { duration: 0.15, ease: ENTRANCE_EASE },
-    )
+    const controls = animate(currentPanel, { opacity: 0, transform: "translateY(-4px)" }, { duration: 0.12, ease: ENTRANCE_EASE })
     void Promise.race([
         controls.finished,
         new Promise<void>((resolve) => {
@@ -305,11 +287,16 @@ const choose = (command: Command): void => {
     void navigate(command.href)
 }
 
+const isInsideField = (node: Node | null): boolean => !!node && !!field && field.contains(node)
+
 const onKeydown = (event: KeyboardEvent): void => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault()
         if (open) closePalette()
-        else openPalette()
+        else {
+            input?.focus()
+            openPalette()
+        }
         return
     }
     if (!open) return
@@ -317,6 +304,7 @@ const onKeydown = (event: KeyboardEvent): void => {
         case "Escape":
             event.preventDefault()
             closePalette()
+            input?.blur()
             break
         case "ArrowDown":
             event.preventDefault()
@@ -343,26 +331,38 @@ const onKeydown = (event: KeyboardEvent): void => {
     }
 }
 
-const onResize = (): void => {
-    if (open) positionHighlight()
+const onFocusIn = (event: FocusEvent): void => {
+    if (!open && event.target === input) openPalette()
+}
+
+const onInput = (event: Event): void => {
+    if (event.target === input && open) filter(input?.value ?? "")
+}
+
+const onMousedown = (event: MouseEvent): void => {
+    if (open && !isInsideField(event.target instanceof Node ? event.target : null)) closePalette()
+}
+
+const onFocusOut = (event: FocusEvent): void => {
+    if (open && !isInsideField(event.relatedTarget instanceof Node ? event.relatedTarget : null)) closePalette()
 }
 
 const boot = (): void => {
-    const stale = document.querySelectorAll<HTMLElement>(`.${OVERLAY_CLASS}, .${PANEL_CLASS}`)
-    stale.forEach((element) => element.remove())
-    document.documentElement.style.overflow = ""
+    document.querySelectorAll<HTMLElement>(`.${PANEL_CLASS}`).forEach((element) => element.remove())
 
     loadIndex()
-    triggers = Array.from(document.querySelectorAll<HTMLButtonElement>(TRIGGER_SELECTOR))
-    triggers.forEach(bindTrigger)
-    trigger = triggers[0] ?? null
+    field = document.querySelector<HTMLElement>(FIELD_SELECTOR)
+    input = field?.querySelector<HTMLInputElement>(INPUT_SELECTOR) ?? null
     open = false
 }
 
 if (!windowRef.__paletteBound) {
     windowRef.__paletteBound = true
     document.addEventListener("keydown", onKeydown)
-    window.addEventListener("resize", onResize)
+    document.addEventListener("focusin", onFocusIn)
+    document.addEventListener("input", onInput, true)
+    document.addEventListener("mousedown", onMousedown)
+    document.addEventListener("focusout", onFocusOut)
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", boot, { once: true })
     } else {

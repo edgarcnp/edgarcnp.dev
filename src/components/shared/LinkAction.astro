@@ -1,6 +1,6 @@
 ---
 import { ACTION_CLASSES } from "~/lib/types"
-import IconExternalLink from "~/components/ui/icons/IconExternalLink.astro"
+import { ExternalLink } from "@lucide/astro"
 
 import type { ActionVariant } from "~/lib/types"
 
@@ -22,5 +22,5 @@ const isExternal = external ?? (href.startsWith("http") || href.startsWith("mail
     class={ACTION_CLASSES[variant ?? "secondary"]}
 >
     <slot />
-    {isExternal && <IconExternalLink class="size-3.5 shrink-0" />}
+    {isExternal && <ExternalLink class="size-3.5 shrink-0" />}
 </a>
