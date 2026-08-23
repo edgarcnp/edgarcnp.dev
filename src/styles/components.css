@@ -39,6 +39,7 @@
 }
 
 .nav-link {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -55,17 +56,32 @@
   transition: color 150ms ease;
 }
 
+.nav-link::after {
+  content: "";
+  position: absolute;
+  inset-inline: 50%;
+  bottom: calc(0.375rem + (100% - 1.4375rem) / 2 - 2px);
+  height: 1px;
+  background: var(--accent);
+  transition: inset-inline 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .nav-link:hover {
   color: var(--ink);
+}
+
+.nav-link:hover::after {
+  inset-inline: 0.5rem;
 }
 
 .nav-link.is-active,
 .nav-link[aria-current="page"] {
   color: var(--ink);
-  text-decoration: underline;
-  text-decoration-color: var(--accent);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
+}
+
+.nav-link.is-active::after,
+.nav-link[aria-current="page"]::after {
+  inset-inline: 0.5rem;
 }
 
 .kicker {
@@ -584,6 +600,10 @@ a.footer__meta:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .nav-link::after {
+    transition: none;
+  }
+
   .card:hover,
   .btn-primary:hover,
   .btn-secondary:hover {
