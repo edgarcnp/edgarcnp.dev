@@ -729,11 +729,11 @@ a.footer__meta:hover {
   overflow-y: auto;
 }
 
-.palette-list:empty {
+.palette-list.is-empty {
   padding: 0;
 }
 
-.palette-list:empty + .palette-footer {
+.palette-list.is-empty + .palette-footer {
   border-top: none;
 }
 

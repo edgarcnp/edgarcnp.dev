@@ -75,6 +75,11 @@ const buildPanel = (): void => {
     list.setAttribute("role", "listbox")
     panel.appendChild(list)
 
+    highlight = document.createElement("div")
+    highlight.className = "palette-highlight"
+    highlight.style.opacity = "0"
+    list.appendChild(highlight)
+
     const footer = document.createElement("div")
     footer.className = "palette-footer"
     const group = document.createElement("div")
@@ -89,11 +94,13 @@ const buildPanel = (): void => {
 }
 
 const renderList = (): void => {
-    if (!list) return
-    list.textContent = ""
+    if (!list || !highlight) return
+    optionEls.forEach((element) => element.remove())
     optionEls = []
+    list.classList.toggle("is-empty", filtered.length === 0 && !emptyMessage)
 
     if (filtered.length === 0) {
+        highlight.style.opacity = "0"
         if (emptyMessage) {
             const empty = document.createElement("div")
             empty.className = "palette-empty"
@@ -103,10 +110,7 @@ const renderList = (): void => {
         return
     }
 
-    highlight = document.createElement("div")
-    highlight.className = "palette-highlight"
     highlight.style.opacity = "0"
-    list.appendChild(highlight)
 
     filtered.forEach((command, index) => {
         const option = document.createElement("button")
