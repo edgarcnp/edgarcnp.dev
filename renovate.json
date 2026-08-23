@@ -11,9 +11,6 @@
         "dependencies"
     ],
     "assignAutomerge": true,
-    "assignees": [
-        "edgarcnp"
-    ],
     "automerge": false,
     "keepUpdatedLabel": "renovate-keep-updated",
     "osvVulnerabilityAlerts": true,
