@@ -32,6 +32,19 @@
   }
 }
 
+.site-header::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 100%;
+  margin-top: 1px;
+  height: var(--fade-edge);
+  background: var(--bg);
+  -webkit-mask-image: linear-gradient(180deg, black 0%, transparent 100%);
+  mask-image: linear-gradient(180deg, black 0%, transparent 100%);
+  pointer-events: none;
+}
+
 .nav {
   display: flex;
   align-items: center;
@@ -502,6 +515,19 @@
   .footer {
     background-color: var(--bg-elevated);
   }
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: var(--fade-edge);
+  transform: translateY(calc(-100% - 1px));
+  background: var(--bg);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, black 100%);
+  pointer-events: none;
 }
 
 .footer__band {

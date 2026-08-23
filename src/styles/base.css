@@ -7,6 +7,7 @@
   --z-menu-panel: 46;
   --z-curtain: 70;
   --z-skip: 80;
+  --fade-edge: 24px;
 }
 
 *,
@@ -22,7 +23,9 @@
 
 html,
 body {
-  scrollbar-width: none;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 ::selection {
@@ -37,8 +40,8 @@ html {
 body {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
   margin: 0;
   color: var(--ink);
   font-family: var(--font-geist-sans), sans-serif;
@@ -49,8 +52,13 @@ body {
 
 #content-warp {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, black var(--fade-edge), black calc(100% - var(--fade-edge)), transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, black var(--fade-edge), black calc(100% - var(--fade-edge)), transparent 100%);
 }
 
 main {
