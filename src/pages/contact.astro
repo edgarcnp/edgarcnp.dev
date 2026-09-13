@@ -1,14 +1,10 @@
 ---
 import Layout from "~/layouts/Layout.astro"
-import { getEntry } from "astro:content"
+import { getContact } from "~/lib/data"
 import LinkAction from "~/components/shared/LinkAction.astro"
 import SectionHeading from "~/components/shared/SectionHeading.astro"
 
-const contactEntry = await getEntry("data", "contact")
-if (!contactEntry || !("links" in contactEntry.data)) {
-    throw new Error("Missing contact data entry")
-}
-const contact = contactEntry.data
+const contact = await getContact()
 ---
 
 <Layout title="Contact" description="Static links, no message collection. Email or verified profile links." path="/contact">

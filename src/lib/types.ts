@@ -1,8 +1,6 @@
-export interface IconProps {
-    class?: string
-}
+import type { CollectionEntry } from "astro:content"
 
-export type ProjectStatus = "Planned" | "In Progress" | "Archived"
+export type ProjectStatus = CollectionEntry<"projects">["data"]["status"]
 
 export type ActionVariant = "primary" | "secondary" | "ghost"
 

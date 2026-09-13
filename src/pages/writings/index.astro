@@ -1,6 +1,7 @@
 ---
 import Layout from "~/layouts/Layout.astro"
-import { formatDate, getWritingPosts } from "~/lib/content"
+import { getWritingPosts } from "~/lib/content"
+import { formatDate } from "~/lib/format"
 import SectionHeading from "~/components/shared/SectionHeading.astro"
 import TechTag from "~/components/shared/TechTag.astro"
 
@@ -18,7 +19,7 @@ const posts = await getWritingPosts()
         <ul class="divide-y divide-(--border) border-y border-(--border)">
             {posts.map((post) => (
                 <li>
-                    <a href={`/writings/${post.data.slug}`} class="group flex flex-col gap-3 py-6 sm:flex-row sm:items-start sm:gap-8">
+                    <a href={`/writings/${post.id}`} class="group flex flex-col gap-3 py-6 sm:flex-row sm:items-start sm:gap-8">
                         <span class="shrink-0 pt-1 font-mono text-xs text-(--ink-faint)">Published {formatDate(post.data.published)}</span>
                         <span class="flex min-w-0 flex-col gap-2">
                             <h2 class="text-xl font-semibold text-(--ink) transition group-hover:text-(--accent)">{post.data.title}</h2>

@@ -1,6 +1,5 @@
 ---
 title: "Progressive Loading System"
-slug: "progressive-loading-system"
 summary: "Responsive skeleton layouts for delayed states that keep dimensions stable across three major breakpoints."
 year: 2026
 published: "2026-06-12"

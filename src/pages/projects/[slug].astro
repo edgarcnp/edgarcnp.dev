@@ -1,18 +1,19 @@
 ---
 import Layout from "~/layouts/Layout.astro"
-import { getCollection, render } from "astro:content"
+import { render } from "astro:content"
+import { getProjects } from "~/lib/content"
 import ArticleHeader from "~/components/shared/ArticleHeader.astro"
 
 export async function getStaticPaths() {
-    const projects = await getCollection("projects")
-    return projects.map((project) => ({ params: { slug: project.data.slug }, props: { project } }))
+    const projects = await getProjects()
+    return projects.map((project) => ({ params: { slug: project.id }, props: { project } }))
 }
 
 const { project } = Astro.props
 const { Content } = await render(project)
 ---
 
-<Layout title={project.data.title} description={project.data.summary} path={`/projects/${project.data.slug}`}>
+<Layout title={project.data.title} description={project.data.summary} path={`/projects/${project.id}`}>
     <article class="mx-auto max-w-3xl">
         <div>
             <ArticleHeader

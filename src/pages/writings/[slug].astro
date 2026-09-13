@@ -1,18 +1,19 @@
 ---
 import Layout from "~/layouts/Layout.astro"
-import { getCollection, render } from "astro:content"
+import { render } from "astro:content"
+import { getWritingPosts } from "~/lib/content"
 import ArticleHeader from "~/components/shared/ArticleHeader.astro"
 
 export async function getStaticPaths() {
-    const posts = await getCollection("writing")
-    return posts.map((post) => ({ params: { slug: post.data.slug }, props: { post } }))
+    const posts = await getWritingPosts()
+    return posts.map((post) => ({ params: { slug: post.id }, props: { post } }))
 }
 
 const { post } = Astro.props
 const { Content } = await render(post)
 ---
 
-<Layout title={post.data.title} description={post.data.summary} path={`/writings/${post.data.slug}`}>
+<Layout title={post.data.title} description={post.data.summary} path={`/writings/${post.id}`}>
     <article class="mx-auto max-w-3xl">
         <div>
             <ArticleHeader

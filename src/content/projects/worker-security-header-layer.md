@@ -1,6 +1,5 @@
 ---
 title: "Worker Security Header Layer"
-slug: "worker-security-header-layer"
 summary: "A Cloudflare Worker response hardening layer for CSP, referrer policy, permissions policy, and related headers."
 year: 2026
 published: "2026-06-08"

@@ -1,6 +1,5 @@
 ---
 title: "Secure Portfolio Platform"
-slug: "secure-portfolio-platform"
 summary: "A portfolio built with Astro, SolidJS, and Cloudflare Workers — SSR, static contact links, and strict content boundaries."
 year: 2026
 published: "2026-06-15"

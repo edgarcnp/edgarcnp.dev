@@ -1,26 +1,16 @@
 ---
 import Layout from "~/layouts/Layout.astro"
-import { getCollection, getEntry } from "astro:content"
+import { getFeaturedProjects } from "~/lib/content"
+import { getCapabilities, getContact, getProfile } from "~/lib/data"
 import Grid4 from "~/components/shared/Grid4.astro"
 import LinkAction from "~/components/shared/LinkAction.astro"
 import ProjectCard from "~/components/shared/ProjectCard.astro"
 import SectionHeading from "~/components/shared/SectionHeading.astro"
 
-const projects = (await getCollection("projects")).sort((a, b) => b.data.year - a.data.year)
-const featuredProjects = projects.filter((p) => p.data.featured)
-
-const profileEntry = await getEntry("data", "profile")
-const contactEntry = await getEntry("data", "contact")
-const capabilitiesEntry = await getEntry("data", "capabilities")
-if (!profileEntry || !contactEntry || !capabilitiesEntry) {
-    throw new Error("Missing site data entry")
-}
-const profile = profileEntry.data
-const contact = contactEntry.data
-const capabilities = capabilitiesEntry.data
-if (!("name" in profile) || !("links" in contact) || !("capabilities" in capabilities)) {
-    throw new Error("Site data entry has unexpected shape")
-}
+const featuredProjects = await getFeaturedProjects()
+const profile = await getProfile()
+const contact = await getContact()
+const capabilities = await getCapabilities()
 const codeberg = contact.links.find((l) => l.kind === "code")
 
 const stats = [
@@ -65,7 +55,7 @@ const stats = [
             {featuredProjects.map((p) => (
                 <ProjectCard
                     title={p.data.title}
-                    href={`/projects/${p.data.slug}`}
+                    href={`/projects/${p.id}`}
                     summary={p.data.summary}
                     year={p.data.year}
                     status={p.data.status}

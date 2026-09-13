@@ -1,6 +1,5 @@
 ---
 title: "Structured Portfolio Content"
-slug: "structured-portfolio-content"
 summary: "Validated local content files for profile data, project metadata, writing, capabilities, and external links."
 year: 2026
 published: "2026-06-10"

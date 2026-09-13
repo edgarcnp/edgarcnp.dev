@@ -19,7 +19,6 @@ const safeHref = z.string().refine(
 
 const projectSchema = z.object({
     title: z.string(),
-    slug: z.string().regex(/^[a-zA-Z0-9_-]+$/),
     summary: z.string(),
     year: z.number(),
     published: z.coerce.date(),
@@ -41,21 +40,10 @@ const projectSchema = z.object({
 
 const writingSchema = z.object({
     title: z.string(),
-    slug: z.string().regex(/^[a-zA-Z0-9_-]+$/),
     summary: z.string(),
     published: z.coerce.date(),
     updated: z.coerce.date(),
     tags: z.array(z.string()).default([]),
-})
-
-const projects = defineCollection({
-    loader: glob({ base: "./src/content/projects", pattern: "**/*.md" }),
-    schema: projectSchema,
-})
-
-const writing = defineCollection({
-    loader: glob({ base: "./src/content/writing", pattern: "**/*.md" }),
-    schema: writingSchema,
 })
 
 const profileSchema = z.object({
@@ -88,9 +76,29 @@ const capabilitiesSchema = z.object({
     ),
 })
 
-const data = defineCollection({
-    loader: glob({ base: "./src/data", pattern: "**/*.json" }),
-    schema: z.union([profileSchema, contactSchema, capabilitiesSchema]),
+const projects = defineCollection({
+    loader: glob({ base: "./src/content/projects", pattern: "**/*.md" }),
+    schema: projectSchema,
 })
 
-export const collections = { projects, writing, data }
+const writing = defineCollection({
+    loader: glob({ base: "./src/content/writing", pattern: "**/*.md" }),
+    schema: writingSchema,
+})
+
+const profile = defineCollection({
+    loader: glob({ base: "./src/data", pattern: "profile.json" }),
+    schema: profileSchema,
+})
+
+const contact = defineCollection({
+    loader: glob({ base: "./src/data", pattern: "contact.json" }),
+    schema: contactSchema,
+})
+
+const capabilities = defineCollection({
+    loader: glob({ base: "./src/data", pattern: "capabilities.json" }),
+    schema: capabilitiesSchema,
+})
+
+export const collections = { projects, writing, profile, contact, capabilities }

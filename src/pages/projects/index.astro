@@ -1,19 +1,13 @@
 ---
 import Layout from "~/layouts/Layout.astro"
-import { getProjects } from "~/lib/content"
+import { getProjectStats, getProjects } from "~/lib/content"
 import ProjectCard from "~/components/shared/ProjectCard.astro"
 import SectionHeading from "~/components/shared/SectionHeading.astro"
 
 const projects = await getProjects()
-
-let inProgress = 0
-let planned = 0
-for (const proj of projects) {
-    if (proj.data.status === "In Progress") inProgress++
-    else if (proj.data.status === "Planned") planned++
-}
+const { total, inProgress, planned } = await getProjectStats()
 const stats = [
-    { label: "Total", value: projects.length },
+    { label: "Total", value: total },
     { label: "In Progress", value: inProgress },
     { label: "Planned", value: planned },
 ]
@@ -43,7 +37,7 @@ const stats = [
             {projects.map((p) => (
                 <ProjectCard
                     title={p.data.title}
-                    href={`/projects/${p.data.slug}`}
+                    href={`/projects/${p.id}`}
                     summary={p.data.summary}
                     year={p.data.year}
                     status={p.data.status}
