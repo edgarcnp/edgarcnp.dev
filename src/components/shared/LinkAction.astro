@@ -8,9 +8,10 @@ interface Props {
     href: string
     external?: boolean
     variant?: ActionVariant
+    magnetic?: boolean
 }
 
-const { href, external, variant, class: _className, ...rest } = Astro.props as Props & Record<string, string | undefined>
+const { href, external, magnetic, variant, class: _className, ...rest } = Astro.props as Props & Record<string, string | undefined>
 
 const isExternal = external ?? (href.startsWith("http") || href.startsWith("mailto:"))
 ---
@@ -20,6 +21,7 @@ const isExternal = external ?? (href.startsWith("http") || href.startsWith("mail
     target={isExternal ? "_blank" : undefined}
     rel={isExternal ? "noopener noreferrer" : undefined}
     class={ACTION_CLASSES[variant ?? "secondary"]}
+    data-motion={magnetic ? "magnetic" : undefined}
 >
     <slot />
     {isExternal && <ExternalLink class="size-3.5 shrink-0" />}

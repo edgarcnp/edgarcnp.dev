@@ -3,8 +3,10 @@ import {
     easeOut,
     inView,
     initPrefersReducedMotion,
+    motionValue,
     prefersReducedMotion,
     scroll,
+    stagger,
 } from "motion"
 import type { AnimationPlaybackControls } from "motion"
 
@@ -243,6 +245,21 @@ const applyRoll = (root: HTMLElement) => {
     if (applied) root.dataset.rollApplied = "1"
 }
 
+const playRoll = (root: HTMLElement, hovered: boolean, baseDelay = 0): AnimationPlaybackControls[] => {
+    const controls: AnimationPlaybackControls[] = []
+    let index = 0
+    for (const unit of root.querySelectorAll<HTMLElement>(".roll__char")) {
+        const front = unit.querySelector<HTMLElement>(".roll__face:not(.roll__face--dup)")
+        const dup = unit.querySelector<HTMLElement>(".roll__face--dup")
+        if (!front || !dup) continue
+        const opts = { duration: 0.3, ease: easeOut, delay: (index * 0.012) + baseDelay }
+        controls.push(animate(front, { y: hovered ? ["0%", "-100%"] : ["-100%", "0%"] }, opts))
+        controls.push(animate(dup, { y: hovered ? ["100%", "0%"] : ["0%", "100%"] }, opts))
+        index++
+    }
+    return controls
+}
+
 export const enableRoll = (el: HTMLElement) => {
     applyRoll(el)
     if (reducedQuery.matches) return
@@ -252,17 +269,7 @@ export const enableRoll = (el: HTMLElement) => {
     let controls: AnimationPlaybackControls[] = []
     const play = (hovered: boolean) => {
         for (const c of controls) c.stop()
-        controls = []
-        let index = 0
-        for (const unit of el.querySelectorAll<HTMLElement>(".roll__char")) {
-            const front = unit.querySelector<HTMLElement>(".roll__face:not(.roll__face--dup)")
-            const dup = unit.querySelector<HTMLElement>(".roll__face--dup")
-            if (!front || !dup) continue
-            const opts = { duration: 0.3, ease: easeOut, delay: index * 0.012 }
-            controls.push(animate(front, { y: hovered ? ["0%", "-100%"] : ["-100%", "0%"] }, opts))
-            controls.push(animate(dup, { y: hovered ? ["100%", "0%"] : ["0%", "100%"] }, opts))
-            index++
-        }
+        controls = playRoll(el, hovered)
     }
     const onEnter = () => play(true)
     const onLeave = () => play(false)
@@ -281,6 +288,92 @@ const roll = (el: HTMLElement) => {
     enableRoll(el)
 }
 
+const reveal = (root: HTMLElement) => {
+    if (prefersReducedMotion.current === true) return
+    const items = root.querySelectorAll<HTMLElement>("[data-reveal]")
+    for (const [index, el] of Array.from(items).entries()) {
+        const controls = animate(
+            el,
+            { opacity: [0, 1], transform: ["translateY(12px)", "translateY(0)"] },
+            { duration: 0.5, ease: easeOut, delay: 0.2 + stagger(0.08)(index, items.length) },
+        )
+        registry.push(() => controls.stop())
+        scanned.add(el)
+    }
+    const codeEl = root.querySelector<HTMLElement>(".error-page__code")
+    if (codeEl) {
+        applyRoll(codeEl)
+        const rollControls = playRoll(codeEl, false, 0.45)
+        for (const c of rollControls) registry.push(() => c.stop())
+        scanned.add(codeEl)
+        for (const descendant of codeEl.querySelectorAll<HTMLElement>(".roll, .roll__char, .roll__face")) {
+            scanned.add(descendant)
+        }
+        enableRoll(codeEl)
+        const glowControls = animate(
+            codeEl,
+            { filter: ["brightness(1)", "brightness(1.12)", "brightness(1)"] },
+            { duration: 5, ease: "easeInOut", repeat: Infinity },
+        )
+        registry.push(() => glowControls.stop())
+        scanned.add(codeEl)
+        tilt(codeEl)
+    }
+}
+
+const tilt = (el: HTMLElement) => {
+    if (reducedQuery.matches || !window.matchMedia("(pointer: fine)").matches) return
+    let rotXControls: AnimationPlaybackControls | null = null
+    let rotYControls: AnimationPlaybackControls | null = null
+    const rotX = motionValue(0)
+    const rotY = motionValue(0)
+    const applyTransform = () => {
+        el.style.transform = `perspective(600px) rotateX(${rotX.get()}deg) rotateY(${rotY.get()}deg)`
+    }
+    const springTo = (targetRotX: number, targetRotY: number) => {
+        rotXControls?.stop()
+        rotYControls?.stop()
+        rotXControls = animate(rotX, targetRotX, {
+            type: "spring",
+            stiffness: 300,
+            damping: 25,
+            onUpdate: () => {
+                if (!el.isConnected) return
+                applyTransform()
+            },
+        })
+        rotYControls = animate(rotY, targetRotY, {
+            type: "spring",
+            stiffness: 300,
+            damping: 25,
+            onUpdate: () => {
+                if (!el.isConnected) return
+                applyTransform()
+            },
+        })
+    }
+    const onMove = (event: PointerEvent) => {
+        const rect = el.getBoundingClientRect()
+        const centerX = rect.left + (rect.width / 2)
+        const centerY = rect.top + (rect.height / 2)
+        const deltaX = event.clientX - centerX
+        const deltaY = event.clientY - centerY
+        const rotY = (deltaX / (rect.width / 2)) * 8
+        const rotX = (-deltaY / (rect.height / 2)) * 8
+        springTo(rotX, rotY)
+    }
+    const onLeave = () => springTo(0, 0)
+    el.addEventListener("pointermove", onMove)
+    el.addEventListener("pointerleave", onLeave)
+    scanned.add(el)
+    registry.push(() => {
+        el.removeEventListener("pointermove", onMove)
+        el.removeEventListener("pointerleave", onLeave)
+        rotXControls?.stop()
+        rotYControls?.stop()
+    })
+}
+
 const handlers = new Map<string, (el: HTMLElement) => void>([
     ["counter", counter],
     ["parallax", parallax],
@@ -288,6 +381,8 @@ const handlers = new Map<string, (el: HTMLElement) => void>([
     ["marquee", marquee],
     ["tap", tap],
     ["roll", roll],
+    ["reveal", reveal],
+    ["tilt", tilt],
 ])
 
 const BUTTON_SELECTOR = ".btn-primary, .btn-secondary, .btn-ghost"
