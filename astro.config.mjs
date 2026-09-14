@@ -5,6 +5,7 @@ import tailwindcss from "@tailwindcss/vite"
 export default defineConfig({
     site: "https://edgarcnp.dev",
     output: "static",
+    trailingSlash: "never",
     outDir: "./dist/client",
     integrations: [sitemap()],
     prefetch: { prefetchAll: true },
