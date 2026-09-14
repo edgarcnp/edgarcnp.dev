@@ -1,9 +1,10 @@
 ---
-import { ClientRouter } from "astro:transitions"
-import profileData from "~/data/profile.json"
-import { headerNav } from "~/data/nav"
+import { headerNav, siteName, tickerItems } from "~/config/site"
+import { getProfile } from "~/lib/data"
+import { isActivePath } from "~/lib/navigation"
 import "../styles/app.css"
 import "../styles/external-warn.css"
+import BaseHead from "~/components/site/BaseHead.astro"
 import CommandPalette from "~/components/shared/CommandPalette.astro"
 import DotsMorphButton from "~/components/shared/DotsMorphButton.astro"
 import SkipLink from "~/components/shared/SkipLink.astro"
@@ -17,32 +18,18 @@ interface Props {
 }
 
 const { title, description, path } = Astro.props
-const email: string = profileData.email
-const tickerItems = ["Rust", "Dioxus", "Cloudflare"]
+const profile = await getProfile()
+const currentYear = new Date().getFullYear()
 const tickerRow = Array.from({ length: 12 }, () => tickerItems).flat()
-const DEFAULT_DESCRIPTION = "Software engineer building secure, pragmatic web systems."
-const metaDescription = description ?? DEFAULT_DESCRIPTION
-const siteName = "edgarcnp.dev"
-const fullTitle = !title ? siteName : title === siteName ? title : `${title} — ${siteName}`
-const hostname = Astro.site?.host ?? "edgarcnp.dev"
 
-const navLinks = headerNav.map((link) => ({ href: link.href, label: link.label, active: link.match(path) }))
+const navLinks = headerNav.map((link) => ({ href: link.href, label: link.label, active: isActivePath(link.href, path) }))
 const isHome = path === "/"
 ---
 
 <!doctype html>
 <html lang="en">
     <head>
-        <script src="/js/theme-init.js" is:inline></script>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="icon" href="/favicon.ico" />
-        <meta name="generator" content={Astro.generator} />
-        <title>{fullTitle}</title>
-        <meta name="description" content={metaDescription} />
-        <link rel="canonical" href={`https://edgarcnp.dev${path}`} />
-        <ClientRouter />
+        <BaseHead title={title} description={description} path={path} />
     </head>
     <body>
         <SkipLink />
@@ -55,7 +42,7 @@ const isHome = path === "/"
                         EC
                     </span>
                     <span class="flex flex-col leading-none">
-                        <span class={`text-sm font-semibold transition group-hover:text-(--accent) ${isHome ? "text-(--accent)" : "text-(--ink)"}`}>{hostname}</span>
+                        <span class={`text-sm font-semibold transition group-hover:text-(--accent) ${isHome ? "text-(--accent)" : "text-(--ink)"}`}>{siteName}</span>
                         <span class="mt-1 text-[0.65rem] uppercase tracking-[0.18em] text-(--ink-faint)">Portfolio</span>
                     </span>
                 </a>
@@ -100,7 +87,7 @@ const isHome = path === "/"
 
         <footer class="footer">
             <div class="footer__band flex flex-col items-stretch gap-3 text-center sm:flex-row sm:items-center sm:gap-x-6">
-                <p class="footer__meta min-w-0 sm:flex-none sm:text-left">&copy; 2026 Edgar Christian</p>
+                <p class="footer__meta min-w-0 sm:flex-none sm:text-left">&copy; {currentYear} {profile.name}</p>
                 <div class="footer__ticker min-w-0 overflow-hidden sm:flex-1" aria-hidden="true">
                     <div class="footer__ticker-track" data-motion="marquee" data-duration="30">
                         <div class="footer__ticker-group">
@@ -115,7 +102,7 @@ const isHome = path === "/"
                         </div>
                     </div>
                 </div>
-                <a class="footer__meta min-w-0 sm:flex-none sm:text-right" href={`mailto:${email}`}>{email}</a>
+                <a class="footer__meta min-w-0 sm:flex-none sm:text-right" href={`mailto:${profile.email}`}>{profile.email}</a>
             </div>
         </footer>
 

@@ -1,0 +1,33 @@
+---
+import { ClientRouter } from "astro:transitions"
+import { defaultDescription, siteName } from "~/config/site"
+
+interface Props {
+    title: string
+    description?: string
+    path: string
+}
+
+const { title, description, path } = Astro.props
+const metaDescription = description ?? defaultDescription
+const fullTitle = !title ? siteName : title === siteName ? title : `${title} — ${siteName}`
+const canonical = new URL(path, Astro.site ?? `https://${siteName}`).href
+---
+<script src="/js/theme-init.js" is:inline></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" href="/favicon.ico" />
+<meta name="generator" content={Astro.generator} />
+<title>{fullTitle}</title>
+<meta name="description" content={metaDescription} />
+<link rel="canonical" href={canonical} />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={metaDescription} />
+<meta property="og:url" content={canonical} />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={metaDescription} />
+<ClientRouter />
