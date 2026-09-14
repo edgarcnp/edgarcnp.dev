@@ -6,7 +6,8 @@
         "enabled": true
     },
     "assets": {
-        "directory": "./dist/client"
+        "directory": "./dist/client",
+        "not_found_handling": "404-page"
     },
     "routes": [
         {
