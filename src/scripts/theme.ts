@@ -80,5 +80,3 @@ oncePerWindow("theme-toggle", () => {
         if (storedTheme() === null) withThemeTransition()
     })
 })
-
-sync()

@@ -1,2 +1,2 @@
 /// <reference types="astro/client" />
-/// <reference types="bun-types" />
+/// <reference types="bun" />

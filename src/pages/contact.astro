@@ -21,7 +21,7 @@ const contact = await getContact()
                     <h2 class="mt-2 text-lg font-semibold text-(--ink)">{link.label}</h2>
                     <p class="mt-2 text-sm leading-6 text-(--ink-muted)">{link.detail}</p>
                     <div class="mt-5">
-                        <ButtonLink href={link.href} external={link.external} variant="secondary" data-motion={link.kind === "email" ? "magnetic" : undefined}>{link.label}</ButtonLink>
+                        <ButtonLink href={link.href} external={link.external} variant="secondary" magnetic={link.kind === "email"}>{link.label}</ButtonLink>
                     </div>
                 </div>
             ))}
