@@ -35,7 +35,10 @@ const { title, published, updated, summary, tags, status, links, backHref, backL
         <slot />
     </div>
 </article>
-<style>
+<!-- The body is rendered Markdown, not template-authored DOM: it carries no scoped
+     CID attribute, so these rules must stay global (all selectors are namespaced
+     under .markdown-body). -->
+<style is:global>
   .markdown-body {
     max-width: 65ch;
     font-size: 1rem;
