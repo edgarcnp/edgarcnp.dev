@@ -243,7 +243,10 @@
    all narrower than 64rem. The inline nav + command palette are desktop-only
    (≥64rem). Keep in sync with the desktop: variant in app.css. */
 @media (max-width: 63.99rem) {
-    .site-header .nav-desktop {
+    /* Doubled class so this outranks the header's scoped `.nav` rule
+       (Astro's hash class gives it equal specificity, and component styles
+       are injected after global CSS). */
+    .site-header .nav.nav-desktop {
         display: none;
     }
 
