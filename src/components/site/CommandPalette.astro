@@ -1,41 +1,13 @@
 ---
 import type { HTMLAttributes } from "astro/types"
 import { Search } from "@lucide/astro"
-import { getProjects, getWritingPosts } from "~/lib/content"
-import { navIndex } from "~/config/site"
+import { buildCommandIndex } from "~/lib/commands"
 
 type Props = HTMLAttributes<"div">
 
 const { class: className, ...rest } = Astro.props
 
-type Command = { id: string; label: string; href: string; category: string; keywords: string[] }
-
-const projects = await getProjects()
-const writings = await getWritingPosts()
-
-const commands: Command[] = [
-    ...navIndex.map((link) => ({
-        id: `nav:${link.label.toLowerCase()}`,
-        label: link.label,
-        href: link.href,
-        category: "Nav",
-        keywords: [],
-    })),
-    ...projects.map((entry) => ({
-        id: `project:${entry.id}`,
-        label: entry.data.title,
-        href: `/projects/${entry.id}`,
-        category: "Projects",
-        keywords: [...entry.data.technologies, entry.data.summary],
-    })),
-    ...writings.map((entry) => ({
-        id: `writing:${entry.id}`,
-        label: entry.data.title,
-        href: `/writing/${entry.id}`,
-        category: "Writing",
-        keywords: [...entry.data.tags, entry.data.summary],
-    })),
-]
+const commands = await buildCommandIndex()
 ---
 
 <div {...rest} class:list={["palette-field", className]}>

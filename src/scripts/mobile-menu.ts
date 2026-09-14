@@ -1,16 +1,9 @@
 import { animate, initPrefersReducedMotion, prefersReducedMotion, stagger } from "motion"
 import type { AnimationPlaybackControls } from "motion"
 import { navigate } from "astro:transitions/client"
+import { filterCommands, type Command } from "~/lib/search"
 
 type DotsPath = SVGPathElement
-
-interface Command {
-    id: string
-    label: string
-    href: string
-    category: string
-    keywords?: string[]
-}
 
 const windowRef = window as unknown as { __mobileMenuBound?: boolean }
 
@@ -177,44 +170,6 @@ const clearPressedLinks = (): void => {
     }
 }
 
-const fuzzyScore = (haystack: string, needle: string): number => {
-    let needleIndex = 0
-    let firstIndex = -1
-    let run = 0
-    let bestRun = 0
-    for (let i = 0; i < haystack.length && needleIndex < needle.length; i++) {
-        if (haystack[i] === needle[needleIndex]) {
-            if (firstIndex < 0) firstIndex = i
-            run += 1
-            if (run > bestRun) bestRun = run
-            needleIndex += 1
-        } else {
-            run = 0
-        }
-    }
-    if (needleIndex < needle.length) return 0
-    return 1 + (bestRun * 2) - (firstIndex * 0.25)
-}
-
-const filterCommands = (query: string): Command[] => {
-    const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
-    if (tokens.length === 0) return []
-    return commands
-        .map((command) => {
-            const haystack = `${command.label} ${command.category} ${(command.keywords ?? []).join(" ")}`.toLowerCase()
-            let total = 0
-            for (const token of tokens) {
-                const score = fuzzyScore(haystack, token)
-                if (score === 0) return null
-                total += score
-            }
-            return { command, score: total }
-        })
-        .filter((entry): entry is { command: Command, score: number } => entry !== null)
-        .sort((a, b) => b.score - a.score)
-        .map((entry) => entry.command)
-}
-
 const renderResults = (hasQuery: boolean): void => {
     if (!results) return
     const list = results
@@ -277,7 +232,7 @@ const resetSearch = (): void => {
 const onInput = (): void => {
     const query = input?.value ?? ""
     const hasQuery = query.trim().length > 0
-    filteredResults = filterCommands(query)
+    filteredResults = filterCommands(commands, query)
     activeResult = -1
     renderResults(hasQuery)
     if (navList) navList.hidden = hasQuery

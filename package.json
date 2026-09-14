@@ -13,6 +13,7 @@
     "deploy": "bun run build && wrangler deploy",
     "typecheck": "astro check",
     "lint": "eslint .",
+    "test": "bun test",
     "astro": "astro"
   },
   "dependencies": {
@@ -30,6 +31,7 @@
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@types/bun": "^1.4.2",
     "eslint": "^10.8.1",
     "playwright-core": "^1.62.1",
     "typescript": "^6.0.3",
