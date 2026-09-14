@@ -1,5 +1,3 @@
-import { oncePerWindow } from "./lifecycle"
-
 const NAV_SELECTORS = ".nav-link, .mobile-menu-link"
 
 const onDocumentClick = (event: MouseEvent): void => {
@@ -11,8 +9,4 @@ const onDocumentClick = (event: MouseEvent): void => {
     link.setAttribute("aria-current", "page")
 }
 
-const boot = (): void => {
-    document.addEventListener("click", onDocumentClick)
-}
-
-oncePerWindow("nav-active", boot)
+document.addEventListener("click", onDocumentClick)

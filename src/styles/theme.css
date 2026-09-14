@@ -1,0 +1,9 @@
+/* Theme crossfade timing. `scripts/theme.ts` toggles `.theme-transition` on
+ * <html> around the view transition; keeping the rule here (instead of injecting
+ * a <style> at runtime) satisfies the strict `style-src 'self'` CSP.
+ * Reduced motion is handled in motion.css (and short-circuits in the script). */
+html.theme-transition::view-transition-old(root),
+html.theme-transition::view-transition-new(root) {
+  animation-duration: 600ms;
+  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}

@@ -7,7 +7,6 @@
 
 import { animate, initPrefersReducedMotion, motionValue, prefersReducedMotion } from "motion"
 import type { AnimationPlaybackControls } from "motion"
-import { oncePerWindow } from "./lifecycle"
 
 const CONTENT_SELECTOR = "#content-warp"
 const OVERLAY_ID = "external-warn"
@@ -244,19 +243,19 @@ const showOverlay = (href: string): void => {
     const card = root.querySelector<HTMLElement>(".external-warn__card")
     if (card) card.style.transformOrigin = "50% 0%"
 
-    if (prefersReducedMotion.current) return
-
     // Entry mirrors the source, driven by Motion: content fades with the 0.35
     // bezier, the expanding circle grows (scale/bg on the default ease, opacity
     // easeInOut), the orbs fade while their scale is driven by the breathing
-    // motion value, and the card warps in with a spring on y.
-    if (content) {
+    // motion value, and the card warps in with a spring on y. Reduced motion
+    // keeps the overlay static, but the dialog below is wired either way.
+    const animated = !prefersReducedMotion.current
+    if (animated && content) {
         overlayControls.push(
             animate(content, { opacity: [0, 1] }, { duration: 0.35, ease: [0.59, 0, 0.35, 1] }),
         )
     }
 
-    if (burst) {
+    if (animated && burst) {
         overlayControls.push(
             animate(
                 burst,
@@ -271,7 +270,7 @@ const showOverlay = (href: string): void => {
     }
 
     const orbs = [orbTL, orbBR].filter((orb): orb is HTMLElement => orb !== null)
-    if (orbs.length > 0) {
+    if (animated && orbs.length > 0) {
         for (const orb of orbs) {
             orb.style.transform = "scale(0)"
             overlayControls.push(animate(orb, { opacity: [0, 0.25] }, { duration: 0.75 }))
@@ -299,7 +298,7 @@ const showOverlay = (href: string): void => {
         )
     }
 
-    if (card) {
+    if (animated && card) {
         card.style.willChange = "transform"
         card.style.transform
             = "perspective(1000px) rotateX(-5deg) skewY(-1.5deg) scaleY(2) scaleX(0.4) translateY(100px)"
@@ -364,6 +363,4 @@ const onDocumentClick = (event: MouseEvent): void => {
     showOverlay(href)
 }
 
-oncePerWindow("external-link-warning", () => {
-    document.addEventListener("click", onDocumentClick)
-})
+document.addEventListener("click", onDocumentClick)

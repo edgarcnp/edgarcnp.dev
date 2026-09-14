@@ -1,5 +1,5 @@
 import { initPrefersReducedMotion } from "motion"
-import { onBeforeSwap, onPageLoad, oncePerWindow } from "../lifecycle"
+import { onBeforeSwap, onPageLoad } from "../lifecycle"
 import { marqueeControls, snapFinal, teardown } from "./registry"
 import { formatFrom, isReduced, reducedQuery } from "./shared"
 import { counter } from "./effects/counter"
@@ -70,9 +70,7 @@ const onVisibilityChange = (): void => {
     }
 }
 
-oncePerWindow("motion", () => {
-    onPageLoad(init)
-    onBeforeSwap(teardown)
-    reducedQuery.addEventListener("change", onReducedChange)
-    document.addEventListener("visibilitychange", onVisibilityChange)
-})
+onPageLoad(init)
+onBeforeSwap(teardown)
+reducedQuery.addEventListener("change", onReducedChange)
+document.addEventListener("visibilitychange", onVisibilityChange)

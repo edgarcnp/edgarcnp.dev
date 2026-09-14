@@ -2,7 +2,8 @@ import { animate, initPrefersReducedMotion, prefersReducedMotion, stagger } from
 import type { AnimationPlaybackControls } from "motion"
 import { navigate } from "astro:transitions/client"
 import { filterCommands, type Command } from "~/lib/search"
-import { onPageLoad, oncePerWindow } from "./lifecycle"
+import { CommandListbox, readCommandIndex } from "./command-search"
+import { onPageLoad } from "./lifecycle"
 
 type DotsPath = SVGPathElement
 
@@ -17,7 +18,6 @@ const BREAKPOINT = window.matchMedia("(min-width: 64rem)")
 const BUTTON_SELECTOR = ".dots-morph-button.mobile-menu"
 const PANEL_SELECTOR = "#mobile-menu-panel"
 const BACKDROP_SELECTOR = "#mobile-menu-backdrop"
-const INDEX_SELECTOR = "script[type='application/json'][data-command-index]"
 const INPUT_SELECTOR = "#mobile-menu-input"
 const RESULTS_SELECTOR = "#mobile-menu-results"
 const SPRING = { type: "spring", stiffness: 170, damping: 26 } as const
@@ -69,28 +69,13 @@ const state: State = {
 }
 
 let commands: Command[] = []
-let filteredResults: Command[] = []
-let resultEls: HTMLElement[] = []
-let activeResult = -1
 let input: HTMLInputElement | null = null
 let results: HTMLElement | null = null
 let navList: HTMLElement | null = null
+let listbox: CommandListbox | null = null
 let transitionId = 0
 
 const reduced = (): boolean => prefersReducedMotion.current === true
-
-const loadCommands = (): void => {
-    const script = document.querySelector<HTMLScriptElement>(INDEX_SELECTOR)
-    if (!script?.textContent) {
-        commands = []
-        return
-    }
-    try {
-        commands = JSON.parse(script.textContent) as Command[]
-    } catch {
-        commands = []
-    }
-}
 
 const stopAll = (): void => {
     for (const controls of state.pathControls) controls.stop()
@@ -169,71 +154,43 @@ const clearPressedLinks = (): void => {
     }
 }
 
-const renderResults = (hasQuery: boolean): void => {
-    if (!results) return
-    const list = results
-    list.textContent = ""
-    resultEls = []
-    if (!hasQuery) {
-        list.hidden = true
-        return
-    }
-    list.hidden = false
-    if (filteredResults.length === 0) {
-        const empty = document.createElement("div")
-        empty.className = "mobile-menu-empty"
-        empty.textContent = "No results"
-        list.appendChild(empty)
-        return
-    }
-    filteredResults.forEach((command, index) => {
-        const result = document.createElement("button")
-        result.type = "button"
-        result.className = "mobile-menu-result"
-        result.setAttribute("role", "option")
-        result.setAttribute("aria-selected", "false")
-        const label = document.createElement("span")
-        label.className = "mobile-menu-result__label"
-        label.textContent = command.label
-        const category = document.createElement("span")
-        category.className = "mobile-menu-result__category"
-        category.textContent = command.category
-        result.append(label, category)
-        result.addEventListener("mouseenter", () => setActiveResult(index))
-        result.addEventListener("click", () => choose(command))
-        list.appendChild(result)
-        resultEls.push(result)
-    })
-    setActiveResult(0)
+const renderOption = (command: Command): HTMLElement => {
+    const result = document.createElement("button")
+    result.type = "button"
+    result.className = "mobile-menu-result"
+
+    const label = document.createElement("span")
+    label.className = "mobile-menu-result__label"
+    label.textContent = command.label
+
+    const category = document.createElement("span")
+    category.className = "mobile-menu-result__category"
+    category.textContent = command.category
+
+    result.append(label, category)
+    return result
 }
 
-const setActiveResult = (index: number): void => {
-    if (filteredResults.length === 0) {
-        activeResult = -1
-        return
-    }
-    activeResult = Math.max(0, Math.min(index, filteredResults.length - 1))
-    resultEls.forEach((element, elementIndex) => {
-        element.classList.toggle("is-active", elementIndex === activeResult)
-        element.setAttribute("aria-selected", String(elementIndex === activeResult))
-    })
-    resultEls[activeResult]?.scrollIntoView({ block: "nearest" })
+const renderEmpty = (): HTMLElement => {
+    const empty = document.createElement("div")
+    empty.className = "mobile-menu-empty"
+    empty.textContent = "No results"
+    return empty
 }
 
 const resetSearch = (): void => {
     if (input) input.value = ""
-    filteredResults = []
-    activeResult = -1
-    renderResults(false)
+    if (results) results.hidden = true
+    listbox?.clear()
     if (navList) navList.hidden = false
 }
 
 const onInput = (): void => {
     const query = input?.value ?? ""
     const hasQuery = query.trim().length > 0
-    filteredResults = filterCommands(commands, query)
-    activeResult = -1
-    renderResults(hasQuery)
+    if (results) results.hidden = !hasQuery
+    if (hasQuery) listbox?.setItems(filterCommands(commands, query))
+    else listbox?.clear()
     if (navList) navList.hidden = hasQuery
 }
 
@@ -418,21 +375,21 @@ const onKeydown = (event: KeyboardEvent): void => {
             closeMenu(true)
             break
         case "ArrowDown":
-            if (filteredResults.length > 0) {
+            if (listbox?.count) {
                 event.preventDefault()
-                setActiveResult(activeResult + 1)
+                listbox.move(1)
             }
             break
         case "ArrowUp":
-            if (filteredResults.length > 0) {
+            if (listbox?.count) {
                 event.preventDefault()
-                setActiveResult(activeResult - 1)
+                listbox.move(-1)
             }
             break
         case "Enter":
-            if (activeResult >= 0 && filteredResults[activeResult]) {
+            if (listbox?.count) {
                 event.preventDefault()
-                choose(filteredResults[activeResult])
+                listbox.activate()
             }
             break
         default:
@@ -460,6 +417,10 @@ const bind = (): void => {
         state.button = null
         state.panel = null
         state.backdrop = null
+        input = null
+        results = null
+        navList = null
+        listbox = null
         state.open = false
         setScrollLock(false)
         return
@@ -470,6 +431,10 @@ const bind = (): void => {
     input = state.panel.querySelector<HTMLInputElement>(INPUT_SELECTOR)
     results = state.panel.querySelector<HTMLElement>(RESULTS_SELECTOR)
     navList = state.panel.querySelector<HTMLElement>(".mobile-menu-panel__list")
+
+    listbox = results
+        ? new CommandListbox({ list: results, renderOption, renderEmpty, onChoose: choose })
+        : null
 
     const linkFromPointer = (event: PointerEvent): HTMLElement | null =>
         (event.target as HTMLElement | null)?.closest<HTMLElement>(".mobile-menu-link") ?? null
@@ -485,7 +450,7 @@ const bind = (): void => {
     clearPressedLinks()
     setPanelTop()
 
-    loadCommands()
+    commands = readCommandIndex()
     resetSearch()
     state.open = false
     state.panel.hidden = true
@@ -496,38 +461,32 @@ const bind = (): void => {
     applyStatic(false)
     updateA11y()
 
-    const bound = state.button as HTMLButtonElement & { __mobileMenuBound?: boolean }
-    if (!bound.__mobileMenuBound) {
-        bound.__mobileMenuBound = true
-        state.button.addEventListener("click", toggle)
-        state.button.addEventListener("pointerenter", () => {
-            state.hovering = true
-            if (!state.pressing) setScale(1.05)
-        })
-        state.button.addEventListener("pointerleave", () => {
-            state.hovering = false
-            if (!state.pressing) setScale(1)
-        })
-        state.button.addEventListener("pointerdown", () => {
-            state.pressing = true
-            setScale(0.97)
-        })
-        state.button.addEventListener("pointerup", () => {
-            state.pressing = false
-            setScale(state.hovering ? 1.05 : 1, RELEASE_SPRING)
-        })
-        state.button.addEventListener("pointercancel", () => {
-            state.pressing = false
-            setScale(state.hovering ? 1.05 : 1, RELEASE_SPRING)
-        })
-        input?.addEventListener("input", onInput)
-    }
+    state.button.addEventListener("click", toggle)
+    state.button.addEventListener("pointerenter", () => {
+        state.hovering = true
+        if (!state.pressing) setScale(1.05)
+    })
+    state.button.addEventListener("pointerleave", () => {
+        state.hovering = false
+        if (!state.pressing) setScale(1)
+    })
+    state.button.addEventListener("pointerdown", () => {
+        state.pressing = true
+        setScale(0.97)
+    })
+    state.button.addEventListener("pointerup", () => {
+        state.pressing = false
+        setScale(state.hovering ? 1.05 : 1, RELEASE_SPRING)
+    })
+    state.button.addEventListener("pointercancel", () => {
+        state.pressing = false
+        setScale(state.hovering ? 1.05 : 1, RELEASE_SPRING)
+    })
+    input?.addEventListener("input", onInput)
 }
 
-oncePerWindow("mobile-menu", () => {
-    document.addEventListener("click", onDocumentClick)
-    document.addEventListener("keydown", onKeydown)
-    BREAKPOINT.addEventListener("change", onBreakpoint)
-})
+document.addEventListener("click", onDocumentClick)
+document.addEventListener("keydown", onKeydown)
+BREAKPOINT.addEventListener("change", onBreakpoint)
 
 onPageLoad(bind)

@@ -2,6 +2,7 @@ import eslint from "@eslint/js"
 import { defineConfig, globalIgnores } from "eslint/config"
 import stylistic from "@stylistic/eslint-plugin"
 import tseslint from "typescript-eslint"
+import astro from "eslint-plugin-astro"
 
 export default defineConfig(
     globalIgnores([
@@ -23,6 +24,7 @@ export default defineConfig(
         ".dev.vars*",
     ]),
     {
+        files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
         extends: [
             eslint.configs.recommended,
             ...tseslint.configs.strictTypeChecked,
@@ -113,5 +115,10 @@ export default defineConfig(
             "@stylistic/template-curly-spacing": ["error", "never"],
             "@stylistic/jsx-quotes": ["error", "prefer-double"],
         },
+    },
+    ...astro.configs["flat/recommended"],
+    {
+        files: ["**/*.astro"],
+        extends: [eslint.configs.recommended],
     },
 )

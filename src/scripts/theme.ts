@@ -1,8 +1,7 @@
-import { onPageLoad, oncePerWindow } from "./lifecycle"
+import { onPageLoad } from "./lifecycle"
 
 const STORAGE_KEY = "theme"
-const DURATION_MS = 600
-const EASING = "cubic-bezier(0.65, 0, 0.35, 1)"
+const TRANSITION_CLASS = "theme-transition"
 
 const media = window.matchMedia("(prefers-color-scheme: dark)")
 
@@ -38,32 +37,24 @@ const sync = (): void => {
 /** Crossfades the whole painted frame between the old and new theme. The DOM
  * mutation (`sync`) runs synchronously inside the browser's captured callback,
  * so the new frame already holds the target state; only the composited images
- * of the two frames are faded — no per-element property animation. */
+ * of the two frames are faded — no per-element property animation. The fade
+ * timing lives in `styles/theme.css`, gated on the `theme-transition` class so
+ * nothing is injected at runtime (the strict CSP forbids inline styles). */
 const withThemeTransition = (): void => {
-    const syncNow = (): void => sync()
     if (reducedMotion() || !("startViewTransition" in document)) {
-        syncNow()
+        sync()
         return
     }
-    const style = document.createElement("style")
-    style.textContent = `
-        ::view-transition-old(root),
-        ::view-transition-new(root) {
-            animation-duration: ${DURATION_MS}ms;
-            animation-timing-function: ${EASING};
-        }
-    `
-    document.head.appendChild(style)
-    const transition = document.startViewTransition(syncNow)
-    transition.finished.then(
-        () => style.remove(),
-        () => style.remove(),
-    )
+    const root = document.documentElement
+    root.classList.add(TRANSITION_CLASS)
+    const transition = document.startViewTransition(() => sync())
+    const clear = (): void => root.classList.remove(TRANSITION_CLASS)
+    transition.finished.then(clear, clear)
 }
 
 onPageLoad(sync)
 
-oncePerWindow("theme-toggle", () => {
+const bindToggles = (): void => {
     document.querySelectorAll<HTMLButtonElement>(".theme-toggle").forEach((button) => {
         button.addEventListener("click", () => {
             const next = effectiveTheme() === "dark" ? "light" : "dark"
@@ -79,4 +70,6 @@ oncePerWindow("theme-toggle", () => {
     media.addEventListener("change", () => {
         if (storedTheme() === null) withThemeTransition()
     })
-})
+}
+
+bindToggles()

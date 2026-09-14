@@ -1,12 +1,10 @@
 ---
 import Layout from "~/layouts/Layout.astro"
 import ErrorPage from "~/components/ui/ErrorPage.astro"
-import { STATUS_CODES } from "node:http"
 
 const path = Astro.url.pathname
-const title = STATUS_CODES[404]!
 ---
 
 <Layout title="Error" path={path}>
-    <ErrorPage code="404" title={title} path={path} />
+    <ErrorPage code="404" title="Not Found" path={path} />
 </Layout>

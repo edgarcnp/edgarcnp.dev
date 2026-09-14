@@ -1,7 +1,6 @@
 import { animate, initPrefersReducedMotion, prefersReducedMotion } from "motion"
 import type { AnimationPlaybackControls } from "motion"
 import type { TransitionBeforePreparationEvent } from "astro:transitions/client"
-import { oncePerWindow } from "./lifecycle"
 
 initPrefersReducedMotion()
 
@@ -252,12 +251,13 @@ const startCurtainedTransition = (
     return shim
 }
 
-oncePerWindow("page-curtains", () => {
-    document.addEventListener("astro:before-preparation", onBeforePreparation as EventListener)
+document.addEventListener("astro:before-preparation", onBeforePreparation as EventListener)
+
+// Astro's ClientRouter calls `document.startViewTransition` directly and offers
+// no hook to hold a navigation while the blinds close, so the native API is
+// wrapped: the shim defers the real transition until the cover has finished.
+if (nativeStartViewTransition) {
     const native = nativeStartViewTransition
-    if (native) {
-        const startViewTransition = (update: () => void | Promise<void>): ViewTransition =>
-            startCurtainedTransition(native, update)
-        document.startViewTransition = startViewTransition
-    }
-})
+    document.startViewTransition = (update: () => void | Promise<void>): ViewTransition =>
+        startCurtainedTransition(native, update)
+}

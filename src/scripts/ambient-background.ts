@@ -14,7 +14,7 @@
  * arrives without one (e.g. a fresh load), `astro:page-load` rebuilds it.
  */
 
-import { onPageLoad, oncePerWindow } from "./lifecycle"
+import { onPageLoad } from "./lifecycle"
 
 const ELEMENT_CLASS = "ambient-bg"
 const ORB_CLASS = "ambient-orb"
@@ -156,9 +156,7 @@ const setup = (): void => {
 }
 
 /**
- * Boots the ambient background. Safe to call again after Astro SPA
- * navigations re-execute this module.
+ * Boots the ambient background. Astro rebuilds `document.body` on SPA
+ * navigation; `onPageLoad` re-runs this for each page.
  */
-oncePerWindow("ambient-background", () => {
-    onPageLoad(setup)
-})
+onPageLoad(setup)

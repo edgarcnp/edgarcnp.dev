@@ -4,13 +4,13 @@ import { navigate } from "astro:transitions/client"
 import { ChevronDown, ChevronUp, CornerDownLeft, createElement } from "lucide"
 import type { IconNode } from "lucide"
 import { filterCommands, type Command } from "~/lib/search"
-import { onPageLoad, oncePerWindow } from "./lifecycle"
+import { CommandListbox, readCommandIndex } from "./command-search"
+import { onPageLoad } from "./lifecycle"
 
 initPrefersReducedMotion()
 
 const reduced = (): boolean => prefersReducedMotion.current === true
 
-const INDEX_SELECTOR = "script[type='application/json'][data-command-index]"
 const FIELD_SELECTOR = ".palette-field"
 const INPUT_SELECTOR = ".palette-input"
 const PANEL_CLASS = "palette-panel"
@@ -35,8 +35,7 @@ const hint = (keys: (SVGElement | string)[], label: string): HTMLSpanElement => 
 }
 
 let commands: Command[] = []
-let filtered: Command[] = []
-let active = -1
+let emptyMessage = ""
 let open = false
 
 let field: HTMLElement | null = null
@@ -45,24 +44,66 @@ let panel: HTMLElement | null = null
 let list: HTMLElement | null = null
 let highlight: HTMLElement | null = null
 let highlightControls: AnimationPlaybackControls | null = null
-let optionEls: HTMLElement[] = []
-let emptyMessage = ""
-
-const loadIndex = (): void => {
-    const script = document.querySelector<HTMLScriptElement>(INDEX_SELECTOR)
-    if (!script?.textContent) return
-    try {
-        commands = JSON.parse(script.textContent) as Command[]
-    } catch {
-        commands = []
-    }
-}
+let listbox: CommandListbox | null = null
 
 const setInputExpanded = (value: boolean): void => {
     input?.setAttribute("aria-expanded", String(value))
 }
 
-const optionLabel = (index: number): string => `palette-option-${index}`
+const renderOption = (command: Command, index: number): HTMLElement => {
+    const option = document.createElement("button")
+    option.type = "button"
+    option.className = "palette-option"
+    option.id = `palette-option-${index}`
+    option.tabIndex = -1
+
+    const label = document.createElement("span")
+    label.className = "palette-option__label"
+    label.textContent = command.label
+
+    const category = document.createElement("span")
+    category.className = "palette-option__category"
+    category.textContent = command.category
+
+    option.append(label, category)
+    return option
+}
+
+const renderEmpty = (): HTMLElement | null => {
+    if (!emptyMessage) return null
+    const empty = document.createElement("div")
+    empty.className = "palette-empty"
+    empty.textContent = emptyMessage
+    return empty
+}
+
+const positionHighlight = (option: HTMLElement | null): void => {
+    if (!highlight) return
+    if (!option) {
+        highlight.style.opacity = "0"
+        return
+    }
+    const target = {
+        left: option.offsetLeft,
+        top: option.offsetTop,
+        width: option.offsetWidth,
+        height: option.offsetHeight,
+    }
+    highlight.style.opacity = "1"
+    highlightControls?.stop()
+    if (reduced()) {
+        highlight.style.left = `${target.left}px`
+        highlight.style.top = `${target.top}px`
+        highlight.style.width = `${target.width}px`
+        highlight.style.height = `${target.height}px`
+        return
+    }
+    highlightControls = animate(highlight, target, {
+        type: "spring",
+        stiffness: 350,
+        damping: 30,
+    })
+}
 
 const buildPanel = (): void => {
     panel = document.createElement("div")
@@ -89,118 +130,29 @@ const buildPanel = (): void => {
     footer.appendChild(group)
     panel.appendChild(footer)
 
-    field?.appendChild(panel)
-}
-
-const renderList = (): void => {
-    if (!list || !highlight) return
-    optionEls.forEach((element) => element.remove())
-    optionEls = []
-    list.classList.toggle("is-empty", filtered.length === 0 && !emptyMessage)
-
-    if (filtered.length === 0) {
-        highlight.style.opacity = "0"
-        if (emptyMessage) {
-            const empty = document.createElement("div")
-            empty.className = "palette-empty"
-            empty.textContent = emptyMessage
-            list.appendChild(empty)
-        }
-        return
-    }
-
-    highlight.style.opacity = "0"
-
-    filtered.forEach((command, index) => {
-        const option = document.createElement("button")
-        option.type = "button"
-        option.className = "palette-option"
-        option.id = optionLabel(index)
-        option.setAttribute("role", "option")
-        option.setAttribute("aria-selected", "false")
-        option.tabIndex = -1
-
-        const label = document.createElement("span")
-        label.className = "palette-option__label"
-        label.textContent = command.label
-
-        const category = document.createElement("span")
-        category.className = "palette-option__category"
-        category.textContent = command.category
-
-        option.appendChild(label)
-        option.appendChild(category)
-
-        option.addEventListener("mouseenter", () => setActive(index))
-        option.addEventListener("click", () => choose(command))
-
-        list?.appendChild(option)
-        optionEls.push(option)
+    listbox = new CommandListbox({
+        list,
+        renderOption,
+        renderEmpty,
+        onChoose: choose,
+        onActiveChange: (command, option) => {
+            if (input) {
+                if (command && option) input.setAttribute("aria-activedescendant", option.id)
+                else input.removeAttribute("aria-activedescendant")
+            }
+            positionHighlight(option)
+        },
     })
+
+    field?.appendChild(panel)
 }
 
 const filter = (query: string): void => {
     const hasQuery = query.trim().length > 0
-    filtered = filterCommands(commands, query)
-    active = -1
     emptyMessage = hasQuery ? "No results" : ""
-    renderList()
-    setActive(0)
-}
-
-const positionHighlight = (): void => {
-    if (!highlight || optionEls.length === 0 || active < 0 || active >= optionEls.length) {
-        if (highlight) highlight.style.opacity = "0"
-        return
-    }
-    const option = optionEls[active]
-    const target = {
-        left: option.offsetLeft,
-        top: option.offsetTop,
-        width: option.offsetWidth,
-        height: option.offsetHeight,
-    }
-    highlight.style.opacity = "1"
-    highlightControls?.stop()
-    if (reduced()) {
-        highlight.style.left = `${target.left}px`
-        highlight.style.top = `${target.top}px`
-        highlight.style.width = `${target.width}px`
-        highlight.style.height = `${target.height}px`
-        return
-    }
-    highlightControls = animate(highlight, target, {
-        type: "spring",
-        stiffness: 350,
-        damping: 30,
-    })
-}
-
-const setActive = (index: number): void => {
-    if (filtered.length === 0) {
-        active = -1
-        positionHighlight()
-        return
-    }
-    const next = Math.max(0, Math.min(index, filtered.length - 1))
-    active = next
-    optionEls.forEach((option, optionIndex) => {
-        const isActive = optionIndex === active
-        option.classList.toggle("is-active", isActive)
-        option.setAttribute("aria-selected", String(isActive))
-    })
-    const current = optionEls[active]
-    if (input) {
-        input.setAttribute("aria-activedescendant", current.id)
-        current.scrollIntoView({ block: "nearest" })
-    }
-    positionHighlight()
-}
-
-const move = (step: number): void => {
-    if (filtered.length === 0) return
-    const next = (active + step + filtered.length) % filtered.length
-    setActive(next)
+    const results = filterCommands(commands, query)
+    list?.classList.toggle("is-empty", results.length === 0 && !emptyMessage)
+    listbox?.setItems(results)
 }
 
 const openPalette = (): void => {
@@ -231,7 +183,7 @@ const closePalette = (): void => {
         if (panel === currentPanel) panel = null
         list = null
         highlight = null
-        optionEls = []
+        listbox = null
     }
 
     if (!currentPanel) {
@@ -277,23 +229,23 @@ const onKeydown = (event: KeyboardEvent): void => {
             break
         case "ArrowDown":
             event.preventDefault()
-            move(1)
+            listbox?.move(1)
             break
         case "ArrowUp":
             event.preventDefault()
-            move(-1)
+            listbox?.move(-1)
             break
         case "Home":
             event.preventDefault()
-            setActive(0)
+            listbox?.setActive(0)
             break
         case "End":
             event.preventDefault()
-            setActive(filtered.length - 1)
+            if (listbox) listbox.setActive(listbox.count - 1)
             break
         case "Enter":
             event.preventDefault()
-            if (active >= 0 && filtered[active]) choose(filtered[active])
+            listbox?.activate()
             break
         default:
             break
@@ -319,18 +271,17 @@ const onFocusOut = (event: FocusEvent): void => {
 const boot = (): void => {
     document.querySelectorAll<HTMLElement>(`.${PANEL_CLASS}`).forEach((element) => element.remove())
 
-    loadIndex()
+    commands = readCommandIndex()
     field = document.querySelector<HTMLElement>(FIELD_SELECTOR)
     input = field?.querySelector<HTMLInputElement>(INPUT_SELECTOR) ?? null
+    listbox = null
     open = false
 }
 
-oncePerWindow("command-palette", () => {
-    document.addEventListener("keydown", onKeydown)
-    document.addEventListener("focusin", onFocusIn)
-    document.addEventListener("input", onInput, true)
-    document.addEventListener("mousedown", onMousedown)
-    document.addEventListener("focusout", onFocusOut)
-})
+document.addEventListener("keydown", onKeydown)
+document.addEventListener("focusin", onFocusIn)
+document.addEventListener("input", onInput, true)
+document.addEventListener("mousedown", onMousedown)
+document.addEventListener("focusout", onFocusOut)
 
 onPageLoad(boot)

@@ -36,7 +36,7 @@ src/
 │   └── ui/               # generic primitives: ButtonLink, SectionHeading, Tag, StatusBadge, ErrorPage
 ├── content/              # projects/*.md, writing/*.md (filename is the URL slug)
 ├── data/                 # profile.json, contact.json, capabilities.json
-├── scripts/              # client behavior, one module per feature + scripts/motion/ (effect engine)
+├── scripts/              # client behavior: one module per feature + shared helpers (lifecycle, command-search) + scripts/motion/ (effect engine)
 └── styles/               # tokens, base, primitives + one stylesheet per JS-driven feature
 ```
 
@@ -58,7 +58,7 @@ Conventions: components group by domain (`site/`, `content/`, `ui/`); a client s
 ## Notes
 
 - Production output must stay free of inline `<script>`/`<style>` — the CSP in `public/_headers` allows `'self'` only. Keep `vite.build.assetsInlineLimit: 0`, `build.inlineStylesheets: "never"`, and `markdown.syntaxHighlight: false` in `astro.config.mjs`. Notably, Astro's `transition:name` emits a scoped inline `<style>` — don't use it (the ambient background persists via `transition:persist` alone).
-- Navigation uses `<ClientRouter />`; bundled scripts run once, so anything per-navigation goes through `src/scripts/lifecycle.ts` (`onPageLoad`, `onBeforeSwap`, `oncePerWindow`). If the router is ever removed, those listeners silently stop firing — remove them together.
+- Navigation uses `<ClientRouter />`; bundled scripts run once, so anything per-navigation goes through `src/scripts/lifecycle.ts` (`onPageLoad`, `onBeforeSwap`), while one-time setup lives at module scope. If the router is ever removed, those listeners silently stop firing — remove them together.
 - Deployment is adapter-free: `astro build` emits `dist/client` and `wrangler deploy` uploads it as static assets. Do not re-add `@astrojs/cloudflare` — it injects SESSION/IMAGES bindings and a prerender worker config that are pointless (and noisy) for a fully static site.
 - Fonts come from `@fontsource/geist-sans` / `@fontsource/geist-mono` imports in `src/styles/app.css`. Do not switch to the Astro Fonts API — it emits inline `<style>` (CSP violation).
 - Content entries are addressed by filename (`entry.id`); there is no `slug` frontmatter field. JSON files in `src/data/` each have their own collection so every query is exactly typed — never reintroduce a union schema over the whole directory.
