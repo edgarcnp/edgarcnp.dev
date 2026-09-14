@@ -1,6 +1,7 @@
 import { animate, initPrefersReducedMotion, prefersReducedMotion } from "motion"
 import type { AnimationPlaybackControls } from "motion"
 import type { TransitionBeforePreparationEvent } from "astro:transitions/client"
+import { oncePerWindow } from "./lifecycle"
 
 initPrefersReducedMotion()
 
@@ -187,8 +188,6 @@ const onBeforePreparation = (event: TransitionBeforePreparationEvent): void => {
     startCover()
 }
 
-document.addEventListener("astro:before-preparation", onBeforePreparation as EventListener)
-
 const nativeStartViewTransition = (document as unknown as {
     startViewTransition?: (update: () => void | Promise<void>) => ViewTransition
 }).startViewTransition
@@ -229,25 +228,36 @@ const createShim = (): ViewTransition & {
     return shim
 }
 
-if (nativeStartViewTransition) {
-    document.startViewTransition = (update: () => void | Promise<void>): ViewTransition => {
-        const shim = createShim()
-        void (async () => {
-            try {
-                await waitForCover()
-                await snapSlatsClosed()
-                armSafety()
-                shim.resolve(nativeStartViewTransition.call(document, async () => {
-                    try {
-                        await update()
-                    } finally {
-                        reveal()
-                    }
-                }))
-            } catch (error) {
-                shim.reject(error)
-            }
-        })()
-        return shim
-    }
+const startCurtainedTransition = (
+    native: (update: () => void | Promise<void>) => ViewTransition,
+    update: () => void | Promise<void>,
+): ViewTransition => {
+    const shim = createShim()
+    void (async () => {
+        try {
+            await waitForCover()
+            await snapSlatsClosed()
+            armSafety()
+            shim.resolve(native.call(document, async () => {
+                try {
+                    await update()
+                } finally {
+                    reveal()
+                }
+            }))
+        } catch (error) {
+            shim.reject(error)
+        }
+    })()
+    return shim
 }
+
+oncePerWindow("page-curtains", () => {
+    document.addEventListener("astro:before-preparation", onBeforePreparation as EventListener)
+    const native = nativeStartViewTransition
+    if (native) {
+        const startViewTransition = (update: () => void | Promise<void>): ViewTransition =>
+            startCurtainedTransition(native, update)
+        document.startViewTransition = startViewTransition
+    }
+})

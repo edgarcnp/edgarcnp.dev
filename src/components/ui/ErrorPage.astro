@@ -12,8 +12,8 @@ const { code, title, path } = Astro.props
 const MAX_PATH_LENGTH = 120
 const displayPath = path.length > MAX_PATH_LENGTH ? path.slice(0, MAX_PATH_LENGTH) + "…" : path
 ---
-<section class="error-page" data-motion="reveal">
-    <p class="error-page__code" data-reveal data-tilt>{code}</p>
+<section class="error-page" data-motion="reveal error-code">
+    <p class="error-page__code" data-reveal>{code}</p>
     <h1 data-reveal>{title}</h1>
     <p data-reveal>No page at <code>{displayPath}</code> — try searching (⌘K) or return home.</p>
     <div class="flex flex-col gap-3 sm:flex-row" data-reveal>

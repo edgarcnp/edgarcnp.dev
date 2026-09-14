@@ -4,11 +4,11 @@ import { navigate } from "astro:transitions/client"
 import { ChevronDown, ChevronUp, CornerDownLeft, createElement } from "lucide"
 import type { IconNode } from "lucide"
 import { filterCommands, type Command } from "~/lib/search"
+import { onPageLoad, oncePerWindow } from "./lifecycle"
 
 initPrefersReducedMotion()
 
 const reduced = (): boolean => prefersReducedMotion.current === true
-const windowRef = window as unknown as { __paletteBound?: boolean }
 
 const INDEX_SELECTOR = "script[type='application/json'][data-command-index]"
 const FIELD_SELECTOR = ".palette-field"
@@ -325,19 +325,12 @@ const boot = (): void => {
     open = false
 }
 
-if (!windowRef.__paletteBound) {
-    windowRef.__paletteBound = true
+oncePerWindow("command-palette", () => {
     document.addEventListener("keydown", onKeydown)
     document.addEventListener("focusin", onFocusIn)
     document.addEventListener("input", onInput, true)
     document.addEventListener("mousedown", onMousedown)
     document.addEventListener("focusout", onFocusOut)
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", boot, { once: true })
-    } else {
-        boot()
-    }
-    document.addEventListener("astro:page-load", boot)
-}
+})
 
-boot()
+onPageLoad(boot)

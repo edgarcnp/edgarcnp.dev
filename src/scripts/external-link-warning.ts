@@ -7,6 +7,7 @@
 
 import { animate, initPrefersReducedMotion, motionValue, prefersReducedMotion } from "motion"
 import type { AnimationPlaybackControls } from "motion"
+import { oncePerWindow } from "./lifecycle"
 
 const CONTENT_SELECTOR = "#content-warp"
 const OVERLAY_ID = "external-warn"
@@ -17,7 +18,6 @@ let overlayControls: AnimationPlaybackControls[] = []
 let breatheUnsub: (() => void) | null = null
 let overlay: HTMLElement | null = null
 let returnFocusTo: HTMLElement | null = null
-let mounted = false
 
 initPrefersReducedMotion()
 
@@ -364,14 +364,6 @@ const onDocumentClick = (event: MouseEvent): void => {
     showOverlay(href)
 }
 
-const boot = (): void => {
-    if (mounted) return
-    mounted = true
+oncePerWindow("external-link-warning", () => {
     document.addEventListener("click", onDocumentClick)
-}
-
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot, { once: true })
-} else {
-    boot()
-}
+})

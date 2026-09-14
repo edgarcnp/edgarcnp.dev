@@ -14,18 +14,12 @@
  * arrives without one (e.g. a fresh load), `astro:page-load` rebuilds it.
  */
 
-export {}
+import { onPageLoad, oncePerWindow } from "./lifecycle"
 
 const ELEMENT_CLASS = "ambient-bg"
 const ORB_CLASS = "ambient-orb"
 const COLOR_PROP = "--orb-color-raw"
 const ALPHA_PROP = "--orb-alpha"
-
-declare global {
-    interface Window {
-        __ambientBgInstalled?: boolean
-    }
-}
 
 /** Theme tokens consumed by the background; read from `:root` at runtime. */
 const TOKENS = ["--bg", "--accent", "--ink", "--accent-soft"] as const
@@ -162,16 +156,9 @@ const setup = (): void => {
 }
 
 /**
- * Boots the ambient background. Self-invoked once per window; safe to call
- * again after Astro SPA navigations re-execute this module.
+ * Boots the ambient background. Safe to call again after Astro SPA
+ * navigations re-execute this module.
  */
-const initAmbientBackground = (): void => {
-    if (window.__ambientBgInstalled) return
-    window.__ambientBgInstalled = true
-    document.addEventListener("astro:page-load", () => {
-        setup()
-    })
-    setup()
-}
-
-initAmbientBackground()
+oncePerWindow("ambient-background", () => {
+    onPageLoad(setup)
+})

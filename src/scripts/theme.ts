@@ -1,4 +1,4 @@
-const windowRef = window as unknown as { __themeToggleBound?: boolean }
+import { onPageLoad, oncePerWindow } from "./lifecycle"
 
 const STORAGE_KEY = "theme"
 const DURATION_MS = 600
@@ -61,10 +61,9 @@ const withThemeTransition = (): void => {
     )
 }
 
-document.addEventListener("astro:page-load", sync)
+onPageLoad(sync)
 
-if (!windowRef.__themeToggleBound) {
-    windowRef.__themeToggleBound = true
+oncePerWindow("theme-toggle", () => {
     document.querySelectorAll<HTMLButtonElement>(".theme-toggle").forEach((button) => {
         button.addEventListener("click", () => {
             const next = effectiveTheme() === "dark" ? "light" : "dark"
@@ -80,6 +79,6 @@ if (!windowRef.__themeToggleBound) {
     media.addEventListener("change", () => {
         if (storedTheme() === null) withThemeTransition()
     })
-}
+})
 
 sync()

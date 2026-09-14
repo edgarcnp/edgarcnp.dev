@@ -1,3 +1,5 @@
+import { oncePerWindow } from "./lifecycle"
+
 const NAV_SELECTORS = ".nav-link, .mobile-menu-link"
 
 const onDocumentClick = (event: MouseEvent): void => {
@@ -13,8 +15,4 @@ const boot = (): void => {
     document.addEventListener("click", onDocumentClick)
 }
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot, { once: true })
-} else {
-    boot()
-}
+oncePerWindow("nav-active", boot)

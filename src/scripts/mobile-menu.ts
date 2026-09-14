@@ -2,10 +2,9 @@ import { animate, initPrefersReducedMotion, prefersReducedMotion, stagger } from
 import type { AnimationPlaybackControls } from "motion"
 import { navigate } from "astro:transitions/client"
 import { filterCommands, type Command } from "~/lib/search"
+import { onPageLoad, oncePerWindow } from "./lifecycle"
 
 type DotsPath = SVGPathElement
-
-const windowRef = window as unknown as { __mobileMenuBound?: boolean }
 
 initPrefersReducedMotion()
 
@@ -525,12 +524,10 @@ const bind = (): void => {
     }
 }
 
-if (!windowRef.__mobileMenuBound) {
-    windowRef.__mobileMenuBound = true
+oncePerWindow("mobile-menu", () => {
     document.addEventListener("click", onDocumentClick)
     document.addEventListener("keydown", onKeydown)
     BREAKPOINT.addEventListener("change", onBreakpoint)
-    document.addEventListener("astro:page-load", bind)
-}
+})
 
-bind()
+onPageLoad(bind)
