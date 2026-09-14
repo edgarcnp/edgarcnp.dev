@@ -13,7 +13,7 @@ const { post } = Astro.props
 const { Content } = await render(post)
 ---
 
-<Layout title={post.data.title} description={post.data.summary} path={`/writings/${post.id}`}>
+<Layout title={post.data.title} description={post.data.summary} path={`/writing/${post.id}`}>
     <article class="mx-auto max-w-3xl">
         <div>
             <ArticleHeader
@@ -22,7 +22,7 @@ const { Content } = await render(post)
                 updated={post.data.updated}
                 summary={post.data.summary}
                 tags={post.data.tags}
-                backHref="/writings"
+                backHref="/writing"
                 backLabel="Back to writing"
             />
         </div>

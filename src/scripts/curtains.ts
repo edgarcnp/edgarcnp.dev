@@ -15,7 +15,7 @@ const TITLE_Y_OFFSET = 32
 
 const TITLES: { pattern: RegExp, title: string }[] = [
     { pattern: /^\/projects(?:\/.*)?$/, title: "Projects" },
-    { pattern: /^\/writings(?:\/.*)?$/, title: "Writings" },
+    { pattern: /^\/writing(?:\/.*)?$/, title: "Writing" },
     { pattern: /^\/contact$/, title: "Contact" },
     { pattern: /^\/$/, title: "Home" },
 ]

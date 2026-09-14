@@ -28,8 +28,8 @@ const commands: Command[] = [
     ...writings.map((entry) => ({
         id: `writing:${entry.id}`,
         label: entry.data.title,
-        href: `/writings/${entry.id}`,
-        category: "Writings",
+        href: `/writing/${entry.id}`,
+        category: "Writing",
         keywords: [...entry.data.tags, entry.data.summary],
     })),
 ]

@@ -1,0 +1,2 @@
+/writings /writing 301
+/writings/* /writing/:splat 301
