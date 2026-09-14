@@ -4,15 +4,14 @@ Personal portfolio site — fully static Astro 7, zero client-side framework, de
 
 ## Stack
 
-- **Astro 7** (`output: "static"`, output to `dist/client`) with the **Content Layer** (`src/content.config.ts`, Zod schemas, build-time validation) for projects, writing, and JSON data (`data` collection)
-- **No client framework**: SolidJS removed; UI widgets are plain `.astro` components; the shimmer background is a native **Web Component**; scroll reveals via **motion.dev**
-- **SPA-style navigation** via Astro's `<ClientRouter />` with a **single shared shimmer instance** (`transition:persist` — one live canvas across all pages; wave drift handed off on the element instance)
+- **Astro 7** (`output: "static"`, output to `dist/client`) with the **Content Layer** (`src/content.config.ts`, Zod schemas, build-time validation) for projects, writing, and site data (one collection per JSON file)
+- **No client framework**: UI widgets are plain `.astro` components; client behavior is small TypeScript modules in `src/scripts/`; scroll reveals and transitions via **motion.dev**
+- **SPA-style navigation** via Astro's `<ClientRouter />` with a **single shared ambient background** (`transition:persist`) and a blinds-style page transition
 - **Strict CSP** (`script-src 'self'; style-src 'self'` — zero inline scripts/styles) plus full security header set, all in `public/_headers`
-- **Geist Sans / Geist Mono** via `@fontsource` (CSP-safe: the Astro Fonts API emits inline styles)
+- **Geist Sans / Geist Mono** via `@fontsource` (CSP-safe: the Astro Fonts API emits inline styles, so it is not used)
 - **Tailwind CSS 4** via `@tailwindcss/vite`
+- **Bun** for package management, scripts, tests (`bun test`), and all other tooling — Node is not required
 - Deployed to **Cloudflare Workers** via plain `wrangler` static assets (`wrangler.jsonc` → `assets.directory: "./dist/client"`)
-
-See [PLAN.md](PLAN.md) for the full overhaul record and decision rationale.
 
 ## Project structure
 
@@ -21,22 +20,27 @@ astro.config.mjs          # static output (outDir: ./dist/client), sitemap, tail
 wrangler.jsonc            # deploy config (static assets, custom domain)
 public/
 ├── _headers              # CSP + security headers + cache rules + noindex
+├── _redirects            # /writings/* -> /writing/* (route renamed, old links keep working)
 ├── robots.txt
-└── favicon.*
+├── favicon.*
+└── js/theme-init.js      # blocking pre-paint theme script (must stay a plain file: CSP forbids inline)
 src/
-├── content.config.ts     # glob loaders (projects, writing) + data collection (JSON)
-├── lib/content.ts        # typed collection queries, date formatting, sorting
-├── layouts/Layout.astro
-├── pages/                # index, contact, 404, 500, projects/{index,[slug]}, writings/{index,[slug]}
+├── content.config.ts     # glob loaders (projects, writing) + one collection per JSON file in data/
+├── config/site.ts        # site name, default description, nav, footer ticker
+├── lib/                  # server-side and pure helpers: content, data, format, navigation, search, commands
+├── layouts/Layout.astro  # document shell: BaseHead + SiteHeader + slot + SiteFooter + page scripts
+├── pages/                # index, contact, 404, projects/{index,[slug]}, writing/{index,[slug]}
 ├── components/
-│   ├── background/       # shimmer Web Component + canvas engine
-│   ├── shared/           # .astro components
-│   └── ui/               # icons/, static/, widgets/ (.astro)
-├── content/              # projects/*.md, writing/*.md
+│   ├── site/             # page chrome: BaseHead, SiteHeader, SiteFooter, SkipLink, ThemeToggle, MenuButton, CommandPalette
+│   ├── content/          # content-bound: ArticleView, ArticleHeader, ProjectCard, CapabilityGrid
+│   └── ui/               # generic primitives: ButtonLink, SectionHeading, Tag, StatusBadge, ErrorPage
+├── content/              # projects/*.md, writing/*.md (filename is the URL slug)
 ├── data/                 # profile.json, contact.json, capabilities.json
-├── scripts/motion.ts     # reveal-on-scroll (motion.dev)
-└── styles/               # app.css (entry) + theme, base, components, shimmer, animations
+├── scripts/              # client behavior, one module per feature + scripts/motion/ (effect engine)
+└── styles/               # tokens, base, primitives + one stylesheet per JS-driven feature
 ```
+
+Conventions: components group by domain (`site/`, `content/`, `ui/`); a client script is named after the feature it powers (`theme.ts`, `mobile-menu.ts`, `page-curtains.ts`); component-authored DOM is styled in that component's scoped `<style>`, JS-created DOM in `styles/<feature>.css`.
 
 ## Commands
 
@@ -44,18 +48,20 @@ src/
 |---|---|
 | `bun install` | Install dependencies |
 | `bun run dev` | Start the dev server at `localhost:4321` (background: `astro dev --background`) |
-| `bun run build` | Build production output to `./dist/` |
+| `bun run build` | Build production output to `./dist/client` |
 | `bun run preview` | `bun run build` + `wrangler dev` (local worker serving `dist/client`) |
 | `bun run deploy` | `bun run build` + `wrangler deploy` |
 | `bun run typecheck` | `astro check` |
 | `bun run lint` | `eslint .` |
+| `bun run test` | `bun test` (unit tests for `src/lib`) |
 
 ## Notes
 
-- Production output must stay free of inline `<script>`/`<style>` — the CSP in `public/_headers` allows `'self'` only. Keep `vite.build.assetsInlineLimit: 0`, `build.inlineStylesheets: "never"`, and `markdown.syntaxHighlight: false` in `astro.config.mjs`. Notably, Astro's `transition:name` emits a scoped inline `<style>` — don't use it (the shimmer persists via `transition:persist` alone).
-- Navigation uses `<ClientRouter />`; bundled scripts run once, so anything per-navigation hooks `astro:page-load` (`src/scripts/motion.ts` reveal re-scan, shimmer emphasis). If the router is ever removed, those listeners silently stop firing — remove them together.
-- Deployment is adapter-free: `astro build` emits `dist/client` and `wrangler deploy` uploads it as static assets. Do not re-add `@astrojs/cloudflare` — it injects SESSION/IMAGES bindings and a prerender worker config that are pointless (and noisy) for a fully static site (details in PLAN.md).
+- Production output must stay free of inline `<script>`/`<style>` — the CSP in `public/_headers` allows `'self'` only. Keep `vite.build.assetsInlineLimit: 0`, `build.inlineStylesheets: "never"`, and `markdown.syntaxHighlight: false` in `astro.config.mjs`. Notably, Astro's `transition:name` emits a scoped inline `<style>` — don't use it (the ambient background persists via `transition:persist` alone).
+- Navigation uses `<ClientRouter />`; bundled scripts run once, so anything per-navigation goes through `src/scripts/lifecycle.ts` (`onPageLoad`, `onBeforeSwap`, `oncePerWindow`). If the router is ever removed, those listeners silently stop firing — remove them together.
+- Deployment is adapter-free: `astro build` emits `dist/client` and `wrangler deploy` uploads it as static assets. Do not re-add `@astrojs/cloudflare` — it injects SESSION/IMAGES bindings and a prerender worker config that are pointless (and noisy) for a fully static site.
 - Fonts come from `@fontsource/geist-sans` / `@fontsource/geist-mono` imports in `src/styles/app.css`. Do not switch to the Astro Fonts API — it emits inline `<style>` (CSP violation).
+- Content entries are addressed by filename (`entry.id`); there is no `slug` frontmatter field. JSON files in `src/data/` each have their own collection so every query is exactly typed — never reintroduce a union schema over the whole directory.
 
 ## License
 

@@ -8,6 +8,15 @@ astro dev --background
 
 Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
 
+## Structure
+
+- Components group by domain: `site/` (page chrome), `content/` (collection-bound), `ui/` (generic primitives). Name components by purpose (`MenuButton`, `CapabilityGrid`), never by implementation (`Grid4`).
+- One client script per feature in `src/scripts/`, named after the feature it powers (`theme.ts`, `mobile-menu.ts`, `page-curtains.ts`). SPA lifecycle goes through `src/scripts/lifecycle.ts` (`oncePerWindow`, `onPageLoad`, `onBeforeSwap`) — never ad-hoc `window.__flags` or bare `astro:*` listeners.
+- The motion engine lives in `src/scripts/motion/` (one effect per file in `effects/`); pages opt in with `data-motion="<effect>"`.
+- Styles: DOM authored in `.astro` is styled in that component's scoped `<style>`; DOM created by JS is styled in `styles/<feature>.css` matching the script name. Shared vocabulary (type, card, pill, badge, buttons, page/section) lives in `styles/primitives.css`; tokens, reset, and reduced-motion in `tokens.css`, `base.css`, `motion.css`.
+- Content entries are addressed by filename (`entry.id`); do not add a `slug` frontmatter field. Each JSON file in `src/data/` has its own collection — never a union schema over the directory. All content access goes through `src/lib/` (`content`, `data`, `commands`, `search`, `format`, `navigation`); `src/lib/search.ts` must stay client-safe (no `astro:content` imports).
+- Unit-test pure logic with `bun test` (`*.test.ts` next to the module). Verify with `bun run lint`, `bun run typecheck`, `bun run test`, `bun run build`; production HTML must contain no inline `<script>`/`<style>` (strict CSP).
+
 ## Documentation
 
 Full documentation: https://docs.astro.build
