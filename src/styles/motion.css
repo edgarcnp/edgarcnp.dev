@@ -1,0 +1,53 @@
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  .card:hover,
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    transform: none;
+  }
+}
+
+/* Per-character rolling text units, created at runtime by the motion engine. */
+.roll {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.roll__char {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  line-height: inherit;
+}
+
+.roll__face {
+  display: inline-block;
+  white-space: pre;
+  transform: translateY(0%);
+  will-change: transform;
+}
+
+.roll__face--dup {
+  position: absolute;
+  inset: 0;
+  transform: translateY(100%);
+  will-change: transform;
+}

@@ -1,7 +1,7 @@
 /* External-link warning overlay.
  *
  * Port of the Motion "warp overlay" example. The page-content warp pulse is
- * driven by `external-warn.ts`, which also drives every overlay animation with
+ * driven by `external-link-warning.ts`, which also drives every overlay animation with
  * Motion (exactly as the source does); these styles only set the static shapes,
  * colours and blurred backgrounds. The blur values are scaled in JS by
  * width/375 so the frosted ratio matches the source's fixed 375px frame on any

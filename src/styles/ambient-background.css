@@ -1,7 +1,7 @@
 /* Ambient background — three soft color orbs arranged in Borromean rings,
  * centered on the viewport. The arrangement is static and identical under
  * reduced motion; colors come from theme tokens. Created and managed by
- * `background-motion.ts` inside the persisted `.ambient-bg` container. */
+ * `ambient-background.ts` inside the persisted `.ambient-bg` container. */
 
 .ambient-bg {
   position: fixed;

@@ -26,3 +26,72 @@ const tickerRow = Array.from({ length: 12 }, () => tickerItems).flat()
         <a class="footer__meta min-w-0 sm:flex-none sm:text-right" href={`mailto:${profile.email}`}>{profile.email}</a>
     </div>
 </footer>
+<style>
+  .footer {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--z-chrome);
+    border-top: 1px solid var(--border);
+    background-color: color-mix(in srgb, var(--bg-elevated) 82%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .footer {
+      background-color: var(--bg-elevated);
+    }
+  }
+
+  .footer::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: var(--fade-edge);
+    transform: translateY(calc(-100% - 1px));
+    background: var(--bg);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, black 100%);
+    pointer-events: none;
+  }
+
+  .footer__band {
+    padding-inline: max(clamp(1.25rem, 4vw, 2.5rem), env(safe-area-inset-left), env(safe-area-inset-right));
+    padding-block: 1rem;
+  }
+
+  .footer__ticker {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, black 12%, black 88%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, black 12%, black 88%, transparent 100%);
+  }
+
+  .footer__ticker-track {
+    display: flex;
+    width: max-content;
+  }
+
+  .footer__ticker-group {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+  }
+
+  .footer__meta {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    line-height: 1.3;
+    color: var(--ink-faint);
+  }
+
+  a.footer__meta {
+    color: inherit;
+    text-decoration: none;
+    transition: color 150ms ease;
+  }
+
+  a.footer__meta:hover {
+    color: var(--ink);
+  }
+</style>

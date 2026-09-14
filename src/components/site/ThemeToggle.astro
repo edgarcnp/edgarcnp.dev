@@ -11,3 +11,54 @@ const { class: className, ...rest } = Astro.props
     <Sun class="theme-toggle__icon theme-toggle__sun" />
 </button>
 <script>import "~/scripts/theme";</script>
+<style>
+  .theme-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--ink-muted);
+    transition: color 150ms ease;
+  }
+
+  .theme-toggle:hover {
+    color: var(--ink);
+  }
+
+  .theme-toggle__icon {
+    grid-area: 1 / 1;
+    width: 1.25rem;
+    height: 1.25rem;
+    transition:
+      opacity 150ms ease,
+      transform 150ms ease;
+  }
+
+  .theme-toggle__sun {
+    opacity: 1;
+    transform: none;
+  }
+
+  .theme-toggle__moon {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.5);
+  }
+
+  .theme-toggle.is-dark .theme-toggle__sun {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+  }
+
+  .theme-toggle.is-dark .theme-toggle__moon {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (pointer: coarse) {
+    .theme-toggle {
+      min-height: 44px;
+    }
+  }
+</style>
