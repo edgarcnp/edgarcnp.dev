@@ -1,0 +1,28 @@
+---
+import { tickerItems } from "~/config/site"
+import { getProfile } from "~/lib/data"
+
+const profile = await getProfile()
+const currentYear = new Date().getFullYear()
+const tickerRow = Array.from({ length: 12 }, () => tickerItems).flat()
+---
+<footer class="footer">
+    <div class="footer__band flex flex-col items-stretch gap-3 text-center sm:flex-row sm:items-center sm:gap-x-6">
+        <p class="footer__meta min-w-0 sm:flex-none sm:text-left">&copy; {currentYear} {profile.name}</p>
+        <div class="footer__ticker min-w-0 overflow-hidden sm:flex-1" aria-hidden="true">
+            <div class="footer__ticker-track" data-motion="marquee" data-duration="30">
+                <div class="footer__ticker-group">
+                    {tickerRow.map((item) => (
+                        <span class="pill mr-4">{item}</span>
+                    ))}
+                </div>
+                <div class="footer__ticker-group">
+                    {tickerRow.map((item) => (
+                        <span class="pill mr-4">{item}</span>
+                    ))}
+                </div>
+            </div>
+        </div>
+        <a class="footer__meta min-w-0 sm:flex-none sm:text-right" href={`mailto:${profile.email}`}>{profile.email}</a>
+    </div>
+</footer>

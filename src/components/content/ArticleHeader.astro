@@ -1,11 +1,11 @@
 ---
 import { formatDate } from "~/lib/format"
-import LinkAction from "./LinkAction.astro"
-import StatusBadge from "./StatusBadge.astro"
-import TechTag from "./TechTag.astro"
+import ButtonLink from "~/components/ui/ButtonLink.astro"
+import StatusBadge from "~/components/ui/StatusBadge.astro"
+import Tag from "~/components/ui/Tag.astro"
 import { ArrowLeft } from "@lucide/astro"
 
-import type { ProjectStatus } from "~/lib/types"
+import type { ProjectStatus } from "~/lib/content"
 
 interface Props {
     title: string
@@ -19,13 +19,13 @@ interface Props {
     backLabel: string
 }
 
-const { title, published, updated, summary, tags, status, links, backHref, backLabel } = Astro.props as Props
+const { title, published, updated, summary, tags, status, links, backHref, backLabel } = Astro.props
 ---
 <header class="article-header">
-    <LinkAction href={backHref} variant="ghost">
+    <ButtonLink href={backHref} variant="ghost">
         <ArrowLeft class="size-3.5" />
         {backLabel}
-    </LinkAction>
+    </ButtonLink>
     <p class="kicker">
         <span>Published {formatDate(published)}</span>
         <span aria-hidden="true"> · </span>
@@ -46,7 +46,7 @@ const { title, published, updated, summary, tags, status, links, backHref, backL
         tags && (
             <ul class="flex flex-wrap gap-2">
                 {tags.map((tag) => (
-                    <li><TechTag label={tag} /></li>
+                    <li><Tag label={tag} /></li>
                 ))}
             </ul>
         )
@@ -55,7 +55,7 @@ const { title, published, updated, summary, tags, status, links, backHref, backL
         links && links.length > 0 && (
             <div class="flex flex-wrap gap-3">
                 {links.map((link) => (
-                    <LinkAction href={link.href} external={link.external} variant="secondary">{link.label}</LinkAction>
+                    <ButtonLink href={link.href} external={link.external} variant="secondary">{link.label}</ButtonLink>
                 ))}
             </div>
         )

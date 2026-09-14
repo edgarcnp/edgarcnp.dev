@@ -1,5 +1,5 @@
 ---
-import LinkAction from "./LinkAction.astro"
+import ButtonLink from "~/components/ui/ButtonLink.astro"
 
 interface Props {
     code: string
@@ -7,7 +7,7 @@ interface Props {
     path: string
 }
 
-const { code, title, path } = Astro.props as Props
+const { code, title, path } = Astro.props
 
 const MAX_PATH_LENGTH = 120
 const displayPath = path.length > MAX_PATH_LENGTH ? path.slice(0, MAX_PATH_LENGTH) + "…" : path
@@ -17,7 +17,7 @@ const displayPath = path.length > MAX_PATH_LENGTH ? path.slice(0, MAX_PATH_LENGT
     <h1 data-reveal>{title}</h1>
     <p data-reveal>No page at <code>{displayPath}</code> — try searching (⌘K) or return home.</p>
     <div class="flex flex-col gap-3 sm:flex-row" data-reveal>
-        <LinkAction href="/" variant="primary" magnetic>Return home</LinkAction>
-        <LinkAction href="/projects" variant="secondary" magnetic>View projects</LinkAction>
+        <ButtonLink href="/" variant="primary" magnetic>Return home</ButtonLink>
+        <ButtonLink href="/projects" variant="secondary" magnetic>View projects</ButtonLink>
     </div>
 </section>

@@ -1,17 +1,23 @@
 ---
-import { ACTION_CLASSES } from "~/lib/types"
+import type { HTMLAttributes } from "astro/types"
 import { ExternalLink } from "@lucide/astro"
 
-import type { ActionVariant } from "~/lib/types"
+type ActionVariant = "primary" | "secondary" | "ghost"
 
-interface Props {
+const ACTION_CLASSES: Record<ActionVariant, string> = {
+    primary: "btn-primary",
+    secondary: "btn-secondary",
+    ghost: "btn-ghost",
+}
+
+interface Props extends HTMLAttributes<"a"> {
     href: string
     external?: boolean
     variant?: ActionVariant
     magnetic?: boolean
 }
 
-const { href, external, magnetic, variant, class: _className, ...rest } = Astro.props as Props & Record<string, string | undefined>
+const { href, external, magnetic, variant, class: className, ...rest } = Astro.props
 
 const isExternal = external ?? (href.startsWith("http") || href.startsWith("mailto:"))
 ---
@@ -20,7 +26,7 @@ const isExternal = external ?? (href.startsWith("http") || href.startsWith("mail
     href={href}
     target={isExternal ? "_blank" : undefined}
     rel={isExternal ? "noopener noreferrer" : undefined}
-    class={ACTION_CLASSES[variant ?? "secondary"]}
+    class:list={[ACTION_CLASSES[variant ?? "secondary"], className]}
     data-motion={magnetic ? "magnetic" : undefined}
 >
     <slot />

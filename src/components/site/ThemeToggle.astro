@@ -1,0 +1,13 @@
+---
+import type { HTMLAttributes } from "astro/types"
+import { Moon, Sun } from "@lucide/astro"
+
+type Props = HTMLAttributes<"button">
+
+const { class: className, ...rest } = Astro.props
+---
+<button {...rest} type="button" class:list={["theme-toggle", className]} aria-pressed="false" aria-label="Switch to dark theme" title="Switch to dark theme">
+    <Moon class="theme-toggle__icon theme-toggle__moon" />
+    <Sun class="theme-toggle__icon theme-toggle__sun" />
+</button>
+<script>import "~/scripts/theme-toggle";</script>

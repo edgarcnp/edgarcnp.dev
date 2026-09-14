@@ -1,8 +1,8 @@
 ---
 import Layout from "~/layouts/Layout.astro"
 import { getProjectStats, getProjects } from "~/lib/content"
-import ProjectCard from "~/components/shared/ProjectCard.astro"
-import SectionHeading from "~/components/shared/SectionHeading.astro"
+import ProjectCard from "~/components/content/ProjectCard.astro"
+import SectionHeading from "~/components/ui/SectionHeading.astro"
 
 const projects = await getProjects()
 const { total, inProgress, planned } = await getProjectStats()

@@ -2,7 +2,7 @@
 import Layout from "~/layouts/Layout.astro"
 import { render } from "astro:content"
 import { getWritingPosts } from "~/lib/content"
-import ArticleHeader from "~/components/shared/ArticleHeader.astro"
+import ArticleView from "~/components/content/ArticleView.astro"
 
 export async function getStaticPaths() {
     const posts = await getWritingPosts()
@@ -14,20 +14,15 @@ const { Content } = await render(post)
 ---
 
 <Layout title={post.data.title} description={post.data.summary} path={`/writing/${post.id}`}>
-    <article class="mx-auto max-w-3xl">
-        <div>
-            <ArticleHeader
-                title={post.data.title}
-                published={post.data.published}
-                updated={post.data.updated}
-                summary={post.data.summary}
-                tags={post.data.tags}
-                backHref="/writing"
-                backLabel="Back to writing"
-            />
-        </div>
-        <div class="markdown-body">
-            <Content />
-        </div>
-    </article>
+    <ArticleView
+        title={post.data.title}
+        published={post.data.published}
+        updated={post.data.updated}
+        summary={post.data.summary}
+        tags={post.data.tags}
+        backHref="/writing"
+        backLabel="Back to writing"
+    >
+        <Content />
+    </ArticleView>
 </Layout>

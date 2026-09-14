@@ -2,7 +2,7 @@
 import Layout from "~/layouts/Layout.astro"
 import { render } from "astro:content"
 import { getProjects } from "~/lib/content"
-import ArticleHeader from "~/components/shared/ArticleHeader.astro"
+import ArticleView from "~/components/content/ArticleView.astro"
 
 export async function getStaticPaths() {
     const projects = await getProjects()
@@ -14,22 +14,17 @@ const { Content } = await render(project)
 ---
 
 <Layout title={project.data.title} description={project.data.summary} path={`/projects/${project.id}`}>
-    <article class="mx-auto max-w-3xl">
-        <div>
-            <ArticleHeader
-                title={project.data.title}
-                published={project.data.published}
-                updated={project.data.updated}
-                summary={project.data.summary}
-                tags={project.data.technologies}
-                status={project.data.status}
-                links={project.data.links}
-                backHref="/projects"
-                backLabel="Back to projects"
-            />
-        </div>
-        <div class="markdown-body">
-            <Content />
-        </div>
-    </article>
+    <ArticleView
+        title={project.data.title}
+        published={project.data.published}
+        updated={project.data.updated}
+        summary={project.data.summary}
+        tags={project.data.technologies}
+        status={project.data.status}
+        links={project.data.links}
+        backHref="/projects"
+        backLabel="Back to projects"
+    >
+        <Content />
+    </ArticleView>
 </Layout>

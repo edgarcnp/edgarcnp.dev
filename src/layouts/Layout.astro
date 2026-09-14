@@ -1,15 +1,10 @@
 ---
-import { headerNav, siteName, tickerItems } from "~/config/site"
-import { getProfile } from "~/lib/data"
-import { isActivePath } from "~/lib/navigation"
 import "../styles/app.css"
 import "../styles/external-warn.css"
 import BaseHead from "~/components/site/BaseHead.astro"
-import CommandPalette from "~/components/shared/CommandPalette.astro"
-import DotsMorphButton from "~/components/shared/DotsMorphButton.astro"
-import SkipLink from "~/components/shared/SkipLink.astro"
-import ThemeToggle from "~/components/shared/ThemeToggle.astro"
-import { Search } from "@lucide/astro"
+import SiteFooter from "~/components/site/SiteFooter.astro"
+import SiteHeader from "~/components/site/SiteHeader.astro"
+import SkipLink from "~/components/site/SkipLink.astro"
 
 interface Props {
     title: string
@@ -18,12 +13,6 @@ interface Props {
 }
 
 const { title, description, path } = Astro.props
-const profile = await getProfile()
-const currentYear = new Date().getFullYear()
-const tickerRow = Array.from({ length: 12 }, () => tickerItems).flat()
-
-const navLinks = headerNav.map((link) => ({ href: link.href, label: link.label, active: isActivePath(link.href, path) }))
-const isHome = path === "/"
 ---
 
 <!doctype html>
@@ -35,47 +24,7 @@ const isHome = path === "/"
         <SkipLink />
         <div class="ambient-bg" aria-hidden="true" transition:persist="ambient"></div>
 
-        <header class="site-header border-b border-(--border)">
-            <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-[max(clamp(1.25rem,4vw,2.5rem),env(safe-area-inset-left),env(safe-area-inset-right))] py-2.5 extended:grid extended:grid-cols-[1fr_auto_1fr] extended:flex-nowrap">
-                <a href="/" class="group flex w-fit min-h-11 items-center gap-3 pr-2 extended:justify-self-start [view-transition-name:brand]">
-                    <span class={`grid size-9 place-items-center rounded-sm border font-mono text-xs font-semibold transition group-hover:border-(--accent) group-hover:text-(--accent) ${isHome ? "border-(--accent) text-(--accent)" : "border-(--border) text-(--ink-muted)"}`}>
-                        EC
-                    </span>
-                    <span class="flex flex-col leading-none">
-                        <span class={`text-sm font-semibold transition group-hover:text-(--accent) ${isHome ? "text-(--accent)" : "text-(--ink)"}`}>{siteName}</span>
-                        <span class="mt-1 text-[0.65rem] uppercase tracking-[0.18em] text-(--ink-faint)">Portfolio</span>
-                    </span>
-                </a>
-                <CommandPalette transition:persist />
-                <div class="flex items-center gap-x-1.5 extended:col-start-3 extended:justify-self-end">
-                    <nav aria-label="Primary navigation" class="nav nav-desktop">
-                        {navLinks.map((link) => (
-                            <a href={link.href} class="nav-link" aria-current={link.active ? "page" : undefined}>{link.label}</a>
-                        ))}
-                    </nav>
-                    <ThemeToggle transition:persist />
-                    <DotsMorphButton />
-                </div>
-            </div>
-        </header>
-
-        <div id="mobile-menu-backdrop" class="mobile-menu-backdrop" hidden aria-hidden="true"></div>
-        <nav id="mobile-menu-panel" class="mobile-menu-panel" aria-label="Mobile navigation" hidden>
-            <div class="mobile-menu-panel__inner">
-                <div class="mobile-menu-search">
-                    <Search class="mobile-menu-search__icon" />
-                    <input type="search" id="mobile-menu-input" class="mobile-menu-search__input" placeholder="Search" aria-label="Search" aria-controls="mobile-menu-results" autocomplete="off" spellcheck="false" />
-                </div>
-                <ul id="mobile-menu-results" class="mobile-menu-results" role="listbox" hidden></ul>
-                <ul class="mobile-menu-panel__list">
-                    {navLinks.map((link) => (
-                        <li class="mobile-menu-panel__item">
-                            <a href={link.href} class="mobile-menu-link" aria-current={link.active ? "page" : undefined}>{link.label}</a>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </nav>
+        <SiteHeader path={path} />
 
         <div id="content-warp">
             <main id="main">
@@ -85,26 +34,7 @@ const isHome = path === "/"
             </main>
         </div>
 
-        <footer class="footer">
-            <div class="footer__band flex flex-col items-stretch gap-3 text-center sm:flex-row sm:items-center sm:gap-x-6">
-                <p class="footer__meta min-w-0 sm:flex-none sm:text-left">&copy; {currentYear} {profile.name}</p>
-                <div class="footer__ticker min-w-0 overflow-hidden sm:flex-1" aria-hidden="true">
-                    <div class="footer__ticker-track" data-motion="marquee" data-duration="30">
-                        <div class="footer__ticker-group">
-                            {tickerRow.map((item) => (
-                                <span class="pill mr-4">{item}</span>
-                            ))}
-                        </div>
-                        <div class="footer__ticker-group">
-                            {tickerRow.map((item) => (
-                                <span class="pill mr-4">{item}</span>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-                <a class="footer__meta min-w-0 sm:flex-none sm:text-right" href={`mailto:${profile.email}`}>{profile.email}</a>
-            </div>
-        </footer>
+        <SiteFooter />
 
         <script>import "~/scripts/motion-client";</script>
         <script>import "~/scripts/background-motion";</script>

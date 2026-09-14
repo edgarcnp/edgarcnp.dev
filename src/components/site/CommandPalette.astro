@@ -1,9 +1,12 @@
 ---
+import type { HTMLAttributes } from "astro/types"
 import { Search } from "@lucide/astro"
 import { getProjects, getWritingPosts } from "~/lib/content"
 import { navIndex } from "~/config/site"
 
-const { class: _className, ...rest } = Astro.props as Record<string, string | undefined>
+type Props = HTMLAttributes<"div">
+
+const { class: className, ...rest } = Astro.props
 
 type Command = { id: string; label: string; href: string; category: string; keywords: string[] }
 
@@ -35,7 +38,7 @@ const commands: Command[] = [
 ]
 ---
 
-<div {...rest} class="palette-field">
+<div {...rest} class:list={["palette-field", className]}>
     <Search class="palette-trigger__icon" />
     <input
         type="search"

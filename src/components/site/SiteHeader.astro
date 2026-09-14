@@ -1,0 +1,58 @@
+---
+import { headerNav, siteName } from "~/config/site"
+import { isActivePath } from "~/lib/navigation"
+import CommandPalette from "~/components/site/CommandPalette.astro"
+import MenuButton from "~/components/site/MenuButton.astro"
+import ThemeToggle from "~/components/site/ThemeToggle.astro"
+import { Search } from "@lucide/astro"
+
+interface Props {
+    path: string
+}
+
+const { path } = Astro.props
+
+const navLinks = headerNav.map((link) => ({ href: link.href, label: link.label, active: isActivePath(link.href, path) }))
+const isHome = path === "/"
+---
+<header class="site-header border-b border-(--border)">
+    <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-[max(clamp(1.25rem,4vw,2.5rem),env(safe-area-inset-left),env(safe-area-inset-right))] py-2.5 extended:grid extended:grid-cols-[1fr_auto_1fr] extended:flex-nowrap">
+        <a href="/" class="group flex w-fit min-h-11 items-center gap-3 pr-2 extended:justify-self-start [view-transition-name:brand]">
+            <span class={`grid size-9 place-items-center rounded-sm border font-mono text-xs font-semibold transition group-hover:border-(--accent) group-hover:text-(--accent) ${isHome ? "border-(--accent) text-(--accent)" : "border-(--border) text-(--ink-muted)"}`}>
+                EC
+            </span>
+            <span class="flex flex-col leading-none">
+                <span class={`text-sm font-semibold transition group-hover:text-(--accent) ${isHome ? "text-(--accent)" : "text-(--ink)"}`}>{siteName}</span>
+                <span class="mt-1 text-[0.65rem] uppercase tracking-[0.18em] text-(--ink-faint)">Portfolio</span>
+            </span>
+        </a>
+        <CommandPalette transition:persist />
+        <div class="flex items-center gap-x-1.5 extended:col-start-3 extended:justify-self-end">
+            <nav aria-label="Primary navigation" class="nav nav-desktop">
+                {navLinks.map((link) => (
+                    <a href={link.href} class="nav-link" aria-current={link.active ? "page" : undefined}>{link.label}</a>
+                ))}
+            </nav>
+            <ThemeToggle transition:persist />
+            <MenuButton />
+        </div>
+    </div>
+</header>
+
+<div id="mobile-menu-backdrop" class="mobile-menu-backdrop" hidden aria-hidden="true"></div>
+<nav id="mobile-menu-panel" class="mobile-menu-panel" aria-label="Mobile navigation" hidden>
+    <div class="mobile-menu-panel__inner">
+        <div class="mobile-menu-search">
+            <Search class="mobile-menu-search__icon" />
+            <input type="search" id="mobile-menu-input" class="mobile-menu-search__input" placeholder="Search" aria-label="Search" aria-controls="mobile-menu-results" autocomplete="off" spellcheck="false" />
+        </div>
+        <ul id="mobile-menu-results" class="mobile-menu-results" role="listbox" hidden></ul>
+        <ul class="mobile-menu-panel__list">
+            {navLinks.map((link) => (
+                <li class="mobile-menu-panel__item">
+                    <a href={link.href} class="mobile-menu-link" aria-current={link.active ? "page" : undefined}>{link.label}</a>
+                </li>
+            ))}
+        </ul>
+    </div>
+</nav>

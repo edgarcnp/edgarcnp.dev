@@ -1,0 +1,37 @@
+---
+import ArticleHeader from "~/components/content/ArticleHeader.astro"
+
+import type { ProjectStatus } from "~/lib/content"
+
+interface Props {
+    title: string
+    published: Date
+    updated: Date
+    summary: string
+    tags?: string[]
+    status?: ProjectStatus
+    links?: { label: string; href: string; external: boolean }[]
+    backHref: string
+    backLabel: string
+}
+
+const { title, published, updated, summary, tags, status, links, backHref, backLabel } = Astro.props
+---
+<article class="mx-auto max-w-3xl">
+    <div>
+        <ArticleHeader
+            title={title}
+            published={published}
+            updated={updated}
+            summary={summary}
+            tags={tags}
+            status={status}
+            links={links}
+            backHref={backHref}
+            backLabel={backLabel}
+        />
+    </div>
+    <div class="markdown-body">
+        <slot />
+    </div>
+</article>

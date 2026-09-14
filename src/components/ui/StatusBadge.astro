@@ -1,0 +1,19 @@
+---
+import type { ProjectStatus } from "~/lib/content"
+
+const STATUS_CLASSES: Record<ProjectStatus, string> = {
+    "In Progress": "badge badge--success",
+    Planned: "badge badge--neutral",
+    Archived: "badge badge--neutral",
+}
+
+interface Props {
+    status: ProjectStatus
+}
+
+const { status } = Astro.props
+---
+<span class={STATUS_CLASSES[status]}>
+    <span class="status-dot" aria-hidden="true"></span>
+    {status}
+</span>

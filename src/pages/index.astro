@@ -2,10 +2,10 @@
 import Layout from "~/layouts/Layout.astro"
 import { getFeaturedProjects } from "~/lib/content"
 import { getCapabilities, getContact, getProfile } from "~/lib/data"
-import Grid4 from "~/components/shared/Grid4.astro"
-import LinkAction from "~/components/shared/LinkAction.astro"
-import ProjectCard from "~/components/shared/ProjectCard.astro"
-import SectionHeading from "~/components/shared/SectionHeading.astro"
+import CapabilityGrid from "~/components/content/CapabilityGrid.astro"
+import ProjectCard from "~/components/content/ProjectCard.astro"
+import ButtonLink from "~/components/ui/ButtonLink.astro"
+import SectionHeading from "~/components/ui/SectionHeading.astro"
 
 const featuredProjects = await getFeaturedProjects()
 const profile = await getProfile()
@@ -38,8 +38,8 @@ const stats = [
             </dl>
         </div>
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-            <LinkAction href="/projects" variant="primary" data-motion="magnetic">View projects</LinkAction>
-            <LinkAction href="/contact" variant="secondary">Contact</LinkAction>
+            <ButtonLink href="/projects" variant="primary" data-motion="magnetic">View projects</ButtonLink>
+            <ButtonLink href="/contact" variant="secondary">Contact</ButtonLink>
         </div>
     </section>
 
@@ -66,7 +66,7 @@ const stats = [
         </div>
     </section>
 
-    <Grid4 items={capabilities.capabilities} />
+    <CapabilityGrid items={capabilities.capabilities} />
 
     <section class="section">
         <div class="grid gap-4 extended:grid-cols-2">
@@ -77,7 +77,7 @@ const stats = [
                     <p class="section-heading__description mt-3">Short technical writing about security, responsive UI, and Cloudflare deployment.</p>
                 </div>
                 <div>
-                    <LinkAction href="/writing" variant="ghost">Open writing</LinkAction>
+                    <ButtonLink href="/writing" variant="ghost">Open writing</ButtonLink>
                 </div>
             </div>
             <div class="card flex flex-col justify-between gap-6">
@@ -87,10 +87,10 @@ const stats = [
                     <p class="section-heading__description mt-3">{profile.summary}</p>
                 </div>
                 <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                    <LinkAction href="/contact" variant="secondary">Open contact</LinkAction>
-                    <LinkAction href={`mailto:${profile.email}`} variant="primary">{profile.email}</LinkAction>
+                    <ButtonLink href="/contact" variant="secondary">Open contact</ButtonLink>
+                    <ButtonLink href={`mailto:${profile.email}`} variant="primary">{profile.email}</ButtonLink>
                     {codeberg && (
-                        <LinkAction href={codeberg.href} external={codeberg.external} variant="secondary">{codeberg.label}</LinkAction>
+                        <ButtonLink href={codeberg.href} external={codeberg.external} variant="secondary">{codeberg.label}</ButtonLink>
                     )}
                 </div>
             </div>

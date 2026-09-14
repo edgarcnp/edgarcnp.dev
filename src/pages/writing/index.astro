@@ -2,8 +2,8 @@
 import Layout from "~/layouts/Layout.astro"
 import { getWritingPosts } from "~/lib/content"
 import { formatDate } from "~/lib/format"
-import SectionHeading from "~/components/shared/SectionHeading.astro"
-import TechTag from "~/components/shared/TechTag.astro"
+import SectionHeading from "~/components/ui/SectionHeading.astro"
+import Tag from "~/components/ui/Tag.astro"
 
 const posts = await getWritingPosts()
 ---
@@ -26,7 +26,7 @@ const posts = await getWritingPosts()
                             <p class="text-sm leading-6 text-(--ink-muted)">{post.data.summary}</p>
                             <ul class="flex flex-wrap gap-2">
                                 {post.data.tags.map((tag) => (
-                                    <li><TechTag label={tag} /></li>
+                                    <li><Tag label={tag} /></li>
                                 ))}
                             </ul>
                         </span>
