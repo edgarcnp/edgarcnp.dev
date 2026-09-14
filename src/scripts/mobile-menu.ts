@@ -261,7 +261,7 @@ const closeMenu = (restoreFocus: boolean): void => {
     for (const path of state.paths) {
         const index = state.paths.indexOf(path)
         state.pathControls.push(
-            animate(path, { d: DOT_STATES[index].dot, strokeWidth: 12 }, SPRING),
+            animate(path, { attrD: DOT_STATES[index].dot, strokeWidth: 12 }, SPRING),
         )
     }
     state.wrapperControls = animate(state.wrapper, { rotate: 0 }, WOBBLE_SPRING)
@@ -292,7 +292,7 @@ const openMenu = (): void => {
     for (const path of state.paths) {
         const index = state.paths.indexOf(path)
         state.pathControls.push(
-            animate(path, { d: DOT_STATES[index].line, strokeWidth: 6 }, SPRING),
+            animate(path, { attrD: DOT_STATES[index].line, strokeWidth: 6 }, SPRING),
         )
     }
     state.wrapperControls = animate(state.wrapper, { rotate: 90 }, SPRING)
