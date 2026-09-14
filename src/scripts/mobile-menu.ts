@@ -1,4 +1,4 @@
-import { animate, initPrefersReducedMotion, prefersReducedMotion, stagger } from "motion"
+import { animate, initPrefersReducedMotion, prefersReducedMotion } from "motion"
 import type { AnimationPlaybackControls } from "motion"
 import { navigate } from "astro:transitions/client"
 import { filterCommands, type Command } from "~/lib/search"
@@ -45,7 +45,6 @@ interface State {
     wrapperControls: AnimationPlaybackControls | null
     scaleControls: AnimationPlaybackControls | null
     panelControls: AnimationPlaybackControls | null
-    itemControls: AnimationPlaybackControls | null
     backdropControls: AnimationPlaybackControls | null
     hovering: boolean
     pressing: boolean
@@ -62,7 +61,6 @@ const state: State = {
     wrapperControls: null,
     scaleControls: null,
     panelControls: null,
-    itemControls: null,
     backdropControls: null,
     hovering: false,
     pressing: false,
@@ -86,14 +84,8 @@ const stopAll = (): void => {
     state.scaleControls = null
     state.panelControls?.stop()
     state.panelControls = null
-    state.itemControls?.stop()
-    state.itemControls = null
     state.backdropControls?.stop()
     state.backdropControls = null
-    for (const item of state.panel?.querySelectorAll<HTMLElement>(".mobile-menu-panel__item") ?? []) {
-        item.style.opacity = ""
-        item.style.transform = ""
-    }
 }
 
 const setAttr = (path: DotsPath, key: string, value: string): void => {
@@ -307,7 +299,6 @@ const openMenu = (): void => {
 
     const panel = state.panel
     const backdrop = state.backdrop
-    const items = Array.from(state.panel.querySelectorAll<HTMLElement>(".mobile-menu-panel__item"))
 
     state.panelControls = animate(
         panel,
@@ -319,20 +310,6 @@ const openMenu = (): void => {
             if (!state.open) return
             panel.style.opacity = "1"
             panel.style.transform = "none"
-        })
-        .catch(() => undefined)
-    state.itemControls = animate(
-        items,
-        { opacity: [0, 1], transform: ["translateY(12px)", "translateY(0px)"] },
-        { ...SPRING, delay: stagger(0.035) },
-    )
-    state.itemControls.finished
-        .then(() => {
-            if (!state.open) return
-            for (const item of items) {
-                item.style.opacity = ""
-                item.style.transform = ""
-            }
         })
         .catch(() => undefined)
     state.backdropControls = animate(
