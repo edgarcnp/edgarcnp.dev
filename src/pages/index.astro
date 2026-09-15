@@ -2,6 +2,7 @@
 import Layout from "~/layouts/Layout.astro"
 import { getFeaturedProjects } from "~/lib/content"
 import { getCapabilities, getContact, getContributions, getProfile } from "~/lib/data"
+import type { HeatmapLevelStyle } from "~/lib/contributions"
 import CapabilityGrid from "~/components/content/CapabilityGrid.astro"
 import ContributionHeatmap from "~/components/content/ContributionHeatmap.astro"
 import ProjectCard from "~/components/content/ProjectCard.astro"
@@ -14,6 +15,14 @@ const contact = await getContact()
 const capabilities = await getCapabilities()
 const contributions = await getContributions()
 const codeberg = contact.links.find((l) => l.kind === "code")
+
+const contributionLevelStyles: HeatmapLevelStyle[] = [
+    { fillMode: "pattern", pattern: "diagonal" },
+    { fillMode: "solid" },
+    { fillMode: "solid" },
+    { fillMode: "solid" },
+    { fillMode: "solid" },
+]
 ---
 
 <Layout title="edgarcnp.dev" path="/">
@@ -24,7 +33,7 @@ const codeberg = contact.links.find((l) => l.kind === "code")
             <p class="mt-5 max-w-[65ch] text-lg leading-8 text-(--ink-muted)">{profile.summary}</p>
         </div>
         <div class="mt-8">
-            <ContributionHeatmap days={contributions.days} />
+            <ContributionHeatmap days={contributions.days} levelStyles={contributionLevelStyles} />
         </div>
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="/projects" variant="primary" magnetic>View projects</ButtonLink>

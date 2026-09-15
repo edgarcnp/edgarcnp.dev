@@ -207,6 +207,10 @@ const faded = (row: number): "" | undefined => (fadeWeekends && isWeekendRow(wee
     .heatmap__scroll {
         overflow-x: auto;
         overflow-y: hidden;
+        /* Room for the hover ring, which is an outline offset 1px out (2px in
+         * total). Without it the last column and row are cut off at the clip
+         * box; the top and left edges are already inset by the label rows. */
+        padding: 0 2px 2px 0;
     }
 
     /* Labels sit in a column per week, so they share the grid's column sizing
@@ -356,8 +360,10 @@ const faded = (row: number): "" | undefined => (fadeWeekends && isWeekendRow(wee
         background-color: var(--heat-4);
     }
 
+    /* `-45deg` climbs left to right, matching bklit's `diagonal` preset (their
+     * PatternLines path is `M 0,h l w,-h`). `45deg` would mirror it. */
     .heatmap__day[data-pattern="diagonal"] {
-        background-image: repeating-linear-gradient(45deg, var(--heat-pattern) 0 1px, transparent 1px 4px);
+        background-image: repeating-linear-gradient(-45deg, var(--heat-pattern) 0 0.5px, transparent 0.5px 2.12px);
     }
 
     .heatmap__day[data-pattern="horizontal"] {
