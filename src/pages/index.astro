@@ -1,8 +1,9 @@
 ---
 import Layout from "~/layouts/Layout.astro"
 import { getFeaturedProjects } from "~/lib/content"
-import { getCapabilities, getContact, getProfile } from "~/lib/data"
+import { getCapabilities, getContact, getContributions, getProfile } from "~/lib/data"
 import CapabilityGrid from "~/components/content/CapabilityGrid.astro"
+import ContributionHeatmap from "~/components/content/ContributionHeatmap.astro"
 import ProjectCard from "~/components/content/ProjectCard.astro"
 import ButtonLink from "~/components/ui/ButtonLink.astro"
 import SectionHeading from "~/components/ui/SectionHeading.astro"
@@ -11,13 +12,8 @@ const featuredProjects = await getFeaturedProjects()
 const profile = await getProfile()
 const contact = await getContact()
 const capabilities = await getCapabilities()
+const contributions = await getContributions()
 const codeberg = contact.links.find((l) => l.kind === "code")
-
-const stats = [
-    { label: "Runtime", value: "Cloudflare Workers" },
-    { label: "Interface", value: profile.role },
-    { label: "Availability", value: profile.availability },
-]
 ---
 
 <Layout title="edgarcnp.dev" path="/">
@@ -28,14 +24,7 @@ const stats = [
             <p class="mt-5 max-w-[65ch] text-lg leading-8 text-(--ink-muted)">{profile.summary}</p>
         </div>
         <div class="mt-8">
-            <dl class="card grid gap-4 sm:grid-cols-3 sm:gap-0" data-motion="parallax" data-speed="0.08">
-                {stats.map(({ label, value }, index) => (
-                    <div class={index > 0 ? "sm:border-l sm:border-(--border) sm:pl-6" : undefined}>
-                        <dt class="kicker">{label}</dt>
-                        <dd class="mt-1 text-sm text-(--ink)">{value}</dd>
-                    </div>
-                ))}
-            </dl>
+            <ContributionHeatmap days={contributions.days} />
         </div>
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
             <ButtonLink href="/projects" variant="primary" magnetic>View projects</ButtonLink>

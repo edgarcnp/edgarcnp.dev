@@ -14,6 +14,7 @@
     "typecheck": "astro check",
     "lint": "eslint .",
     "test": "bun test",
+    "contributions:sync": "bun run scripts/sync-contributions.ts",
     "astro": "astro"
   },
   "dependencies": {
@@ -32,10 +33,14 @@
     "@stylistic/eslint-plugin": "5.10.0",
     "@tailwindcss/vite": "4.3.3",
     "@types/bun": "1.4.2",
+    "agent-browser": "0.37.1",
     "eslint": "10.10.0",
     "eslint-plugin-astro": "3.1.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.70.0",
     "wrangler": "4.131.2"
-  }
+  },
+  "trustedDependencies": [
+    "agent-browser"
+  ]
 }

@@ -1,0 +1,530 @@
+---
+import { githubUser } from "~/config/site"
+import {
+    buildContributionWeeks,
+    contributionLabel,
+    contributionMonthLabels,
+    contributionSeparatorLabels,
+    contributionTotalLabel,
+    contributionWeekdayLabels,
+    isWeekendRow,
+    normalizeContributionDays,
+    totalContributions,
+    type HeatmapAxisLabelFormat,
+    type HeatmapLevelStyle,
+    type HeatmapPattern,
+    type HeatmapSeparatorConfig,
+    type HeatmapTickFilter,
+    type WeekStartDay,
+} from "~/lib/contributions"
+
+interface TooltipConfig {
+    /** Delay before the first show, in ms. Cell-to-cell moves stay immediate. */
+    showDelay?: number
+    /** Grace period before hiding when the pointer leaves a cell, in ms. */
+    hideDelay?: number
+    /** Skip the tooltip's fade, so it snaps in and out. */
+    instant?: boolean
+}
+
+interface Props {
+    days: { date: string; count: number }[]
+    /** First row of the grid: 0 = Sunday (default) … 6 = Saturday. */
+    weekStartDay?: WeekStartDay
+    /** Fade the Saturday and Sunday rows. Pair with `weekStartDay={1}`. */
+    fadeWeekends?: boolean
+    /** Five entries (level 0 to 4) selecting a solid or patterned fill. */
+    levelStyles?: HeatmapLevelStyle[]
+    /** Discrete swatches (default) or a continuous gradient bar. */
+    legendVariant?: "swatches" | "gradient"
+    lessLabel?: string
+    moreLabel?: string
+    /** Group the columns with vertical separators. */
+    separators?: HeatmapSeparatorConfig | null
+    axisLabelFormat?: HeatmapAxisLabelFormat
+    tickFilter?: HeatmapTickFilter
+    animate?: boolean
+    tooltip?: TooltipConfig | null
+}
+
+const {
+    days,
+    weekStartDay = 0,
+    fadeWeekends = false,
+    levelStyles = [],
+    legendVariant = "swatches",
+    lessLabel = "Less",
+    moreLabel = "More",
+    separators = null,
+    axisLabelFormat = "short",
+    tickFilter = "odd",
+    animate = true,
+    tooltip = null,
+} = Astro.props
+
+const levels = [0, 1, 2, 3, 4]
+
+const normalized = normalizeContributionDays({ days }) ?? []
+const weeks = buildContributionWeeks(normalized, weekStartDay)
+const monthLabels = contributionMonthLabels(weeks, axisLabelFormat)
+const weekdayLabels = contributionWeekdayLabels(weekStartDay, tickFilter, axisLabelFormat)
+const separatorLabels = separators ? contributionSeparatorLabels(weeks, separators) : []
+const showGroupLabels = separators?.showLabels === true && separatorLabels.some((label) => label !== null && label !== "")
+const summary = contributionTotalLabel(totalContributions(normalized))
+
+const patternFor = (level: number): HeatmapPattern | undefined => {
+    const style = levelStyles[level]
+    if (style?.fillMode !== "pattern") return undefined
+    return style.pattern ?? "diagonal"
+}
+const patterns = levels.map(patternFor)
+const faded = (row: number): "" | undefined => (fadeWeekends && isWeekendRow(weekStartDay, row) ? "" : undefined)
+---
+
+<div
+    class="card heatmap"
+    data-animate={animate ? undefined : "false"}
+    data-separator-style={separators?.strokeStyle === "dashed" ? "dashed" : undefined}
+    data-separator-fade={separators?.fade ? "true" : undefined}
+    data-tooltip-show-delay={tooltip?.showDelay}
+    data-tooltip-hide-delay={tooltip?.hideDelay}
+    data-tooltip-instant={tooltip?.instant ? "true" : undefined}
+>
+    <div class="heatmap__head">
+        <p class="kicker">Contributions</p>
+        <p class="heatmap__total">{summary}</p>
+    </div>
+
+    <div class="heatmap__scroll">
+        {showGroupLabels && (
+            <div class="heatmap__groups" aria-hidden="true">
+                {separatorLabels.map((label) => <span class="heatmap__group">{label ?? ""}</span>)}
+            </div>
+        )}
+        <div class="heatmap__months" aria-hidden="true">
+            {monthLabels.map((label) => <span class="heatmap__month">{label}</span>)}
+        </div>
+        <div class="heatmap__body">
+            <div class="heatmap__weekdays" aria-hidden="true">
+                {weekdayLabels.map((label, row) => (
+                    <span class="heatmap__weekday" data-weekend={faded(row)}>{label}</span>
+                ))}
+            </div>
+            <div class="heatmap__grid" role="img" aria-label={`${summary} from GitHub`}>
+                {weeks.map((week, column) => (
+                    <div class="heatmap__week">
+                        {separatorLabels[column] != null && <span class="heatmap__separator" aria-hidden="true" />}
+                        {week.map((day, row) => (
+                            day ? (
+                                <span
+                                    class="heatmap__day"
+                                    data-date={day.date}
+                                    data-count={day.count}
+                                    data-level={day.level}
+                                    data-pattern={patterns[day.level]}
+                                    data-weekend={faded(row)}
+                                    title={contributionLabel(day)}
+                                />
+                            ) : (
+                                <span class="heatmap__day heatmap__day--blank" data-weekend={faded(row)} />
+                            )
+                        ))}
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+
+    <div class="heatmap__tooltip" role="tooltip">
+        <span class="heatmap__tooltip-date"></span>
+        <span class="heatmap__tooltip-count"></span>
+    </div>
+
+    <div class="heatmap__footer">
+        <p class="heatmap__source">
+            <a href={`https://github.com/${githubUser}`} target="_blank" rel="noopener noreferrer">@{githubUser}</a> on GitHub
+        </p>
+        <div class="heatmap__legend" aria-hidden="true">
+            <span>{lessLabel}</span>
+            {legendVariant === "gradient"
+                ? <span class="heatmap__legend-bar" />
+                : levels.map((level) => <span class="heatmap__day" data-level={level} data-pattern={patterns[level]} />)}
+            <span>{moreLabel}</span>
+        </div>
+    </div>
+</div>
+
+<script>import "~/scripts/contribution-heatmap";</script>
+
+<style>
+    /* Tuning knobs — override on an ancestor or a wrapper class. Anything that
+     * changes a continuous measurement lives here rather than in a prop, because
+     * the site's CSP forbids inline `style` attributes.
+     *
+     *   --heatmap-gap                  cell gap                        2px
+     *   --heatmap-radius               cell and swatch corner radius   2px
+     *   --heatmap-cell-min             smallest cell before scrolling  9px
+     *   --heatmap-swatch               legend swatch size              11px
+     *   --heatmap-legend-span          gradient bar length, in swatches 5
+     *   --heatmap-animation            cell entrance duration          400ms
+     *   --heatmap-inactive-opacity     dimmed cell opacity             0.3
+     *   --heatmap-inactive-scale       dimmed cell scale               1
+     *   --heatmap-active-scale         hovered cell scale              1
+     *   --heatmap-weekend-opacity      faded weekend rows              0.35
+     *   --heatmap-separator            separator stroke colour         var(--heat-separator)
+     *   --heatmap-separator-width      separator stroke width          1px
+     *   --heatmap-tooltip-background   tooltip panel                   var(--ink)
+     */
+    .heatmap {
+        --heatmap-cell-min: 9px;
+        --heatmap-swatch: 11px;
+        --heatmap-gap: 2px;
+        --heatmap-weekday: 1.75rem;
+
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .heatmap .kicker {
+        margin-bottom: 0;
+    }
+
+    .heatmap__head {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .heatmap__total {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.4;
+        color: var(--ink);
+    }
+
+    .heatmap__scroll {
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    /* Labels sit in a column per week, so they share the grid's column sizing
+     * and stay aligned without any per-column placement. */
+    .heatmap__groups,
+    .heatmap__months {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(var(--heatmap-cell-min), 1fr);
+        gap: var(--heatmap-gap);
+        margin-left: calc(var(--heatmap-weekday) + 0.375rem);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.04em;
+        color: var(--ink-faint);
+        white-space: nowrap;
+    }
+
+    .heatmap__groups {
+        margin-bottom: 0.1rem;
+    }
+
+    .heatmap__months {
+        margin-bottom: 0.4rem;
+    }
+
+    .heatmap__group {
+        color: var(--ink-muted);
+    }
+
+    .heatmap__body {
+        display: flex;
+        gap: 0.375rem;
+    }
+
+    /* Stretched to the grid's height, so the seven label rows track the cell
+     * size without knowing it. */
+    .heatmap__weekdays {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        display: grid;
+        flex: none;
+        grid-template-rows: repeat(7, 1fr);
+        gap: var(--heatmap-gap);
+        width: var(--heatmap-weekday);
+        background: var(--bg-elevated);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.04em;
+        color: var(--ink-faint);
+    }
+
+    .heatmap__weekday {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .heatmap__grid {
+        display: grid;
+        flex: 1;
+        min-width: 0;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(var(--heatmap-cell-min), 1fr);
+        gap: var(--heatmap-gap);
+    }
+
+    /* Positioned so the separator can be drawn against the column edge. */
+    .heatmap__week {
+        position: relative;
+        display: grid;
+        grid-template-rows: repeat(7, auto);
+        gap: var(--heatmap-gap);
+    }
+
+    .heatmap__separator {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: calc(-1 * var(--heatmap-separator-width, 1px));
+        width: var(--heatmap-separator-width, 1px);
+        background: var(--heatmap-separator, var(--heat-separator));
+        pointer-events: none;
+    }
+
+    .heatmap[data-separator-style="dashed"] .heatmap__separator {
+        background: repeating-linear-gradient(
+            to bottom,
+            var(--heatmap-separator, var(--heat-separator)) 0 3px,
+            transparent 3px 6px
+        );
+    }
+
+    .heatmap[data-separator-fade="true"] .heatmap__separator {
+        background: linear-gradient(
+            to bottom,
+            transparent,
+            var(--heatmap-separator, var(--heat-separator)) 30%,
+            var(--heatmap-separator, var(--heat-separator)) 70%,
+            transparent
+        );
+    }
+
+    .heatmap__day {
+        border-radius: var(--heatmap-radius, 2px);
+        background-color: var(--heat-0);
+        transition: opacity 120ms ease;
+    }
+
+    .heatmap__grid .heatmap__day {
+        width: 100%;
+        aspect-ratio: 1;
+    }
+
+    .heatmap__legend .heatmap__day {
+        width: var(--heatmap-swatch);
+        height: var(--heatmap-swatch);
+    }
+
+    /* Sweep the grid in from the left, one column at a time. The delay comes
+     * from the client script; `backwards` fill keeps the hidden start state
+     * during the delay without pinning the end state over the hover styles. */
+    .heatmap__grid .heatmap__day:not(.heatmap__day--blank) {
+        animation: heatmap-cell-in var(--heatmap-animation, 400ms) cubic-bezier(0.16, 1, 0.3, 1) backwards;
+        animation-delay: var(--heatmap-delay, 0ms);
+    }
+
+    .heatmap[data-animate="false"] .heatmap__grid .heatmap__day {
+        animation: none;
+    }
+
+    /* Level fills stay longhand so a pattern's background-image can sit on top. */
+    .heatmap__day[data-level="1"] {
+        background-color: var(--heat-1);
+    }
+
+    .heatmap__day[data-level="2"] {
+        background-color: var(--heat-2);
+    }
+
+    .heatmap__day[data-level="3"] {
+        background-color: var(--heat-3);
+    }
+
+    .heatmap__day[data-level="4"] {
+        background-color: var(--heat-4);
+    }
+
+    .heatmap__day[data-pattern="diagonal"] {
+        background-image: repeating-linear-gradient(45deg, var(--heat-pattern) 0 1px, transparent 1px 4px);
+    }
+
+    .heatmap__day[data-pattern="horizontal"] {
+        background-image: repeating-linear-gradient(0deg, var(--heat-pattern) 0 1px, transparent 1px 4px);
+    }
+
+    .heatmap__day[data-pattern="vertical"] {
+        background-image: repeating-linear-gradient(90deg, var(--heat-pattern) 0 1px, transparent 1px 4px);
+    }
+
+    .heatmap__day[data-pattern="grid"] {
+        background-image:
+            linear-gradient(var(--heat-pattern) 1px, transparent 1px),
+            linear-gradient(90deg, var(--heat-pattern) 1px, transparent 1px);
+        background-size: 4px 4px;
+    }
+
+    .heatmap__day[data-pattern="dots"] {
+        background-image: radial-gradient(var(--heat-pattern) 0.6px, transparent 0.6px);
+        background-size: 3px 3px;
+    }
+
+    /* Days outside the range hold their slot but paint nothing. */
+    .heatmap__day--blank {
+        background-color: transparent;
+    }
+
+    /* Weekend fade stays at two classes so the hover dim (three) wins over it. */
+    .heatmap__day[data-weekend],
+    .heatmap__weekday[data-weekend] {
+        opacity: var(--heatmap-weekend-opacity, 0.35);
+    }
+
+    .heatmap__tooltip {
+        position: absolute;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        padding: 0.4rem 0.6rem;
+        border-radius: var(--radius-sm);
+        background: var(--heatmap-tooltip-background, var(--ink));
+        box-shadow: var(--shadow);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        line-height: 1.3;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transform: translate(-50%, calc(-100% - 8px));
+        transition: opacity 120ms ease;
+    }
+
+    /* Kept laid out while closed so the script can measure it before showing. */
+    .heatmap__tooltip[data-open] {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .heatmap__tooltip.is-below {
+        transform: translate(-50%, 8px);
+    }
+
+    .heatmap[data-tooltip-instant="true"] .heatmap__tooltip {
+        transition: none;
+    }
+
+    .heatmap__tooltip-date {
+        color: var(--bg);
+        opacity: 0.7;
+    }
+
+    .heatmap__tooltip-count {
+        color: var(--bg);
+    }
+
+    .heatmap__footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    .heatmap__legend {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+    }
+
+    .heatmap__legend-bar {
+        width: calc(var(--heatmap-swatch) * var(--heatmap-legend-span, 5));
+        height: var(--heatmap-swatch);
+        border-radius: var(--heatmap-radius, 2px);
+        background: linear-gradient(
+            to right,
+            var(--heat-0),
+            var(--heat-1),
+            var(--heat-2),
+            var(--heat-3),
+            var(--heat-4)
+        );
+    }
+
+    .heatmap__source {
+        margin: 0;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+    }
+
+    .heatmap__source a:hover {
+        color: var(--accent);
+    }
+
+    @keyframes heatmap-cell-in {
+        from {
+            opacity: 0;
+            transform: scale(0.6);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @media (hover: hover) {
+        .heatmap__grid:hover .heatmap__day {
+            opacity: var(--heatmap-inactive-opacity, 0.3);
+            transform: scale(var(--heatmap-inactive-scale, 1));
+        }
+
+        .heatmap__grid .heatmap__day:hover {
+            opacity: 1;
+            transform: scale(var(--heatmap-active-scale, 1));
+            outline: 1px solid var(--accent);
+            outline-offset: 1px;
+        }
+
+        /* Hovering a swatch highlights that level across the whole grid, which
+         * is what makes the legend interactive rather than a static key. */
+        .heatmap__legend .heatmap__day:hover {
+            outline: 1px solid var(--accent);
+            outline-offset: 1px;
+        }
+
+        .heatmap:has(.heatmap__legend [data-level="0"]:hover) .heatmap__grid .heatmap__day:not([data-level="0"]),
+        .heatmap:has(.heatmap__legend [data-level="1"]:hover) .heatmap__grid .heatmap__day:not([data-level="1"]),
+        .heatmap:has(.heatmap__legend [data-level="2"]:hover) .heatmap__grid .heatmap__day:not([data-level="2"]),
+        .heatmap:has(.heatmap__legend [data-level="3"]:hover) .heatmap__grid .heatmap__day:not([data-level="3"]),
+        .heatmap:has(.heatmap__legend [data-level="4"]:hover) .heatmap__grid .heatmap__day:not([data-level="4"]) {
+            opacity: var(--heatmap-inactive-opacity, 0.3);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .heatmap__grid .heatmap__day:not(.heatmap__day--blank) {
+            animation: none;
+        }
+    }
+</style>

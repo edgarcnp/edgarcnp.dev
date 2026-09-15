@@ -1,0 +1,50 @@
+name: Deploy
+
+on:
+    schedule:
+        # Daily, off the top of the hour to avoid the scheduler rush.
+        - cron: "23 5 * * *"
+    workflow_dispatch:
+
+concurrency:
+    group: deploy
+    cancel-in-progress: false
+
+permissions:
+    contents: read
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+            - name: Install bun
+              uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+              with:
+                  bun-version: latest
+
+            - name: Install dependencies
+              run: bun install --frozen-lockfile
+
+            - name: Type check
+              run: bun run typecheck
+
+            - name: Lint
+              run: bun run lint
+
+            - name: Test
+              run: bun run test
+
+            - name: Sync contributions snapshot
+              run: bun run contributions:sync
+
+            - name: Build
+              run: bun run build
+
+            - name: Deploy
+              run: bunx wrangler deploy
+              env:
+                  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

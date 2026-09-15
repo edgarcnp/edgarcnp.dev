@@ -76,6 +76,17 @@ const capabilitiesSchema = z.object({
     ),
 })
 
+const contributionsSchema = z.object({
+    days: z
+        .array(
+            z.object({
+                date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+                count: z.int().nonnegative(),
+            }),
+        )
+        .min(1),
+})
+
 const projects = defineCollection({
     loader: glob({ base: "./src/content/projects", pattern: "**/*.md" }),
     schema: projectSchema,
@@ -101,4 +112,9 @@ const capabilities = defineCollection({
     schema: capabilitiesSchema,
 })
 
-export const collections = { projects, writing, profile, contact, capabilities }
+const contributions = defineCollection({
+    loader: glob({ base: "./src/data", pattern: "contributions.json" }),
+    schema: contributionsSchema,
+})
+
+export const collections = { projects, writing, profile, contact, capabilities, contributions }
