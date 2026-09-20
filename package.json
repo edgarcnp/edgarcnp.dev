@@ -33,7 +33,7 @@
     "@stylistic/eslint-plugin": "5.10.0",
     "@tailwindcss/vite": "4.3.3",
     "@types/bun": "1.4.2",
-    "agent-browser": "0.37.1",
+    "agent-browser": "0.38.1",
     "eslint": "10.10.0",
     "eslint-plugin-astro": "3.1.0",
     "typescript": "6.0.3",
