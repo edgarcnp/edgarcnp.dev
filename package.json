@@ -24,7 +24,7 @@
     "@lucide/astro": "1.46.0",
     "astro": "7.3.3",
     "lucide": "1.46.0",
-    "motion": "13.3.0",
+    "motion": "13.4.0",
     "tailwindcss": "4.3.3"
   },
   "devDependencies": {
