@@ -20,7 +20,7 @@
         "@stylistic/eslint-plugin": "5.10.0",
         "@tailwindcss/vite": "4.3.3",
         "@types/bun": "1.4.2",
-        "agent-browser": "0.38.1",
+        "agent-browser": "0.38.2",
         "eslint": "10.11.0",
         "eslint-plugin-astro": "3.2.1",
         "typescript": "6.0.3",
@@ -461,7 +461,7 @@
 
     "acorn-jsx": ["acorn-jsx@5.3.2", "", { "peerDependencies": { "acorn": "^6.0.0 || ^7.0.0 || ^8.0.0" } }, "sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ=="],
 
-    "agent-browser": ["agent-browser@0.38.1", "", { "bin": { "agent-browser": "./bin/agent-browser.js" } }, "sha512-k58FCz0yUOCANoNkMiqJe+H2y6r6sUZazqXsWF+MYq1iRC42PjtLcBoag6SSTOD/FRQppvPDvE5HDYEhclvnhw=="],
+    "agent-browser": ["agent-browser@0.38.2", "", { "bin": { "agent-browser": "./bin/agent-browser.js" } }, "sha512-b/7hvo2RrqocvybjB9kwpX12kGkxkFvtdJ4XPDoott5TLK2n3aPX+lYg7ALd+2YvPi2LrTKGzQYu/rxZC2Y7ZA=="],
 
     "ajv": ["ajv@6.15.0", "", { "dependencies": { "fast-deep-equal": "^3.1.1", "fast-json-stable-stringify": "^2.0.0", "json-schema-traverse": "^0.4.1", "uri-js": "^4.2.2" } }, "sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw=="],
 
